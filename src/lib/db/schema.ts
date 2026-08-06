@@ -110,6 +110,21 @@ export const tapEvents = pgTable('tap_events', {
   index('idx_tap_events_device').on(t.profileId, t.deviceType),
 ]);
 
+// ─── Connections ─────────────────────────────────────────────────────────────
+// One-sided: a logged-in user saves another user's profile.
+// Clicking a saved connection routes through /n/[uid] to log a tap event.
+export const connections = pgTable('connections', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  // The user who saved the connection
+  viewerUserId: uuid('viewer_user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  // The profile that was saved
+  profileId: uuid('profile_id').notNull().references(() => profiles.id, { onDelete: 'cascade' }),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+}, (t) => [
+  index('idx_connections_viewer').on(t.viewerUserId),
+  index('idx_connections_profile').on(t.profileId),
+]);
+
 // ─── Type exports ────────────────────────────────────────────────────────────
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
@@ -119,3 +134,5 @@ export type Card = typeof cards.$inferSelect;
 export type NewCard = typeof cards.$inferInsert;
 export type TapEvent = typeof tapEvents.$inferSelect;
 export type NewTapEvent = typeof tapEvents.$inferInsert;
+export type Connection = typeof connections.$inferSelect;
+export type NewConnection = typeof connections.$inferInsert;

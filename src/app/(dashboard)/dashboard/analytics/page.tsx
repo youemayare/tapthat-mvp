@@ -1,12 +1,12 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { db } from '@/lib/db';
-import { tapEvents, profiles } from '@/lib/db/schema';
+import { tapEvents, profiles, connections } from '@/lib/db/schema';
 import { eq, and, gt, sql } from 'drizzle-orm';
 import { createClient } from '@/lib/supabase/server';
 import { AnalyticsCharts } from '@/components/analytics/analytics-charts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Users, MousePointerClick, Activity } from 'lucide-react';
+import { Users, MousePointerClick, Activity, Bookmark, UserCheck } from 'lucide-react';
 
 export const metadata: Metadata = { title: 'Analytics' };
 
@@ -52,6 +52,18 @@ export default async function AnalyticsPage() {
   const uniqueTaps = Number(uniqueTapsResult[0]?.count || 0);
 
   const returningTaps = totalTaps - uniqueTaps;
+
+  // Profile saves (how many people saved this profile as a connection)
+  const savesResult = await db.select({ count: sql<number>`count(*)` })
+    .from(connections)
+    .where(eq(connections.profileId, profile.id));
+  const totalSaves = Number(savesResult[0]?.count || 0);
+
+  // Connections the user has saved themselves
+  const connectionsSavedResult = await db.select({ count: sql<number>`count(*)` })
+    .from(connections)
+    .where(eq(connections.viewerUserId, user.id));
+  const connectionsSaved = Number(connectionsSavedResult[0]?.count || 0);
 
   // 2. Daily Stats for Chart
   const dailyStatsRaw = await db.select({
@@ -135,7 +147,7 @@ export default async function AnalyticsPage() {
         <p className="text-muted-foreground mt-2">Track every tap — see who's visiting your profile, from where, and on what device.</p>
       </div>
 
-      <div className="grid gap-6 grid-cols-1 sm:grid-cols-3">
+      <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-5">
         <Card className="border-border bg-card">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Total Taps</CardTitle>
@@ -163,7 +175,27 @@ export default async function AnalyticsPage() {
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold text-foreground">{returningTaps}</div>
-            <p className="text-xs text-muted-foreground mt-1">Multiple taps from same device</p>
+            <p className="text-xs text-muted-foreground mt-1">Multiple taps, same device</p>
+          </CardContent>
+        </Card>
+        <Card className="border-border bg-card">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Profile Saves</CardTitle>
+            <Bookmark className="h-4 w-4 text-emerald-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-foreground">{totalSaves}</div>
+            <p className="text-xs text-muted-foreground mt-1">Saved to TapThat accounts</p>
+          </CardContent>
+        </Card>
+        <Card className="border-border bg-card">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Connections Saved</CardTitle>
+            <UserCheck className="h-4 w-4 text-amber-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-foreground">{connectionsSaved}</div>
+            <p className="text-xs text-muted-foreground mt-1">Profiles you&apos;ve saved</p>
           </CardContent>
         </Card>
       </div>

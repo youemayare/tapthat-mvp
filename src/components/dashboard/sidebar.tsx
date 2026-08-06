@@ -7,7 +7,7 @@ import {
   User,
   BarChart3,
   CreditCard,
-  ShoppingBag,
+  UserCheck,
   Settings,
   X,
 } from 'lucide-react';
@@ -18,6 +18,7 @@ const navItems = [
   { href: '/dashboard/profile', label: 'My Profile', icon: User },
   { href: '/dashboard/analytics', label: 'Analytics', icon: BarChart3 },
   { href: '/dashboard/cards', label: 'My Cards', icon: CreditCard },
+  { href: '/dashboard/connections', label: 'My Connections', icon: UserCheck },
   { href: '/dashboard/settings', label: 'Settings', icon: Settings },
 ];
 

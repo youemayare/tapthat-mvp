@@ -1,26 +1,16 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { db } from '@/lib/db';
-import { cards, profiles } from '@/lib/db/schema';
-import { eq } from 'drizzle-orm';
+import { cards, profiles, connections } from '@/lib/db/schema';
+import { eq, and } from 'drizzle-orm';
 import { ClaimCard } from './claim-card';
 import { ProfileView } from './profile-view';
+import { createClient } from '@/lib/supabase/server';
 
 interface Props {
   params: Promise<{ uid: string }>;
 }
 
-/**
- * /n/[uid] — The core NFC tap endpoint.
- *
- * Logic:
- *  - Sanitize the UID from the URL
- *  - Look up the card in the database
- *  - If not found or unclaimed → show "Claim your card" page
- *  - If active → show the profile page
- *  - Analytics (tap logging) happens in the API route called client-side
- *    to avoid blocking this server component from rendering
- */
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { uid } = await params;
   const sanitizedUid = uid.toUpperCase();
@@ -69,6 +59,16 @@ export default async function NfcTapPage({ params }: Props) {
   const sanitizedUid = uid.toUpperCase();
   if (!/^[A-Z0-9]{8,64}$/.test(sanitizedUid)) {
     notFound();
+  }
+
+  // Resolve viewer session server-side
+  let viewerUserId: string | null = null;
+  try {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    viewerUserId = user?.id ?? null;
+  } catch {
+    // No session — public visitor
   }
 
   // Look up the card
@@ -121,8 +121,34 @@ export default async function NfcTapPage({ params }: Props) {
     );
   }
 
+  // ── Check if viewer already saved this profile ──
+  const isOwner = viewerUserId === profile.userId;
+  let alreadySaved = false;
+
+  if (viewerUserId && !isOwner) {
+    try {
+      const existing = await db.query.connections.findFirst({
+        where: and(
+          eq(connections.viewerUserId, viewerUserId),
+          eq(connections.profileId, profile.id)
+        ),
+      });
+      alreadySaved = !!existing;
+    } catch {
+      // Non-critical — default to false
+    }
+  }
+
   // ── Active card with published profile → show it ──
-  return <ProfileView profile={profile} cardUid={sanitizedUid} />;
+  return (
+    <ProfileView
+      profile={profile}
+      cardUid={sanitizedUid}
+      viewerUserId={viewerUserId}
+      isOwner={isOwner}
+      alreadySaved={alreadySaved}
+    />
+  );
 }
 
 // Revalidate every 60 seconds (ISR)
