@@ -31,11 +31,19 @@ export async function GET(request: NextRequest) {
 
   if (code) {
     const supabase = await createClient();
-    const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+    
+    let user = null;
+    if (code === 'email-login-save') {
+      // The client already logged in and set the cookie
+      const { data } = await supabase.auth.getUser();
+      user = data.user;
+    } else {
+      // Standard OAuth / Magic Link flow
+      const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+      user = exchangeError ? null : data.user;
+    }
 
-    if (!exchangeError && data.user) {
-      const user = data.user;
-
+    if (user) {
       // Self-healing: ensure user exists in public.users
       try {
         await db.insert(users).values({

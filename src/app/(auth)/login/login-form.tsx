@@ -7,11 +7,11 @@ import { createClient } from '@/lib/supabase/client';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
 
 interface Props {
-  searchParams: Promise<{ redirectTo?: string; message?: string }>;
+  searchParams: Promise<{ redirectTo?: string; message?: string; save?: string }>;
 }
 
 export default function LoginForm({ searchParams }: Props) {
-  const { redirectTo, message } = use(searchParams);
+  const { redirectTo, message, save } = use(searchParams);
   const router = useRouter();
   const supabase = createClient();
 
@@ -20,6 +20,14 @@ export default function LoginForm({ searchParams }: Props) {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Build the callback URL, threading the save param if present
+  function buildCallbackUrl() {
+    const params = new URLSearchParams();
+    params.set('redirectTo', redirectTo ?? '/dashboard');
+    if (save) params.set('save', save);
+    return `${window.location.origin}/auth/callback?${params.toString()}`;
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -34,7 +42,18 @@ export default function LoginForm({ searchParams }: Props) {
       return;
     }
 
-    router.push(redirectTo ?? '/dashboard');
+    // If the user came here to save a profile, call the connections API now
+    if (save) {
+      // Resolve the card UID to a profile ID via the public n/[uid] page data
+      // We redirect to the callback which handles the save server-side
+      window.location.href = buildCallbackUrl() + `&code=email-login-save`;
+      // Simpler: just hit our connections API directly after auth
+      // The profile lookup happens via card UID on the server callback
+      // Redirect to callback so the server can handle the save
+    }
+
+    const destination = save ? `/n/${save}` : (redirectTo ?? '/dashboard');
+    router.push(destination);
     router.refresh();
   }
 
@@ -43,7 +62,7 @@ export default function LoginForm({ searchParams }: Props) {
     await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/auth/callback?redirectTo=${encodeURIComponent(redirectTo ?? '/dashboard')}`,
+        redirectTo: buildCallbackUrl(),
       },
     });
   }
@@ -145,7 +164,10 @@ export default function LoginForm({ searchParams }: Props) {
 
       <p className="text-center text-sm text-muted-foreground mt-6">
         Don&apos;t have an account?{' '}
-        <Link href={`/signup${redirectTo ? `?redirectTo=${encodeURIComponent(redirectTo)}` : ''}`} className="text-indigo-400 hover:text-indigo-300 font-medium transition-colors">
+        <Link
+          href={`/signup?${new URLSearchParams({ ...(redirectTo ? { redirectTo } : {}), ...(save ? { save } : {}) }).toString()}`}
+          className="text-indigo-400 hover:text-indigo-300 font-medium transition-colors"
+        >
           Sign up
         </Link>
       </p>

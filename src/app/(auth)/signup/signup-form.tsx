@@ -6,12 +6,20 @@ import { createClient } from '@/lib/supabase/client';
 import { Eye, EyeOff, Loader2, CheckCircle2 } from 'lucide-react';
 
 interface Props {
-  searchParams: Promise<{ redirectTo?: string; message?: string }>;
+  searchParams: Promise<{ redirectTo?: string; message?: string; save?: string }>;
 }
 
 export default function SignupForm({ searchParams }: Props) {
-  const { redirectTo } = use(searchParams);
+  const { redirectTo, save } = use(searchParams);
   const supabase = createClient();
+
+  // Build the callback URL, threading the save param if present
+  function buildCallbackUrl() {
+    const params = new URLSearchParams();
+    params.set('redirectTo', redirectTo ?? '/dashboard');
+    if (save) params.set('save', save);
+    return `${window.location.origin}/auth/callback?${params.toString()}`;
+  }
 
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
@@ -37,7 +45,7 @@ export default function SignupForm({ searchParams }: Props) {
       password,
       options: {
         data: { full_name: fullName },
-        emailRedirectTo: `${window.location.origin}/auth/callback?redirectTo=${encodeURIComponent(redirectTo ?? '/dashboard')}`,
+        emailRedirectTo: buildCallbackUrl(),
       },
     });
 
@@ -56,7 +64,7 @@ export default function SignupForm({ searchParams }: Props) {
     await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/auth/callback?redirectTo=${encodeURIComponent(redirectTo ?? '/dashboard')}`,
+        redirectTo: buildCallbackUrl(),
       },
     });
   }
@@ -182,7 +190,10 @@ export default function SignupForm({ searchParams }: Props) {
 
       <p className="text-center text-sm text-muted-foreground mt-6">
         Already have an account?{' '}
-        <Link href={`/login${redirectTo ? `?redirectTo=${encodeURIComponent(redirectTo)}` : ''}`} className="text-indigo-400 hover:text-indigo-300 font-medium transition-colors">
+        <Link
+          href={`/login?${new URLSearchParams({ ...(redirectTo ? { redirectTo } : {}), ...(save ? { save } : {}) }).toString()}`}
+          className="text-indigo-400 hover:text-indigo-300 font-medium transition-colors"
+        >
           Sign in
         </Link>
       </p>

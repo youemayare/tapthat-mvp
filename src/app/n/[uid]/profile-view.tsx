@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { FaLinkedin, FaInstagram } from 'react-icons/fa';
 import { ThemeToggle } from '@/components/theme-toggle';
+import { toast } from 'sonner';
 
 interface Props {
   profile: Profile;
@@ -48,9 +49,18 @@ export function ProfileView({ profile, cardUid, viewerUserId, isOwner, alreadySa
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ profileId: profile.id }),
       });
-      if (res.ok) setSaved(!saved);
+      if (res.ok) {
+        setSaved(!saved);
+        toast.success(saved ? 'Removed from your connections' : 'Saved to My TapThat! 🎉', {
+          description: saved
+            ? undefined
+            : `${fullName} is now in your My Connections list.`,
+        });
+      } else {
+        toast.error('Something went wrong. Please try again.');
+      }
     } catch {
-      // Silently fail — non-critical
+      toast.error('Could not save connection. Check your connection and try again.');
     } finally {
       setSaving(false);
     }

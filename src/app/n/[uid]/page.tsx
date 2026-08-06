@@ -151,5 +151,5 @@ export default async function NfcTapPage({ params }: Props) {
   );
 }
 
-// Revalidate every 60 seconds (ISR)
-export const revalidate = 60;
+// Always render fresh so viewer session / isOwner is accurate per request
+export const dynamic = 'force-dynamic';
