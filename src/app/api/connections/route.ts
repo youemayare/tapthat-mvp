@@ -12,6 +12,19 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
+  // Self-healing: ensure user exists in public.users to prevent foreign key constraint failures
+  try {
+    const { users } = await import('@/lib/db/schema');
+    await db.insert(users).values({
+      id: user.id,
+      email: user.email || '',
+      fullName: user.user_metadata?.full_name ?? null,
+      avatarUrl: user.user_metadata?.avatar_url ?? null,
+    }).onConflictDoNothing();
+  } catch {
+    // Non-critical, let the foreign key constraint catch it if it actually fails
+  }
+
   const { profileId } = await req.json();
   if (!profileId || typeof profileId !== 'string') {
     return NextResponse.json({ error: 'profileId is required' }, { status: 400 });
