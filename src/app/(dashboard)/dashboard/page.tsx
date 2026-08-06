@@ -40,11 +40,12 @@ export default async function DashboardPage() {
 
       // Only generate Google Wallet URL if they have a profile and an active card
       if (activeCard) {
+        const fullName = [profile.firstName, profile.lastName].filter(Boolean).join(' ') || 'My Profile';
         googleWalletUrl = getGoogleWalletSaveUrl({
           id: profile.id,
-          name: profile.name,
+          name: fullName,
           jobTitle: profile.jobTitle,
-          company: profile.company,
+          company: profile.companyName,
           cardUid: activeCard.cardUid,
         });
       }
