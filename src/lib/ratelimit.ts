@@ -1,7 +1,10 @@
 import { Ratelimit } from '@upstash/ratelimit';
 import { Redis } from '@upstash/redis';
 
-const hasRedis = !!process.env.UPSTASH_REDIS_REST_URL && !!process.env.UPSTASH_REDIS_REST_TOKEN;
+const hasRedis = 
+  !!process.env.UPSTASH_REDIS_REST_URL && 
+  process.env.UPSTASH_REDIS_REST_URL.startsWith('https://') &&
+  !!process.env.UPSTASH_REDIS_REST_TOKEN;
 
 // Sliding window: 30 requests per 60 seconds per IP
 // Prevents analytics spam / scraping on /n/[uid] routes
