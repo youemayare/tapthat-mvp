@@ -207,7 +207,7 @@ export function SwitchProfileDialog({
             <p className="text-muted-foreground text-sm mb-6">
               <span className="font-medium text-foreground">{cardLabel}</span> now shows the{' '}
               <span className="font-medium text-foreground">{getProfileDisplayName(selectedProfile)}</span> profile.
-              Future taps will see this persona.
+              Future taps will see this profile.
             </p>
             <button
               onClick={onClose}

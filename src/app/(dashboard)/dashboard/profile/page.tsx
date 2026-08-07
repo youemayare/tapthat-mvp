@@ -53,7 +53,7 @@ export default async function ProfilePage({
               {specificProfile.label ?? 'Edit Profile'}
             </h1>
             <p className="text-muted-foreground mt-1">
-              This is what people see when they tap a card assigned to this persona.
+              This is what people see when they tap a card assigned to this profile.
             </p>
           </div>
           <ProfileForm initialData={specificProfile} />
@@ -61,7 +61,7 @@ export default async function ProfilePage({
       );
     }
 
-    // No specific profile → show the profile list (persona overview)
+    // No specific profile → show the profile list (profile overview)
     const allProfiles = await db
       .select({
         id: profiles.id,
@@ -83,7 +83,7 @@ export default async function ProfilePage({
         <div>
           <h1 className="text-2xl font-bold text-foreground">My Profiles</h1>
           <p className="text-muted-foreground mt-1">
-            Each profile is a separate public persona. Assign a profile to a card to control what people see when they tap.
+            Each profile is a separate public persona. Assign a profile to a card to control what people see when you tap your card.
           </p>
         </div>
         <ProfileList profiles={allProfiles} />

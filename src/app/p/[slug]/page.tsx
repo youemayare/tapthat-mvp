@@ -37,7 +37,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 /**
  * GET /p/[slug]
  *
- * Persistent profile URL. Always resolves to the same persona regardless of
+ * Persistent profile URL. Always resolves to the same profile regardless of
  * which profile is currently active on any physical card. This is the URL
  * that gets stored in connections and shared by visitors.
  *

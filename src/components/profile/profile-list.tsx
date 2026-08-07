@@ -65,9 +65,9 @@ export function ProfileList({ profiles: initialProfiles }: Props) {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-semibold text-foreground">Your Personas</h2>
+          <h2 className="text-lg font-semibold text-foreground">Your Profiles</h2>
           <p className="text-sm text-muted-foreground mt-0.5">
-            Each persona has its own public URL and profile content.
+            Each profile has its own public URL and profile content. You can switch active profiles in My Cards.
           </p>
         </div>
         <button
@@ -81,9 +81,9 @@ export function ProfileList({ profiles: initialProfiles }: Props) {
       {/* Create form */}
       {showCreateForm && (
         <div className="bg-card border border-indigo-500/30 rounded-2xl p-5">
-          <h3 className="font-semibold text-foreground mb-3">Create a new persona</h3>
+          <h3 className="font-semibold text-foreground mb-3">Create a new profile</h3>
           <p className="text-sm text-muted-foreground mb-4">
-            Give this persona a label (e.g., "Business", "Student", "Creator").
+            Give this profile a label (e.g., "Business", "Student", "Creator").
             You&apos;ll set the profile content after creating it.
           </p>
           <div className="flex gap-3">
@@ -122,9 +122,8 @@ export function ProfileList({ profiles: initialProfiles }: Props) {
             <Link
               key={p.id}
               href={`/dashboard/profile?id=${p.id}`}
-              className={`group bg-card border rounded-2xl p-5 hover:border-indigo-500/30 transition-all flex flex-col gap-2 ${
-                isArchived ? 'border-border opacity-60' : 'border-border hover:bg-accent/20'
-              }`}
+              className={`group bg-card border rounded-2xl p-5 hover:border-indigo-500/30 transition-all flex flex-col gap-2 ${isArchived ? 'border-border opacity-60' : 'border-border hover:bg-accent/20'
+                }`}
             >
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
@@ -147,13 +146,12 @@ export function ProfileList({ profiles: initialProfiles }: Props) {
               </div>
 
               <div className="flex gap-2 flex-wrap mt-1">
-                <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                  isArchived
-                    ? 'bg-gray-500/10 text-gray-400'
-                    : p.isPublished
-                      ? 'bg-emerald-500/10 text-emerald-400'
-                      : 'bg-yellow-500/10 text-yellow-400'
-                }`}>
+                <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${isArchived
+                  ? 'bg-gray-500/10 text-gray-400'
+                  : p.isPublished
+                    ? 'bg-emerald-500/10 text-emerald-400'
+                    : 'bg-yellow-500/10 text-yellow-400'
+                  }`}>
                   {isArchived ? 'Archived' : p.isPublished ? 'Published' : 'Draft'}
                 </span>
                 {p.slug && (
