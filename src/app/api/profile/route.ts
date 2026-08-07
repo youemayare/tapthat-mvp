@@ -123,3 +123,49 @@ export async function PUT(req: Request) {
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
+
+export async function DELETE(req: Request) {
+  if (!isMultiProfileEnabled()) {
+    return NextResponse.json({ error: 'Deletion is not enabled in single-profile mode' }, { status: 403 });
+  }
+
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  try {
+    const { searchParams } = new URL(req.url);
+    const profileId = searchParams.get('id');
+
+    if (!profileId) {
+      return NextResponse.json({ error: 'Profile ID is required' }, { status: 400 });
+    }
+
+    // Check if the profile belongs to the user and if it's the default profile
+    const existing = await db
+      .select({ id: profiles.id, isDefault: profiles.isDefault })
+      .from(profiles)
+      .where(and(eq(profiles.id, profileId), eq(profiles.userId, user.id)))
+      .limit(1);
+
+    if (existing.length === 0) {
+      return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
+    }
+
+    if (existing[0].isDefault) {
+      return NextResponse.json({ error: 'Cannot delete your default profile. Please set another profile as default first.' }, { status: 400 });
+    }
+
+    // Perform hard delete
+    await db.delete(profiles).where(eq(profiles.id, profileId));
+
+    revalidatePath('/dashboard/profile');
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('Profile deletion error:', error);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  }
+}

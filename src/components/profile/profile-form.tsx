@@ -16,7 +16,17 @@ import { FileUpload } from '@/components/profile/file-upload';
 import { useRouter } from 'next/navigation';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { ProfileView } from '@/app/n/[uid]/profile-view';
-import { Eye } from 'lucide-react';
+import { Eye, Trash2 } from 'lucide-react';
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 const profileSchema = z.object({
   profilePhotoUrl: z.string().optional().nullable().or(z.literal('')),
@@ -49,6 +59,7 @@ interface ProfileFormProps {
 export function ProfileForm({ initialData }: ProfileFormProps) {
   const router = useRouter();
   const [isSaving, setIsSaving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const {
     register,
@@ -118,6 +129,25 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
   const onInvalid = (errors: any) => {
     console.error('Form validation failed:', errors);
     toast.error('Please fix the errors in the form before saving.');
+  };
+
+  const handleDelete = async () => {
+    if (!initialData?.id) return;
+    setIsDeleting(true);
+    try {
+      const res = await fetch(`/api/profile?id=${initialData.id}`, {
+        method: 'DELETE',
+      });
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error || 'Failed to delete profile');
+      toast.success('Profile deleted successfully');
+      router.push('/dashboard/profile');
+      router.refresh();
+    } catch (error: any) {
+      toast.error(error.message);
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   return (
@@ -280,38 +310,68 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
         </div>
       </div>
 
-      <div className="flex flex-col-reverse sm:flex-row justify-end gap-4 pb-12">
-        <Sheet>
-          <SheetTrigger>
-            <div className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-10 px-8 w-full sm:w-auto">
-              <Eye className="w-4 h-4 mr-2" />
-              Preview Profile
-            </div>
-          </SheetTrigger>
-          <SheetContent className="w-full sm:max-w-md p-0 bg-background border-l-white/10 overflow-y-auto overflow-x-hidden">
-            {/* Render the actual public profile view with current form data */}
-            <div className="scale-[0.85] sm:scale-100 origin-top h-full w-full">
-              <ProfileView 
-                profile={{
-                  ...initialData,
-                  ...currentValues,
-                  id: initialData?.id || 'preview',
-                  userId: initialData?.userId || 'preview',
-                  createdAt: initialData?.createdAt || new Date(),
-                  updatedAt: new Date(),
-                } as Profile} 
-                cardUid="PREVIEW-MODE"
-                viewerUserId={initialData?.userId || null}
-                isOwner={true}
-                alreadySaved={false}
-              />
-            </div>
-          </SheetContent>
-        </Sheet>
+      <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pb-12">
+        <div className="w-full sm:w-auto">
+          {initialData?.id && !initialData.isDefault && (
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="ghost" type="button" className="text-red-500 hover:text-red-600 hover:bg-red-50 w-full sm:w-auto">
+                  <Trash2 className="w-4 h-4 mr-2" /> Delete Profile
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Are you absolutely sure?</DialogTitle>
+                  <DialogDescription>
+                    This action cannot be undone. This will permanently delete this profile, including all of its analytics, history, and connections.
+                  </DialogDescription>
+                </DialogHeader>
+                <DialogFooter>
+                  <DialogClose asChild>
+                    <Button variant="outline" disabled={isDeleting}>Cancel</Button>
+                  </DialogClose>
+                  <Button variant="destructive" onClick={handleDelete} disabled={isDeleting}>
+                    {isDeleting ? 'Deleting...' : 'Delete Permanently'}
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          )}
+        </div>
+        
+        <div className="flex flex-col-reverse sm:flex-row gap-4 w-full sm:w-auto">
+          <Sheet>
+            <SheetTrigger>
+              <div className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-10 px-8 w-full sm:w-auto">
+                <Eye className="w-4 h-4 mr-2" />
+                Preview Profile
+              </div>
+            </SheetTrigger>
+            <SheetContent className="w-full sm:max-w-md p-0 bg-background border-l-white/10 overflow-y-auto overflow-x-hidden">
+              {/* Render the actual public profile view with current form data */}
+              <div className="scale-[0.85] sm:scale-100 origin-top h-full w-full">
+                <ProfileView 
+                  profile={{
+                    ...initialData,
+                    ...currentValues,
+                    id: initialData?.id || 'preview',
+                    userId: initialData?.userId || 'preview',
+                    createdAt: initialData?.createdAt || new Date(),
+                    updatedAt: new Date(),
+                  } as Profile} 
+                  cardUid="PREVIEW-MODE"
+                  viewerUserId={initialData?.userId || null}
+                  isOwner={true}
+                  alreadySaved={false}
+                />
+              </div>
+            </SheetContent>
+          </Sheet>
 
-        <Button type="submit" disabled={isSaving} size="lg" className="w-full sm:w-auto">
-          {isSaving ? 'Saving...' : 'Save Profile'}
-        </Button>
+          <Button type="submit" disabled={isSaving} size="lg" className="w-full sm:w-auto">
+            {isSaving ? 'Saving...' : 'Save Profile'}
+          </Button>
+        </div>
       </div>
     </form>
   );
