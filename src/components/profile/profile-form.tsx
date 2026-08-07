@@ -87,10 +87,15 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
   const onSubmit = async (data: ProfileFormValues) => {
     setIsSaving(true);
     try {
+      const payload = {
+        ...data,
+        ...(initialData?.id ? { profileId: initialData.id } : {})
+      };
+
       const res = await fetch('/api/profile', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+        body: JSON.stringify(payload),
       });
 
       const result = await res.json();

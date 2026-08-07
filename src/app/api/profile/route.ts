@@ -83,7 +83,7 @@ export async function PUT(req: Request) {
       return NextResponse.json(updated[0]);
     }
 
-    // ── Single-profile mode (unchanged from production) ───────────────────────
+    // ── Single-profile mode (legacy fallback) ─────────────────────────────────
       if (existing.length > 0) {
       // Update
       const updated = await db.update(profiles)
@@ -91,7 +91,7 @@ export async function PUT(req: Request) {
           ...parsed,
           updatedAt: new Date()
         })
-        .where(eq(profiles.userId, user.id))
+        .where(eq(profiles.id, existing[0].id))
         .returning();
       
       revalidatePath('/dashboard/profile');
