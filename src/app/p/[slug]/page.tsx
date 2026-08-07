@@ -2,9 +2,10 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { db } from '@/lib/db';
 import { profiles } from '@/lib/db/schema';
-import { eq } from 'drizzle-orm';
+import { eq, or } from 'drizzle-orm';
 import { ProfileView } from '@/app/n/[uid]/profile-view';
 import { isMultiProfileEnabled } from '@/lib/feature-flags';
+import { validate as isUuid } from 'uuid';
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -14,8 +15,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!isMultiProfileEnabled()) return { title: 'TapThat' };
 
   const { slug } = await params;
+  const isId = isUuid(slug);
+  
   const profile = await db.query.profiles.findFirst({
-    where: eq(profiles.slug, slug),
+    where: isId ? eq(profiles.id, slug) : eq(profiles.slug, slug),
   });
 
   if (!profile || !profile.isPublished) {
@@ -53,9 +56,10 @@ export default async function PersistentProfilePage({ params }: Props) {
   }
 
   const { slug } = await params;
+  const isId = isUuid(slug);
 
   const profile = await db.query.profiles.findFirst({
-    where: eq(profiles.slug, slug),
+    where: isId ? eq(profiles.id, slug) : eq(profiles.slug, slug),
   });
 
   if (!profile) {

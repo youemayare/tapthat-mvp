@@ -27,21 +27,7 @@ export default async function ConnectionsPage() {
     .where(eq(connections.viewerUserId, user.id))
     .orderBy(connections.createdAt);
 
-  // We also need the card UID so clicking opens /n/[uid] (logs a tap)
-  // Build a profileId → cardUid map
-  const profileIds = rows.map(r => r.profile.id);
-  let cardMap = new Map<string, string>();
-
-  if (profileIds.length > 0) {
-    const cardRows = await db
-      .select({ profileId: cards.profileId, cardUid: cards.cardUid })
-      .from(cards)
-      .where(eq(cards.status, 'active'));
-
-    for (const c of cardRows) {
-      if (c.profileId) cardMap.set(c.profileId, c.cardUid);
-    }
-  }
+  // No longer need cardUid for viewing connections, we use the persistent /p/[slug-or-id] URL
 
   return (
     <div className="space-y-8 pb-10">
@@ -66,8 +52,7 @@ export default async function ConnectionsPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {rows.map(({ connection, profile }) => {
             const fullName = [profile.firstName, profile.lastName].filter(Boolean).join(' ') || 'Unknown';
-            const cardUid = cardMap.get(profile.id);
-            const href = cardUid ? `/n/${cardUid}` : '#';
+            const href = `/p/${profile.slug || profile.id}`;
 
             return (
               <Link
