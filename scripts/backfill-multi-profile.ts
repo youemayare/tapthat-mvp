@@ -17,6 +17,7 @@
  * - Only touches the `profiles.is_default` and `profiles.label` columns,
  *   which are new additive columns. All existing functionality is unaffected
  *   whether or not this script has run, since the feature flag remains false.
+ */
 import { config } from 'dotenv';
 config({ path: '.env.local' });
 
