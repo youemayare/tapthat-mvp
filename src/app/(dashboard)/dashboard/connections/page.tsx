@@ -59,7 +59,7 @@ export default async function ConnectionsPage() {
           </div>
           <h3 className="text-xl font-bold text-foreground mb-2">No connections yet</h3>
           <p className="text-muted-foreground max-w-sm mx-auto">
-            When you tap someone&apos;s TapThat card and hit &quot;Save to My TapThat&quot;, they&apos;ll appear here.
+            When you tap someone&apos;s TapThat card and hit &quot;Save to My Connections&quot;, they&apos;ll appear here.
           </p>
         </div>
       ) : (

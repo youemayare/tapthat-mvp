@@ -138,9 +138,9 @@ export function ProfileView({ profile, cardUid, viewerUserId, isOwner, alreadySa
             }`}
           >
             {saved ? (
-              <><BookmarkCheck className="w-4 h-4" /> Saved to My TapThat</>
+              <><BookmarkCheck className="w-4 h-4" /> Saved to My Connections</>
             ) : (
-              <><BookmarkPlus className="w-4 h-4" /> Save to My TapThat</>
+              <><BookmarkPlus className="w-4 h-4" /> Save to My Connections</>
             )}
           </button>
         )}
