@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -314,10 +314,8 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
         <div className="w-full sm:w-auto">
           {initialData?.id && !initialData.isDefault && (
             <Dialog>
-              <DialogTrigger asChild>
-                <Button variant="ghost" type="button" className="text-red-500 hover:text-red-600 hover:bg-red-50 w-full sm:w-auto">
-                  <Trash2 className="w-4 h-4 mr-2" /> Delete Profile
-                </Button>
+              <DialogTrigger className={buttonVariants({ variant: 'ghost', className: 'text-red-500 hover:text-red-600 hover:bg-red-50 w-full sm:w-auto' })}>
+                <Trash2 className="w-4 h-4 mr-2" /> Delete Profile
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
@@ -327,8 +325,8 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
                   </DialogDescription>
                 </DialogHeader>
                 <DialogFooter>
-                  <DialogClose asChild>
-                    <Button variant="outline" disabled={isDeleting}>Cancel</Button>
+                  <DialogClose className={buttonVariants({ variant: 'outline' })} disabled={isDeleting}>
+                    Cancel
                   </DialogClose>
                   <Button variant="destructive" onClick={handleDelete} disabled={isDeleting}>
                     {isDeleting ? 'Deleting...' : 'Delete Permanently'}
