@@ -50,9 +50,11 @@ export function ProfileList({ profiles: initialProfiles }: Props) {
         return;
       }
 
+      const data = await res.json();
       toast.success(`"${label.trim()}" profile created!`);
       setLabel('');
       setShowCreateForm(false);
+      router.push(`/dashboard/profile?id=${data.profile.id}`);
       router.refresh();
     } catch {
       toast.error('Network error. Please try again.');
