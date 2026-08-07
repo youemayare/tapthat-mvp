@@ -63,13 +63,7 @@ export function ProfileList({ profiles: initialProfiles }: Props) {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-lg font-semibold text-foreground">Your Profiles</h2>
-          <p className="text-sm text-muted-foreground mt-0.5">
-            Each profile has its own public URL and profile content. You can switch active profiles in My Cards.
-          </p>
-        </div>
+      <div className="flex items-center justify-end">
         <button
           onClick={() => setShowCreateForm(true)}
           className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold rounded-xl transition-all"
