@@ -83,7 +83,7 @@ export default async function ProfilePage({
         <div>
           <h1 className="text-2xl font-bold text-foreground">My Profiles</h1>
           <p className="text-muted-foreground mt-1">
-            Each profile is a separate public persona. Assign a profile to a card to control what people see when you tap your card.
+            Each profile is a separate public persona. Assign a profile to a card to control what people see when you tap your card. You can switch your active profile in My Cards.
           </p>
         </div>
         <ProfileList profiles={allProfiles} />
