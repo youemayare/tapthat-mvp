@@ -1,4 +1,5 @@
 import { pgTable, uuid, text, boolean, timestamp, jsonb, integer, index } from 'drizzle-orm/pg-core';
+import { sql } from 'drizzle-orm';
 
 // ─── Users ───────────────────────────────────────────────────────────────────
 // Mirrors Supabase auth.users — populated via webhook trigger on signup
@@ -66,14 +67,30 @@ export const cards = pgTable('cards', {
   // "pvc" | "metal" | "wood"
   cardType: text('card_type').default('pvc'),
 
-  // "unclaimed" | "active" | "deactivated" | "replaced"
+  // "unclaimed" | "active" | "deactivated" | "replaced" | "revoked"
   status: text('status').default('unclaimed').notNull(),
 
   activatedAt: timestamp('activated_at', { withTimezone: true }),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 }, (t) => [
   index('idx_cards_card_uid').on(t.cardUid),
   index('idx_cards_user_id').on(t.userId),
+  // PostgreSQL check constraint to enforce allowed statuses at the DB level
+  sql`CHECK (status IN ('unclaimed', 'active', 'deactivated', 'revoked'))`
+]);
+
+// ─── Card Status Events (Audit Log) ──────────────────────────────────────────
+export const cardStatusEvents = pgTable('card_status_events', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  cardId: uuid('card_id').references(() => cards.id, { onDelete: 'cascade' }).notNull(),
+  userId: uuid('user_id').references(() => users.id, { onDelete: 'set null' }),
+  previousStatus: text('previous_status').notNull(),
+  newStatus: text('new_status').notNull(),
+  reason: text('reason'),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+}, (t) => [
+  index('idx_card_events_card_id').on(t.cardId),
 ]);
 
 // ─── Tap Events ──────────────────────────────────────────────────────────────

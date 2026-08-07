@@ -30,6 +30,23 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       .limit(1);
 
     const row = result[0];
+    
+    // Revoked cards: completely dead, don't show any profile info
+    if (row?.card.status === 'revoked') {
+      return {
+        title: 'TapThat — Card Unavailable',
+        description: 'This card has been permanently revoked and is no longer usable.',
+      };
+    }
+
+    // Deactivated cards: temporarily unavailable
+    if (row?.card.status === 'deactivated') {
+      return {
+        title: 'TapThat — Card Unavailable',
+        description: 'This card is temporarily unavailable.',
+      };
+    }
+
     if (row?.card.status === 'active' && row.profile) {
       const name = [row.profile.firstName, row.profile.lastName].filter(Boolean).join(' ');
       return {
