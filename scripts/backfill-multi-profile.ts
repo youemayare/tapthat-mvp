@@ -17,14 +17,15 @@
  * - Only touches the `profiles.is_default` and `profiles.label` columns,
  *   which are new additive columns. All existing functionality is unaffected
  *   whether or not this script has run, since the feature flag remains false.
- *
- * Run this BEFORE enabling MULTI_PROFILE_ENABLED=true.
- */
-import { db } from '../src/lib/db';
-import { profiles } from '../src/lib/db/schema';
+import { config } from 'dotenv';
+config({ path: '.env.local' });
+
 import { eq, isNull, and } from 'drizzle-orm';
 
 async function main() {
+  const { db } = await import('../src/lib/db');
+  const { profiles } = await import('../src/lib/db/schema');
+  
   console.log('Starting multi-profile backfill...\n');
 
   // 1. Find all users who have profiles with no is_default=true set
@@ -76,3 +77,4 @@ main().catch((err) => {
   console.error('Backfill failed:', err);
   process.exit(1);
 });
+
