@@ -1,8 +1,24 @@
+/**
+ * PATCH /api/cards/[id]
+ *
+ * Handles two distinct operations via the request body:
+ *
+ * 1. Status change: { status: 'active' | 'deactivated' | 'revoked' }
+ *    - Existing behavior, unchanged.
+ *
+ * 2. Profile switch (multi-profile only): { profileId: string }
+ *    - Requires MULTI_PROFILE_ENABLED=true.
+ *    - Validates ownership of both the card and the selected profile.
+ *    - Profile must be published and not archived.
+ *    - Card must not be revoked.
+ *    - Writes an audit event to card_status_events.
+ */
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { cards, cardStatusEvents } from '@/lib/db/schema';
-import { eq, and, inArray } from 'drizzle-orm';
+import { cards, cardStatusEvents, profiles } from '@/lib/db/schema';
+import { eq, and } from 'drizzle-orm';
 import { createClient } from '@/lib/supabase/server';
+import { isMultiProfileEnabled } from '@/lib/feature-flags';
 
 export async function PATCH(
   req: Request,
@@ -18,82 +34,130 @@ export async function PATCH(
     }
 
     const body = await req.json();
-    const requestedStatus = body.status as string;
 
-    if (!['active', 'deactivated', 'revoked'].includes(requestedStatus)) {
-      return NextResponse.json({ error: 'Invalid status requested' }, { status: 400 });
+    // ── Branch: Profile switch ────────────────────────────────────────────────
+    if ('profileId' in body) {
+      if (!isMultiProfileEnabled()) {
+        return NextResponse.json({ error: 'Feature not enabled' }, { status: 403 });
+      }
+      return handleProfileSwitch(cardId, body.profileId, user.id);
     }
 
-    // Perform atomic update: The WHERE clause strictly validates ownership AND state transitions.
-    // Transition Rules:
-    // - active -> deactivated OR revoked
-    // - deactivated -> active OR revoked
-    // - revoked -> NOTHING
-    
-    // We fetch the current state as part of the transaction or returning block, 
-    // but Drizzle/Postgres lets us do this in a single atomic query.
-    
-    // First, fetch the card to get its current status for the audit log (and to check if it exists/is owned)
-    const currentCard = await db.query.cards.findFirst({
-      where: and(
-        eq(cards.id, cardId),
-        eq(cards.userId, user.id)
-      )
-    });
-
-    if (!currentCard) {
-      return NextResponse.json({ error: 'Card not found or unauthorized' }, { status: 404 });
-    }
-
-    if (currentCard.status === 'revoked') {
-      return NextResponse.json({ error: 'Card is permanently revoked and cannot be changed' }, { status: 403 });
-    }
-
-    if (currentCard.status === requestedStatus) {
-      return NextResponse.json({ error: 'Card is already in this state' }, { status: 400 });
-    }
-
-    // Ensure valid transitions
-    if (currentCard.status === 'active' && !['deactivated', 'revoked'].includes(requestedStatus)) {
-      return NextResponse.json({ error: 'Invalid transition from active' }, { status: 400 });
-    }
-    if (currentCard.status === 'deactivated' && !['active', 'revoked'].includes(requestedStatus)) {
-      return NextResponse.json({ error: 'Invalid transition from deactivated' }, { status: 400 });
-    }
-
-    // Atomically update
-    const [updatedCard] = await db
-      .update(cards)
-      .set({ 
-        status: requestedStatus, 
-        updatedAt: new Date() 
-      })
-      .where(
-        and(
-          eq(cards.id, cardId),
-          eq(cards.userId, user.id)
-        )
-      )
-      .returning({
-        id: cards.id,
-        cardType: cards.cardType,
-        cardUid: cards.cardUid,
-        status: cards.status,
-        activatedAt: cards.activatedAt,
-      });
-
-    // Write audit event
-    await db.insert(cardStatusEvents).values({
-      cardId: updatedCard.id,
-      userId: user.id,
-      previousStatus: currentCard.status,
-      newStatus: updatedCard.status,
-      reason: 'User triggered via dashboard',
-    });
-
-    return NextResponse.json({ success: true, card: updatedCard });
+    // ── Branch: Status change (existing behavior, unchanged) ──────────────────
+    return handleStatusChange(cardId, body.status, user.id);
   } catch (error: any) {
-    console.error('Error updating card status:', error);
+    console.error('Error updating card:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
+}
+
+// ─── Status Change (original behavior, fully unchanged) ──────────────────────
+
+async function handleStatusChange(cardId: string, requestedStatus: string, userId: string) {
+  if (!['active', 'deactivated', 'revoked'].includes(requestedStatus)) {
+    return NextResponse.json({ error: 'Invalid status requested' }, { status: 400 });
+  }
+
+  const currentCard = await db.query.cards.findFirst({
+    where: and(eq(cards.id, cardId), eq(cards.userId, userId)),
+  });
+
+  if (!currentCard) {
+    return NextResponse.json({ error: 'Card not found or unauthorized' }, { status: 404 });
+  }
+  if (currentCard.status === 'revoked') {
+    return NextResponse.json({ error: 'Card is permanently revoked and cannot be changed' }, { status: 403 });
+  }
+  if (currentCard.status === requestedStatus) {
+    return NextResponse.json({ error: 'Card is already in this state' }, { status: 400 });
+  }
+  if (currentCard.status === 'active' && !['deactivated', 'revoked'].includes(requestedStatus)) {
+    return NextResponse.json({ error: 'Invalid transition from active' }, { status: 400 });
+  }
+  if (currentCard.status === 'deactivated' && !['active', 'revoked'].includes(requestedStatus)) {
+    return NextResponse.json({ error: 'Invalid transition from deactivated' }, { status: 400 });
+  }
+
+  const [updatedCard] = await db
+    .update(cards)
+    .set({ status: requestedStatus, updatedAt: new Date() })
+    .where(and(eq(cards.id, cardId), eq(cards.userId, userId)))
+    .returning({
+      id: cards.id,
+      cardType: cards.cardType,
+      cardUid: cards.cardUid,
+      status: cards.status,
+      activatedAt: cards.activatedAt,
+    });
+
+  await db.insert(cardStatusEvents).values({
+    cardId: updatedCard.id,
+    userId,
+    previousStatus: currentCard.status,
+    newStatus: updatedCard.status,
+    reason: 'User triggered via dashboard',
+  });
+
+  return NextResponse.json({ success: true, card: updatedCard });
+}
+
+// ─── Profile Switch (multi-profile only) ─────────────────────────────────────
+
+async function handleProfileSwitch(cardId: string, profileId: string, userId: string) {
+  if (!profileId || typeof profileId !== 'string') {
+    return NextResponse.json({ error: 'profileId is required' }, { status: 400 });
+  }
+
+  // Verify card ownership and that it's not revoked
+  const currentCard = await db.query.cards.findFirst({
+    where: and(eq(cards.id, cardId), eq(cards.userId, userId)),
+  });
+
+  if (!currentCard) {
+    return NextResponse.json({ error: 'Card not found or unauthorized' }, { status: 404 });
+  }
+  if (currentCard.status === 'revoked') {
+    return NextResponse.json({ error: 'Cannot switch profile on a permanently revoked card' }, { status: 403 });
+  }
+  if (currentCard.profileId === profileId) {
+    return NextResponse.json({ error: 'This profile is already active on this card' }, { status: 400 });
+  }
+
+  // Verify the selected profile is:
+  // 1. Owned by the same user as the card
+  // 2. Published (not a draft)
+  // 3. Not archived
+  const targetProfile = await db.query.profiles.findFirst({
+    where: and(eq(profiles.id, profileId), eq(profiles.userId, userId)),
+  });
+
+  if (!targetProfile) {
+    return NextResponse.json({ error: 'Profile not found or does not belong to you' }, { status: 404 });
+  }
+  if (!targetProfile.isPublished) {
+    return NextResponse.json({ error: 'Only published profiles can be made active on a card' }, { status: 400 });
+  }
+  if (targetProfile.archivedAt) {
+    return NextResponse.json({ error: 'Archived profiles cannot be made active on a card' }, { status: 400 });
+  }
+
+  // Atomically update cards.profile_id — scoped to authenticated user ownership
+  const [updatedCard] = await db
+    .update(cards)
+    .set({ profileId, updatedAt: new Date() })
+    .where(and(eq(cards.id, cardId), eq(cards.userId, userId)))
+    .returning();
+
+  // Audit event — record the profile switch
+  await db.insert(cardStatusEvents).values({
+    cardId: updatedCard.id,
+    userId,
+    previousStatus: currentCard.status,
+    newStatus: currentCard.status, // Status itself doesn't change
+    reason: 'Profile switched via dashboard',
+    previousProfileId: currentCard.profileId,
+    newProfileId: profileId,
+  });
+
+  return NextResponse.json({ success: true, card: updatedCard });
 }

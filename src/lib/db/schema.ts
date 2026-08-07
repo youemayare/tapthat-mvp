@@ -48,6 +48,18 @@ export const profiles = pgTable('profiles', {
   theme: text('theme').default('default'),
   isPublished: boolean('is_published').default(false).notNull(),
 
+  // ── Multi-Profile (added in feat/multi-profile-personas) ─────────────────
+  // Human-readable label for this persona, e.g. "Business", "Student"
+  // Nullable: existing single-profile users will have null here (treated as default profile)
+  label: text('label'),
+  // Marks which profile is the primary/fallback for this user.
+  // Exactly one profile per user should have is_default=true.
+  // False for all existing rows until the backfill migration runs.
+  isDefault: boolean('is_default').default(false).notNull(),
+  // Optional: if set, the profile is archived (hidden from public) but its URL
+  // still resolves to an archived-profile page rather than 404/redirect.
+  archivedAt: timestamp('archived_at', { withTimezone: true }),
+
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 }, (t) => [
@@ -88,6 +100,9 @@ export const cardStatusEvents = pgTable('card_status_events', {
   previousStatus: text('previous_status').notNull(),
   newStatus: text('new_status').notNull(),
   reason: text('reason'),
+  // ── Multi-Profile audit: track profile switches ───────────────────────────
+  previousProfileId: uuid('previous_profile_id').references(() => profiles.id, { onDelete: 'set null' }),
+  newProfileId: uuid('new_profile_id').references(() => profiles.id, { onDelete: 'set null' }),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
 }, (t) => [
   index('idx_card_events_card_id').on(t.cardId),

@@ -2,9 +2,11 @@ import { NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
 import { db } from '@/lib/db';
 import { profiles } from '@/lib/db/schema';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import { createClient } from '@/lib/supabase/server';
+import { isMultiProfileEnabled } from '@/lib/feature-flags';
 import { z } from 'zod';
+
 
 const profileSchema = z.object({
   profilePhotoUrl: z.string().optional().nullable(),
@@ -59,6 +61,29 @@ export async function PUT(req: Request) {
     // Check if profile exists
     const existing = await db.select({ id: profiles.id }).from(profiles).where(eq(profiles.userId, user.id)).limit(1);
 
+    // ── Multi-profile: edit a specific profile by ID ──────────────────────────
+    // Only triggered when the flag is on AND a profileId is explicitly provided.
+    // Existing single-profile code path (no profileId) is completely unchanged.
+    if (isMultiProfileEnabled() && body.profileId) {
+      const targetProfile = await db.query.profiles.findFirst({
+        where: and(eq(profiles.id, body.profileId), eq(profiles.userId, user.id)),
+      });
+
+      if (!targetProfile) {
+        return NextResponse.json({ error: 'Profile not found or does not belong to you' }, { status: 404 });
+      }
+
+      const updated = await db
+        .update(profiles)
+        .set({ ...parsed, updatedAt: new Date() })
+        .where(and(eq(profiles.id, body.profileId), eq(profiles.userId, user.id)))
+        .returning();
+
+      revalidatePath('/dashboard/profile');
+      return NextResponse.json(updated[0]);
+    }
+
+    // ── Single-profile mode (unchanged from production) ───────────────────────
       if (existing.length > 0) {
       // Update
       const updated = await db.update(profiles)
@@ -83,6 +108,7 @@ export async function PUT(req: Request) {
       revalidatePath('/dashboard/profile');
       return NextResponse.json(inserted[0]);
     }
+
 
   } catch (error) {
     if (error instanceof z.ZodError) {
