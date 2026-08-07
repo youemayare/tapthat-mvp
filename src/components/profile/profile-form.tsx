@@ -36,7 +36,8 @@ const profileSchema = z.object({
   websiteUrl: z.string().url('Invalid URL').optional().nullable().or(z.literal('')),
   linkedinUrl: z.string().url('Invalid URL').optional().nullable().or(z.literal('')),
   instagramUrl: z.string().url('Invalid URL').optional().nullable().or(z.literal('')),
-  isPublished: z.boolean()
+  isPublished: z.boolean(),
+  label: z.string().max(50, 'Max 50 characters').optional().nullable()
 });
 
 type ProfileFormValues = z.infer<typeof profileSchema>;
@@ -74,6 +75,7 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
       linkedinUrl: initialData?.linkedinUrl || '',
       instagramUrl: initialData?.instagramUrl || '',
       isPublished: initialData?.isPublished ?? false,
+      label: initialData?.label || '',
     }
   });
 
@@ -237,6 +239,17 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
       <div className="bg-card text-card-foreground border border-border shadow-sm rounded-2xl p-6 space-y-6">
         <h2 className="text-xl font-semibold text-foreground">Profile Settings</h2>
         
+        <div className="space-y-2">
+          <Label htmlFor="label">Internal Profile Name</Label>
+          <Input 
+            id="label" 
+            {...register('label')} 
+            placeholder="e.g. Business, Student, Creator" 
+          />
+          <p className="text-xs text-muted-foreground">This is just for you to identify this profile in your dashboard.</p>
+          {errors.label && <p className="text-sm text-red-500">{errors.label.message}</p>}
+        </div>
+
         <div className="space-y-2">
           <Label htmlFor="slug">Custom Profile URL (Username)</Label>
           <div className="flex items-center">

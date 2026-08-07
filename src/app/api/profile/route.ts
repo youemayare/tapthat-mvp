@@ -24,7 +24,8 @@ const profileSchema = z.object({
   websiteUrl: z.string().url().optional().nullable().or(z.literal('')),
   linkedinUrl: z.string().url().optional().nullable().or(z.literal('')),
   instagramUrl: z.string().url().optional().nullable().or(z.literal('')),
-  isPublished: z.boolean().default(false)
+  isPublished: z.boolean().default(false),
+  label: z.string().max(50).optional().nullable()
 });
 
 export async function PUT(req: Request) {
