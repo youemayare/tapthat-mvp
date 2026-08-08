@@ -25,6 +25,17 @@ export async function claimCardAction(uid: string): Promise<ClaimResult> {
     return { success: false, message: 'You must be logged in to claim a card.', errorType: 'server_error' };
   }
 
+  // Rate Limiting: Prevent brute-forcing UIDs
+  const { claimRatelimit } = await import('@/lib/ratelimit');
+  const { headers } = await import('next/headers');
+  const ip = (await headers()).get('x-forwarded-for')?.split(',')[0]?.trim() ?? '0.0.0.0';
+  
+  // Rate limit by IP or user ID (using IP here as defense-in-depth against botnets/scripts before auth checks)
+  const { success: allowed } = await claimRatelimit.limit(`claim:${user.id}:${ip}`);
+  if (!allowed) {
+    return { success: false, message: 'Too many attempts. Please try again later.', errorType: 'server_error' };
+  }
+
   try {
     const result = await db.transaction(async (tx) => {
       // 1. Self-healing: ensure user exists in public.users
@@ -83,15 +94,13 @@ export async function claimCardAction(uid: string): Promise<ClaimResult> {
           where: eq(cards.cardUid, sanitizedUid),
         });
 
-        if (!existingCard) {
-          return { success: false, message: 'This card does not exist in our system.', errorType: 'invalid' };
-        }
-
-        if (existingCard.userId === user.id) {
+        // If the user already claimed it themselves, we can safely tell them.
+        if (existingCard?.userId === user.id) {
           return { success: false, message: 'You have already claimed this card.', errorType: 'already_claimed_by_you' };
         }
 
-        return { success: false, message: 'This card has already been claimed by someone else.', errorType: 'already_claimed' };
+        // Generic error to prevent disclosing whether the UID exists or is owned by someone else
+        return { success: false, message: 'This card is invalid or has already been claimed.', errorType: 'invalid' };
       }
 
       return { success: true };

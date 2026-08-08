@@ -112,6 +112,19 @@ export default async function NfcTapPage({ params }: Props) {
     return <ClaimCard uid={sanitizedUid} />;
   }
 
+  // ── Revoked card ──
+  if (card.status === 'revoked') {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-6 text-center">
+        <div>
+          <p className="text-4xl mb-4">🚫</p>
+          <h1 className="text-xl font-bold text-foreground mb-2">Card Unavailable</h1>
+          <p className="text-muted-foreground">This card has been permanently revoked and is no longer usable.</p>
+        </div>
+      </div>
+    );
+  }
+
   // ── Deactivated card ──
   if (card.status === 'deactivated') {
     return (

@@ -1,0 +1,52 @@
+# TapThat Security Remediation & Audit Fixes
+
+## Files Changed
+- package.json & package-lock.json (+ ile-type package)
+- src/app/api/upload/local/route.ts (DELETED)
+- src/app/api/upload/route.ts
+- src/app/api/tap/route.ts
+- src/app/api/profile/route.ts
+- src/app/n/[uid]/page.tsx
+- src/app/(dashboard)/claim/actions.ts
+- src/lib/ratelimit.ts
+
+## Security Issues Fixed
+1. **Unsafe Upload & Path Traversal (Upload Harden)**
+   - Replaced client MIME type checking with robust server-side magic byte validation using ile-type.
+   - Prevented path traversal vulnerabilities in the local fallback by using secure randomly generated file names.
+   - Enforced hard 5MB size limit before reading to buffer.
+   - Deleted obsolete upload/local/route.ts.
+2. **Card Status Leakage**
+   - Hardened 
+/[uid] public NFC tap route to explicitly deny rendering of revoked and deactivated cards, presenting a safe 'Card Unavailable' screen instead.
+3. **Analytics Spam**
+   - pi/tap/route.ts now drops analytics requests for inactive/revoked/deactivated cards.
+4. **Card Claim Guessing (Rate Limiting)**
+   - Hardened card claims with authenticated user + IP rate-limiting (claimRatelimit) to prevent brute forcing of UIDs.
+5. **Profile Deletion TOCTOU**
+   - Reinforced the final DELETE SQL query in pi/profile to strictly require eq(profiles.userId, user.id).
+
+## Tests and Commands Run
+- 
+px tsc --noEmit (Passed - Code 0)
+- 
+pm run build (Compiled Successfully in 6.8s)
+- 
+pm run lint (Completed. Note: Pre-existing technical debt warnings remain, but no new lint issues were introduced by this diff)
+- 
+pm install file-type (Completed securely)
+
+## Preview Test Results
+- Validation performed against missing UIDs, path traversal payloads (../../../), and mocked ile.type payloads. 
+- The server successfully rejects mismatched magic bytes (e.g. spoofed SVG/HTML to image/png).
+- Revoked cards and claims successfully throw 429 Rate Limit and Safe Error pages without disclosing sensitive DB states.
+
+## Remaining Risks
+- The application relies entirely on Application-Level filtering for multi-tenant data isolation. No RLS is currently enforced on the database layer.
+- Some legacy Next.js eact-hooks/incompatible-library compiler warnings remain in profile-form.tsx.
+
+## RLS Confirmation
+- **RLS Migration Intentionally Excluded**: No SQL migrations were generated or applied. The Drizzle ORM continues to function via the postgres pooler role. A separate plan is recommended to apply DB-level RLS strictly as defense-in-depth.
+
+## Rollback Procedure
+- To rollback, simply revert this commit: git revert HEAD and push to main. No database migrations need to be rolled back.

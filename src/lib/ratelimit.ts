@@ -27,3 +27,13 @@ export const uploadRatelimit = hasRedis ? new Ratelimit({
 }) : {
   limit: async () => ({ success: true }),
 };
+
+// Strict limit for claim attempts (5 attempts per 15 minutes)
+export const claimRatelimit = hasRedis ? new Ratelimit({
+  redis: Redis.fromEnv(),
+  limiter: Ratelimit.slidingWindow(5, '15 m'),
+  analytics: false,
+  prefix: 'tapthat:claim',
+}) : {
+  limit: async () => ({ success: true }),
+};

@@ -53,6 +53,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ ok: false, reason: 'card_not_found' }, { status: 404 });
     }
 
+    if (card.status !== 'active') {
+      return NextResponse.json({ ok: false, reason: 'card_inactive' }, { status: 403 });
+    }
+
     // Extract analytics data from the request
     const tapData = extractTapData(request, card.id, card.profileId);
 

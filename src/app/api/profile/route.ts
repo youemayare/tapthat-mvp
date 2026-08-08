@@ -159,8 +159,8 @@ export async function DELETE(req: Request) {
       return NextResponse.json({ error: 'Cannot delete your default profile. Please set another profile as default first.' }, { status: 400 });
     }
 
-    // Perform hard delete
-    await db.delete(profiles).where(eq(profiles.id, profileId));
+    // Perform hard delete, enforcing ownership in the query
+    await db.delete(profiles).where(and(eq(profiles.id, profileId), eq(profiles.userId, user.id)));
 
     revalidatePath('/dashboard/profile');
     return NextResponse.json({ success: true });
