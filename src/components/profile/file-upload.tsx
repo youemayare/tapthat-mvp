@@ -20,40 +20,28 @@ export function FileUpload({ label, type, currentUrl, onUploadSuccess, onRemove 
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 10 * 1024 * 1024) {
-      toast.error('File must be less than 10MB');
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('File must be less than 5MB');
       return;
     }
 
     setIsUploading(true);
     try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('type', type);
+
       const res = await fetch('/api/upload', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          filename: file.name,
-          contentType: file.type,
-          type
-        }),
+        body: formData,
       });
 
       if (!res.ok) {
-        throw new Error('Failed to get upload URL');
+        const errData = await res.json().catch(() => null);
+        throw new Error(errData?.error || 'Failed to upload document');
       }
 
-      const { uploadUrl, publicUrl } = await res.json();
-
-      const uploadRes = await fetch(uploadUrl, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': file.type,
-        },
-        body: file,
-      });
-
-      if (!uploadRes.ok) {
-        throw new Error('Failed to upload to storage');
-      }
+      const { publicUrl } = await res.json();
 
       toast.success(`${label} uploaded successfully!`);
       onUploadSuccess(publicUrl);
@@ -117,7 +105,7 @@ export function FileUpload({ label, type, currentUrl, onUploadSuccess, onRemove 
         accept="application/pdf"
         className="hidden"
       />
-      <p className="text-xs text-muted-foreground">Max 10MB. PDF only.</p>
+      <p className="text-xs text-muted-foreground">Max 5MB. PDF only.</p>
     </div>
   );
 }
