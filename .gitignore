@@ -42,4 +42,5 @@ next-env.d.ts
 
 # local secrets
 supbase_pass.txt
+supabase_staging_pass.txt
 .agent/
