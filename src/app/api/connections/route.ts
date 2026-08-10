@@ -13,19 +13,21 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
+  // Self-healing: ensure user exists in public.users to prevent foreign key constraint failures
+  // This must run outside withRlsUser (as superuser) to avoid transaction abortion from RLS.
+  try {
+    const { users } = await import('@/lib/db/schema');
+    await db.insert(users).values({
+      id: user.id,
+      email: user.email || '',
+      fullName: user.user_metadata?.full_name ?? null,
+      avatarUrl: user.user_metadata?.avatar_url ?? null,
+    }).onConflictDoNothing();
+  } catch {
+    // Non-critical
+  }
+
   return await withRlsUser(user, async (tx) => {
-    // Self-healing: ensure user exists in public.users to prevent foreign key constraint failures
-    try {
-      const { users } = await import('@/lib/db/schema');
-      await tx.insert(users).values({
-        id: user.id,
-        email: user.email || '',
-        fullName: user.user_metadata?.full_name ?? null,
-        avatarUrl: user.user_metadata?.avatar_url ?? null,
-      }).onConflictDoNothing();
-    } catch {
-      // Non-critical, let the foreign key constraint catch it if it actually fails
-    }
 
     const body = await req.json();
     const profileId = body.profileId;
