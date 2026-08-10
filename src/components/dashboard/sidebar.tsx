@@ -39,7 +39,7 @@ export function SidebarContent({ pathname, onItemClick }: { pathname: string, on
   return (
     <>
       {/* Logo */}
-      <div className="flex items-center gap-2 px-6 py-5 border-b border-border">
+      <div className="flex items-center gap-2 px-6 h-[72px] border-b border-border shrink-0">
         <Link href="/" className="text-xl font-bold text-foreground tracking-tight" onClick={onItemClick}>
           Tap<span className="text-indigo-400">That</span>
         </Link>

@@ -47,7 +47,7 @@ export function DashboardHeader({ user }: Props) {
   }
 
   return (
-    <header className="flex items-center justify-between px-6 lg:px-8 py-4 border-b border-border bg-background/80 backdrop-blur-xl sticky top-0 z-30 transition-colors">
+    <header className="flex items-center justify-between px-6 lg:px-8 h-[72px] border-b border-border bg-background/80 backdrop-blur-xl sticky top-0 z-30 transition-colors">
       {/* Mobile Burger Menu & Logo */}
       <div className="flex items-center gap-3 lg:hidden">
         <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
