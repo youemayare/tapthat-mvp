@@ -15,6 +15,7 @@
  */
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
+import { withRlsUser, Transaction } from '@/lib/db/auth-wrapper';
 import { cards, cardStatusEvents, profiles } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
 import { createClient } from '@/lib/supabase/server';
@@ -40,11 +41,11 @@ export async function PATCH(
       if (!isMultiProfileEnabled()) {
         return NextResponse.json({ error: 'Feature not enabled' }, { status: 403 });
       }
-      return handleProfileSwitch(cardId, body.profileId, user.id);
+      return await withRlsUser(user, (tx) => handleProfileSwitch(tx, cardId, body.profileId, user.id));
     }
 
     // ── Branch: Status change (existing behavior, unchanged) ──────────────────
-    return handleStatusChange(cardId, body.status, user.id);
+    return await withRlsUser(user, (tx) => handleStatusChange(tx, cardId, body.status, user.id));
   } catch (error: any) {
     console.error('Error updating card:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
@@ -53,12 +54,12 @@ export async function PATCH(
 
 // ─── Status Change (original behavior, fully unchanged) ──────────────────────
 
-async function handleStatusChange(cardId: string, requestedStatus: string, userId: string) {
+async function handleStatusChange(tx: Transaction, cardId: string, requestedStatus: string, userId: string) {
   if (!['active', 'deactivated', 'revoked'].includes(requestedStatus)) {
     return NextResponse.json({ error: 'Invalid status requested' }, { status: 400 });
   }
 
-  const currentCard = await db.query.cards.findFirst({
+  const currentCard = await tx.query.cards.findFirst({
     where: and(eq(cards.id, cardId), eq(cards.userId, userId)),
   });
 
@@ -78,7 +79,7 @@ async function handleStatusChange(cardId: string, requestedStatus: string, userI
     return NextResponse.json({ error: 'Invalid transition from deactivated' }, { status: 400 });
   }
 
-  const [updatedCard] = await db
+  const [updatedCard] = await tx
     .update(cards)
     .set({ status: requestedStatus, updatedAt: new Date() })
     .where(and(eq(cards.id, cardId), eq(cards.userId, userId)))
@@ -90,7 +91,7 @@ async function handleStatusChange(cardId: string, requestedStatus: string, userI
       activatedAt: cards.activatedAt,
     });
 
-  await db.insert(cardStatusEvents).values({
+  await tx.insert(cardStatusEvents).values({
     cardId: updatedCard.id,
     userId,
     previousStatus: currentCard.status,
@@ -103,13 +104,13 @@ async function handleStatusChange(cardId: string, requestedStatus: string, userI
 
 // ─── Profile Switch (multi-profile only) ─────────────────────────────────────
 
-async function handleProfileSwitch(cardId: string, profileId: string, userId: string) {
+async function handleProfileSwitch(tx: Transaction, cardId: string, profileId: string, userId: string) {
   if (!profileId || typeof profileId !== 'string') {
     return NextResponse.json({ error: 'profileId is required' }, { status: 400 });
   }
 
   // Verify card ownership and that it's not revoked
-  const currentCard = await db.query.cards.findFirst({
+  const currentCard = await tx.query.cards.findFirst({
     where: and(eq(cards.id, cardId), eq(cards.userId, userId)),
   });
 
@@ -127,7 +128,7 @@ async function handleProfileSwitch(cardId: string, profileId: string, userId: st
   // 1. Owned by the same user as the card
   // 2. Published (not a draft)
   // 3. Not archived
-  const targetProfile = await db.query.profiles.findFirst({
+  const targetProfile = await tx.query.profiles.findFirst({
     where: and(eq(profiles.id, profileId), eq(profiles.userId, userId)),
   });
 
@@ -142,14 +143,14 @@ async function handleProfileSwitch(cardId: string, profileId: string, userId: st
   }
 
   // Atomically update cards.profile_id — scoped to authenticated user ownership
-  const [updatedCard] = await db
+  const [updatedCard] = await tx
     .update(cards)
     .set({ profileId, updatedAt: new Date() })
     .where(and(eq(cards.id, cardId), eq(cards.userId, userId)))
     .returning();
 
   // Audit event — record the profile switch
-  await db.insert(cardStatusEvents).values({
+  await tx.insert(cardStatusEvents).values({
     cardId: updatedCard.id,
     userId,
     previousStatus: currentCard.status,

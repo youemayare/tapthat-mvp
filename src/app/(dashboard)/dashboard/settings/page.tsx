@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation';
 import { db } from '@/lib/db';
+import { withRlsUser } from '@/lib/db/auth-wrapper';
 import { users } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { createClient } from '@/lib/supabase/server';
@@ -18,8 +19,10 @@ export default async function SettingsPage() {
   }
 
   // Fetch full name from public schema
-  const dbUser = await db.query.users.findFirst({
-    where: eq(users.id, user.id)
+  const dbUser = await withRlsUser(user, async (tx) => {
+    return await tx.query.users.findFirst({
+      where: eq(users.id, user.id)
+    });
   });
 
   const fullName = dbUser?.fullName || user.user_metadata?.full_name || '';

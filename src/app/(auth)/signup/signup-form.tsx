@@ -40,7 +40,7 @@ export default function SignupForm({ searchParams }: Props) {
       return;
     }
 
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -52,6 +52,15 @@ export default function SignupForm({ searchParams }: Props) {
     if (error) {
       setError(error.message);
       setLoading(false);
+      return;
+    }
+
+    // If email confirmation is disabled, Supabase returns a session immediately
+    if (data?.session) {
+      const url = new URL(window.location.origin);
+      url.pathname = redirectTo ?? '/dashboard';
+      if (save) url.searchParams.set('save', save);
+      window.location.href = url.toString();
       return;
     }
 

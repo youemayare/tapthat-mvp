@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { createClient } from '@/lib/supabase/server';
 import { db } from '@/lib/db';
+import { withRlsUser } from '@/lib/db/auth-wrapper';
 import { cards, tapEvents, profiles } from '@/lib/db/schema';
 import { eq, count } from 'drizzle-orm';
 import { BarChart3, CreditCard, Eye, Users, Wallet } from 'lucide-react';
@@ -22,34 +23,36 @@ export default async function DashboardPage() {
   let activeCardUid: string | null = null;
 
   try {
-    const profileRows = await db.select().from(profiles).where(eq(profiles.userId, user!.id)).limit(1);
-    const profile = profileRows[0];
-    profilePublished = profile?.isPublished ?? false;
+    await withRlsUser(user, async (tx) => {
+      const profileRows = await tx.select().from(profiles).where(eq(profiles.userId, user!.id)).limit(1);
+      const profile = profileRows[0];
+      profilePublished = profile?.isPublished ?? false;
 
-    const cardRows = await db.select().from(cards).where(eq(cards.userId, user!.id));
-    totalCards = cardRows.length;
-    const activeCard = cardRows.find(c => c.status === 'active');
+      const cardRows = await tx.select().from(cards).where(eq(cards.userId, user!.id));
+      totalCards = cardRows.length;
+      const activeCard = cardRows.find(c => c.status === 'active');
 
-    if (activeCard) {
-      activeCardUid = activeCard.cardUid;
-    }
-
-    if (profile) {
-      const tapRows = await db.select({ count: count() }).from(tapEvents).where(eq(tapEvents.profileId, profile.id));
-      totalTaps = tapRows[0]?.count ?? 0;
-
-      // Only generate Google Wallet URL if they have a profile and an active card
       if (activeCard) {
-        const fullName = [profile.firstName, profile.lastName].filter(Boolean).join(' ') || 'My Profile';
-        googleWalletUrl = getGoogleWalletSaveUrl({
-          id: profile.id,
-          name: fullName,
-          jobTitle: profile.jobTitle,
-          company: profile.companyName,
-          cardUid: activeCard.cardUid,
-        });
+        activeCardUid = activeCard.cardUid;
       }
-    }
+
+      if (profile) {
+        const tapRows = await tx.select({ count: count() }).from(tapEvents).where(eq(tapEvents.profileId, profile.id));
+        totalTaps = tapRows[0]?.count ?? 0;
+
+        // Only generate Google Wallet URL if they have a profile and an active card
+        if (activeCard) {
+          const fullName = [profile.firstName, profile.lastName].filter(Boolean).join(' ') || 'My Profile';
+          googleWalletUrl = getGoogleWalletSaveUrl({
+            id: profile.id,
+            name: fullName,
+            jobTitle: profile.jobTitle,
+            company: profile.companyName,
+            cardUid: activeCard.cardUid,
+          });
+        }
+      }
+    });
   } catch {
     // DB not yet connected during initial setup
   }

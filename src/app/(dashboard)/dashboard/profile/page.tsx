@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { db } from '@/lib/db';
+import { withRlsUser } from '@/lib/db/auth-wrapper';
 import { profiles } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { ProfileForm } from '@/components/profile/profile-form';
@@ -25,18 +26,19 @@ export default async function ProfilePage({
   const multiProfileEnabled = isMultiProfileEnabled();
   const { id: profileId } = await searchParams;
 
-  // ── Multi-profile mode ───────────────────────────────────────────────────────
-  if (multiProfileEnabled) {
-    // If a specific profile ID is requested (via ?id=...), show its editor
-    if (profileId) {
-      const specificProfile = await db.query.profiles.findFirst({
-        where: eq(profiles.id, profileId),
-      });
+  return await withRlsUser(user, async (tx) => {
+    // ── Multi-profile mode ───────────────────────────────────────────────────────
+    if (multiProfileEnabled) {
+      // If a specific profile ID is requested (via ?id=...), show its editor
+      if (profileId) {
+        const specificProfile = await tx.query.profiles.findFirst({
+          where: eq(profiles.id, profileId),
+        });
 
-      // Security: ensure this profile belongs to the authenticated user
-      if (!specificProfile || specificProfile.userId !== user.id) {
-        redirect('/dashboard/profile');
-      }
+        // Security: ensure this profile belongs to the authenticated user
+        if (!specificProfile || specificProfile.userId !== user.id) {
+          redirect('/dashboard/profile');
+        }
 
       return (
         <div className="space-y-6">
@@ -61,22 +63,22 @@ export default async function ProfilePage({
       );
     }
 
-    // No specific profile → show the profile list (profile overview)
-    const allProfiles = await db
-      .select({
-        id: profiles.id,
-        label: profiles.label,
-        firstName: profiles.firstName,
-        lastName: profiles.lastName,
-        jobTitle: profiles.jobTitle,
-        slug: profiles.slug,
-        isPublished: profiles.isPublished,
-        isDefault: profiles.isDefault,
-        archivedAt: profiles.archivedAt,
-      })
-      .from(profiles)
-      .where(eq(profiles.userId, user.id))
-      .orderBy(profiles.createdAt);
+      // No specific profile → show the profile list (profile overview)
+      const allProfiles = await tx
+        .select({
+          id: profiles.id,
+          label: profiles.label,
+          firstName: profiles.firstName,
+          lastName: profiles.lastName,
+          jobTitle: profiles.jobTitle,
+          slug: profiles.slug,
+          isPublished: profiles.isPublished,
+          isDefault: profiles.isDefault,
+          archivedAt: profiles.archivedAt,
+        })
+        .from(profiles)
+        .where(eq(profiles.userId, user.id))
+        .orderBy(profiles.createdAt);
 
     return (
       <div className="space-y-8">
@@ -91,17 +93,18 @@ export default async function ProfilePage({
     );
   }
 
-  // ── Single-profile mode (default, production behavior unchanged) ─────────────
-  const userProfileResult = await db.select().from(profiles).where(eq(profiles.userId, user.id)).limit(1);
-  const initialData = userProfileResult.length > 0 ? userProfileResult[0] : null;
+    // ── Single-profile mode (default, production behavior unchanged) ─────────────
+    const userProfileResult = await tx.select().from(profiles).where(eq(profiles.userId, user.id)).limit(1);
+    const initialData = userProfileResult.length > 0 ? userProfileResult[0] : null;
 
-  return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-foreground">My Profile</h1>
-        <p className="text-muted-foreground mt-1">Manage your professional profile — this is what people see when they tap your card.</p>
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">My Profile</h1>
+          <p className="text-muted-foreground mt-1">Manage your professional profile — this is what people see when they tap your card.</p>
+        </div>
+        <ProfileForm initialData={initialData} />
       </div>
-      <ProfileForm initialData={initialData} />
-    </div>
-  );
+    );
+  });
 }

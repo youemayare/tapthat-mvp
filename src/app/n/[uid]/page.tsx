@@ -14,7 +14,7 @@ interface Props {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { uid } = await params;
   const sanitizedUid = uid.toUpperCase();
-  if (!/^[A-Z0-9]{8,64}$/.test(sanitizedUid)) {
+  if (!/^[A-Z0-9-]{8,64}$/.test(sanitizedUid)) {
     return {
       title: 'TapThat — Claim Your Card',
       description: 'Set up your professional profile on TapThat.',
@@ -72,9 +72,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function NfcTapPage({ params }: Props) {
   const { uid } = await params;
 
-  // Sanitize: NFC UIDs are strings, uppercase
+  // Sanitize: NFC UIDs are strings, uppercase, allow hyphens for test cards
   const sanitizedUid = uid.toUpperCase();
-  if (!/^[A-Z0-9]{8,64}$/.test(sanitizedUid)) {
+  if (!/^[A-Z0-9-]{8,64}$/.test(sanitizedUid)) {
     notFound();
   }
 

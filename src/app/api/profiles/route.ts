@@ -9,6 +9,7 @@
 import { NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
 import { db } from '@/lib/db';
+import { withRlsUser } from '@/lib/db/auth-wrapper';
 import { profiles, users } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { createClient } from '@/lib/supabase/server';
@@ -30,24 +31,26 @@ export async function GET() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const userProfiles = await db
-    .select({
-      id: profiles.id,
-      label: profiles.label,
-      slug: profiles.slug,
-      firstName: profiles.firstName,
-      lastName: profiles.lastName,
-      jobTitle: profiles.jobTitle,
-      isPublished: profiles.isPublished,
-      isDefault: profiles.isDefault,
-      archivedAt: profiles.archivedAt,
-      createdAt: profiles.createdAt,
-    })
-    .from(profiles)
-    .where(eq(profiles.userId, user.id))
-    .orderBy(profiles.createdAt);
+  return await withRlsUser(user, async (tx) => {
+    const userProfiles = await tx
+      .select({
+        id: profiles.id,
+        label: profiles.label,
+        slug: profiles.slug,
+        firstName: profiles.firstName,
+        lastName: profiles.lastName,
+        jobTitle: profiles.jobTitle,
+        isPublished: profiles.isPublished,
+        isDefault: profiles.isDefault,
+        archivedAt: profiles.archivedAt,
+        createdAt: profiles.createdAt,
+      })
+      .from(profiles)
+      .where(eq(profiles.userId, user.id))
+      .orderBy(profiles.createdAt);
 
-  return NextResponse.json({ profiles: userProfiles });
+    return NextResponse.json({ profiles: userProfiles });
+  });
 }
 
 export async function POST(req: Request) {
@@ -59,40 +62,42 @@ export async function POST(req: Request) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  try {
-    const body = await req.json();
-    const parsed = createProfileSchema.parse(body);
+  return await withRlsUser(user, async (tx) => {
+    try {
+      const body = await req.json();
+      const parsed = createProfileSchema.parse(body);
 
-    // Self-heal: ensure user exists in public.users
-    await db.insert(users).values({
-      id: user.id,
-      email: user.email || '',
-      fullName: user.user_metadata?.full_name ?? null,
-    }).onConflictDoNothing();
+      // Self-heal: ensure user exists in public.users
+      await tx.insert(users).values({
+        id: user.id,
+        email: user.email || '',
+        fullName: user.user_metadata?.full_name ?? null,
+      }).onConflictDoNothing();
 
-    const [newProfile] = await db
-      .insert(profiles)
-      .values({
-        userId: user.id,
-        label: parsed.label,
-        slug: parsed.slug ?? null,
-        isPublished: false,
-        isDefault: false,
-      })
-      .returning();
+      const [newProfile] = await tx
+        .insert(profiles)
+        .values({
+          userId: user.id,
+          label: parsed.label,
+          slug: parsed.slug ?? null,
+          isPublished: false,
+          isDefault: false,
+        })
+        .returning();
 
-    revalidatePath('/dashboard/profile');
-    return NextResponse.json({ profile: newProfile }, { status: 201 });
-  } catch (err) {
-    if (err instanceof z.ZodError) {
-      return NextResponse.json({ error: 'Validation error', details: err.format() }, { status: 400 });
+      revalidatePath('/dashboard/profile');
+      return NextResponse.json({ profile: newProfile }, { status: 201 });
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        return NextResponse.json({ error: 'Validation error', details: err.format() }, { status: 400 });
+      }
+      // Slug unique constraint
+      const e = err as { code?: string };
+      if (e?.code === '23505') {
+        return NextResponse.json({ error: 'That slug is already taken' }, { status: 409 });
+      }
+      console.error('[POST /api/profiles]', err);
+      return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
-    // Slug unique constraint
-    const e = err as { code?: string };
-    if (e?.code === '23505') {
-      return NextResponse.json({ error: 'That slug is already taken' }, { status: 409 });
-    }
-    console.error('[POST /api/profiles]', err);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
-  }
+  });
 }

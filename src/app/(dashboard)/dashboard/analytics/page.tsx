@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { db } from '@/lib/db';
+import { withRlsUser } from '@/lib/db/auth-wrapper';
 import { tapEvents, profiles, connections } from '@/lib/db/schema';
 import { eq, and, gt, sql } from 'drizzle-orm';
 import { createClient } from '@/lib/supabase/server';
@@ -18,9 +19,125 @@ export default async function AnalyticsPage() {
     redirect('/login');
   }
 
-  // Get user's profile
-  const profileResult = await db.select().from(profiles).where(eq(profiles.userId, user.id)).limit(1);
-  const profile = profileResult[0];
+  // Wrap DB reads in RLS wrapper
+  const { profile, totalTaps, uniqueTaps, returningTaps, totalSaves, connectionsSaved, dailyStats, deviceStats, browserStats, locationStats } = await withRlsUser(user, async (tx) => {
+    // Get user's profile
+    const profileResult = await tx.select().from(profiles).where(eq(profiles.userId, user.id)).limit(1);
+    const profile = profileResult[0];
+
+    if (!profile) {
+      return { profile: null };
+    }
+
+    // 1. Top Level Metrics
+    const totalTapsResult = await tx.select({ count: sql<number>`count(*)` })
+      .from(tapEvents)
+      .where(eq(tapEvents.profileId, profile.id));
+    const totalTaps = Number(totalTapsResult[0]?.count || 0);
+
+    const uniqueTapsResult = await tx.select({ count: sql<number>`count(*)` })
+      .from(tapEvents)
+      .where(and(eq(tapEvents.profileId, profile.id), eq(tapEvents.isUnique, true)));
+    const uniqueTaps = Number(uniqueTapsResult[0]?.count || 0);
+
+    const returningTaps = totalTaps - uniqueTaps;
+
+    // Profile saves (how many people saved this profile as a connection)
+    const savesResult = await tx.select({ count: sql<number>`count(*)` })
+      .from(connections)
+      .where(eq(connections.profileId, profile.id));
+    const totalSaves = Number(savesResult[0]?.count || 0);
+
+    // Connections the user has saved themselves
+    const connectionsSavedResult = await tx.select({ count: sql<number>`count(*)` })
+      .from(connections)
+      .where(eq(connections.viewerUserId, user.id));
+    const connectionsSaved = Number(connectionsSavedResult[0]?.count || 0);
+
+    // Time range: last 30 days
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    thirtyDaysAgo.setHours(0, 0, 0, 0);
+
+    // 2. Daily Stats for Chart
+    const dailyStatsRaw = await tx.select({
+      date: sql<string>`DATE(tapped_at)`,
+      total: sql<number>`count(*)`,
+      unique: sql<number>`count(case when is_unique = true then 1 end)`
+    })
+    .from(tapEvents)
+    .where(and(eq(tapEvents.profileId, profile.id), gt(tapEvents.tappedAt, thirtyDaysAgo)))
+    .groupBy(sql`DATE(tapped_at)`)
+    .orderBy(sql`DATE(tapped_at)`);
+
+    // Fill in missing days
+    const dailyStatsMap = new Map(dailyStatsRaw.map(d => [d.date, d]));
+    const dailyStats = [];
+    for (let i = 29; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const dateStr = d.toISOString().split('T')[0];
+      const stat = dailyStatsMap.get(dateStr);
+      dailyStats.push({
+        date: dateStr,
+        total: stat ? Number(stat.total) : 0,
+        unique: stat ? Number(stat.unique) : 0
+      });
+    }
+
+    // 3. Device Stats
+    const deviceStatsRaw = await tx.select({
+      deviceType: tapEvents.deviceType,
+      count: sql<number>`count(*)`
+    })
+    .from(tapEvents)
+    .where(eq(tapEvents.profileId, profile.id))
+    .groupBy(tapEvents.deviceType);
+
+    const deviceStats = deviceStatsRaw
+      .filter(d => d.deviceType) // filter nulls
+      .map(d => ({
+        name: d.deviceType === 'mobile' ? 'Mobile' : d.deviceType === 'desktop' ? 'Desktop' : 'Tablet',
+        value: Number(d.count)
+      }));
+
+    // 4. Browser Stats
+    const browserStatsRaw = await tx.select({
+      browser: tapEvents.browser,
+      count: sql<number>`count(*)`
+    })
+    .from(tapEvents)
+    .where(eq(tapEvents.profileId, profile.id))
+    .groupBy(tapEvents.browser);
+
+    const browserStats = browserStatsRaw
+      .filter(b => b.browser && b.browser !== 'Unknown') // filter nulls
+      .map(b => ({
+        name: b.browser || 'Unknown',
+        value: Number(b.count)
+      }));
+
+    // 5. Location Stats (Countries)
+    const locationStatsRaw = await tx.select({
+      country: tapEvents.country,
+      count: sql<number>`count(*)`
+    })
+    .from(tapEvents)
+    .where(eq(tapEvents.profileId, profile.id))
+    .groupBy(tapEvents.country)
+    .orderBy(sql`count(*) DESC`)
+    .limit(10); // Top 10 locations
+
+    const locationStats = locationStatsRaw
+      .map(l => ({
+        name: l.country || 'Unknown', // The UI will normalize ISO codes to names
+        value: Number(l.count)
+      }));
+
+    return {
+      profile, totalTaps, uniqueTaps, returningTaps, totalSaves, connectionsSaved, dailyStats, deviceStats, browserStats, locationStats
+    };
+  });
 
   if (!profile) {
     return (
@@ -34,111 +151,6 @@ export default async function AnalyticsPage() {
       </div>
     );
   }
-
-  // Time range: last 30 days
-  const thirtyDaysAgo = new Date();
-  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-  thirtyDaysAgo.setHours(0, 0, 0, 0);
-
-  // 1. Top Level Metrics
-  const totalTapsResult = await db.select({ count: sql<number>`count(*)` })
-    .from(tapEvents)
-    .where(eq(tapEvents.profileId, profile.id));
-  const totalTaps = Number(totalTapsResult[0]?.count || 0);
-
-  const uniqueTapsResult = await db.select({ count: sql<number>`count(*)` })
-    .from(tapEvents)
-    .where(and(eq(tapEvents.profileId, profile.id), eq(tapEvents.isUnique, true)));
-  const uniqueTaps = Number(uniqueTapsResult[0]?.count || 0);
-
-  const returningTaps = totalTaps - uniqueTaps;
-
-  // Profile saves (how many people saved this profile as a connection)
-  const savesResult = await db.select({ count: sql<number>`count(*)` })
-    .from(connections)
-    .where(eq(connections.profileId, profile.id));
-  const totalSaves = Number(savesResult[0]?.count || 0);
-
-  // Connections the user has saved themselves
-  const connectionsSavedResult = await db.select({ count: sql<number>`count(*)` })
-    .from(connections)
-    .where(eq(connections.viewerUserId, user.id));
-  const connectionsSaved = Number(connectionsSavedResult[0]?.count || 0);
-
-  // 2. Daily Stats for Chart
-  const dailyStatsRaw = await db.select({
-    date: sql<string>`DATE(tapped_at)`,
-    total: sql<number>`count(*)`,
-    unique: sql<number>`count(case when is_unique = true then 1 end)`
-  })
-  .from(tapEvents)
-  .where(and(eq(tapEvents.profileId, profile.id), gt(tapEvents.tappedAt, thirtyDaysAgo)))
-  .groupBy(sql`DATE(tapped_at)`)
-  .orderBy(sql`DATE(tapped_at)`);
-
-  // Fill in missing days
-  const dailyStatsMap = new Map(dailyStatsRaw.map(d => [d.date, d]));
-  const dailyStats = [];
-  for (let i = 29; i >= 0; i--) {
-    const d = new Date();
-    d.setDate(d.getDate() - i);
-    const dateStr = d.toISOString().split('T')[0];
-    const stat = dailyStatsMap.get(dateStr);
-    dailyStats.push({
-      date: dateStr,
-      total: stat ? Number(stat.total) : 0,
-      unique: stat ? Number(stat.unique) : 0
-    });
-  }
-
-  // 3. Device Stats
-  const deviceStatsRaw = await db.select({
-    deviceType: tapEvents.deviceType,
-    count: sql<number>`count(*)`
-  })
-  .from(tapEvents)
-  .where(eq(tapEvents.profileId, profile.id))
-  .groupBy(tapEvents.deviceType);
-
-  const deviceStats = deviceStatsRaw
-    .filter(d => d.deviceType) // filter nulls
-    .map(d => ({
-      name: d.deviceType === 'mobile' ? 'Mobile' : d.deviceType === 'desktop' ? 'Desktop' : 'Tablet',
-      value: Number(d.count)
-    }));
-
-  // 4. Browser Stats
-  const browserStatsRaw = await db.select({
-    browser: tapEvents.browser,
-    count: sql<number>`count(*)`
-  })
-  .from(tapEvents)
-  .where(eq(tapEvents.profileId, profile.id))
-  .groupBy(tapEvents.browser);
-
-  const browserStats = browserStatsRaw
-    .filter(b => b.browser && b.browser !== 'Unknown') // filter nulls
-    .map(b => ({
-      name: b.browser || 'Unknown',
-      value: Number(b.count)
-    }));
-
-  // 5. Location Stats (Countries)
-  const locationStatsRaw = await db.select({
-    country: tapEvents.country,
-    count: sql<number>`count(*)`
-  })
-  .from(tapEvents)
-  .where(eq(tapEvents.profileId, profile.id))
-  .groupBy(tapEvents.country)
-  .orderBy(sql`count(*) DESC`)
-  .limit(10); // Top 10 locations
-
-  const locationStats = locationStatsRaw
-    .map(l => ({
-      name: l.country || 'Unknown', // The UI will normalize ISO codes to names
-      value: Number(l.count)
-    }));
 
   return (
     <div className="space-y-8 pb-10">
