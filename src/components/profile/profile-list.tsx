@@ -16,6 +16,7 @@ interface Profile {
   isPublished: boolean;
   isDefault: boolean;
   archivedAt: Date | null;
+  profilePhotoUrl: string | null;
 }
 
 interface Props {
@@ -123,11 +124,18 @@ export function ProfileList({ profiles: initialProfiles }: Props) {
             >
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center flex-shrink-0">
-                    {isArchived
-                      ? <Archive className="w-5 h-5 text-muted-foreground" />
-                      : <User className="w-5 h-5 text-indigo-400" />
-                    }
+                  <div className="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                    {p.profilePhotoUrl ? (
+                      <img 
+                        src={p.profilePhotoUrl} 
+                        alt={getDisplayName(p)} 
+                        className={`w-full h-full object-cover ${isArchived ? 'grayscale opacity-60' : ''}`} 
+                      />
+                    ) : isArchived ? (
+                      <Archive className="w-5 h-5 text-muted-foreground" />
+                    ) : (
+                      <User className="w-5 h-5 text-indigo-400" />
+                    )}
                   </div>
                   <div>
                     <p className="font-semibold text-foreground">{getDisplayName(p)}</p>

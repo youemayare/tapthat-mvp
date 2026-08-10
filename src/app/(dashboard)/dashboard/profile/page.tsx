@@ -75,6 +75,7 @@ export default async function ProfilePage({
           isPublished: profiles.isPublished,
           isDefault: profiles.isDefault,
           archivedAt: profiles.archivedAt,
+          profilePhotoUrl: profiles.profilePhotoUrl,
         })
         .from(profiles)
         .where(eq(profiles.userId, user.id))
