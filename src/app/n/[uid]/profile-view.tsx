@@ -153,7 +153,7 @@ export function ProfileView({ profile, cardUid, viewerUserId, isOwner, alreadySa
             className="w-full flex items-center justify-center gap-3 py-3.5 px-6 bg-card border border-border text-muted-foreground hover:border-indigo-500/40 hover:text-foreground text-sm font-medium rounded-2xl transition-all duration-200"
           >
             <UserPlus className="w-4 h-4" />
-            Save this contact to your TapThat
+            Sign in to TapThat to save as a Connection
           </Link>
         )}
 
