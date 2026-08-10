@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 import { db } from '@/lib/db';
 import { withRlsUser } from '@/lib/db/auth-wrapper';
 import { tapEvents, profiles, connections } from '@/lib/db/schema';
-import { eq, and, gt, sql } from 'drizzle-orm';
+import { eq, and, gt, sql, inArray, or } from 'drizzle-orm';
 import { createClient } from '@/lib/supabase/server';
 import { AnalyticsCharts } from '@/components/analytics/analytics-charts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -29,15 +29,22 @@ export default async function AnalyticsPage() {
       return { profile: null };
     }
 
+    // Get all cards for this profile to include legacy taps that might only have cardId
+    const userCards = await tx.select({ id: cards.id }).from(cards).where(eq(cards.profileId, profile.id));
+    const cardIds = userCards.map(c => c.id);
+    const profileTapsCondition = cardIds.length > 0
+      ? or(eq(tapEvents.profileId, profile.id), inArray(tapEvents.cardId, cardIds))
+      : eq(tapEvents.profileId, profile.id);
+
     // 1. Top Level Metrics
     const totalTapsResult = await tx.select({ count: sql<number>`count(*)` })
       .from(tapEvents)
-      .where(eq(tapEvents.profileId, profile.id));
+      .where(profileTapsCondition);
     const totalTaps = Number(totalTapsResult[0]?.count || 0);
 
     const uniqueTapsResult = await tx.select({ count: sql<number>`count(*)` })
       .from(tapEvents)
-      .where(and(eq(tapEvents.profileId, profile.id), eq(tapEvents.isUnique, true)));
+      .where(and(profileTapsCondition, eq(tapEvents.isUnique, true)));
     const uniqueTaps = Number(uniqueTapsResult[0]?.count || 0);
 
     const returningTaps = totalTaps - uniqueTaps;
@@ -66,7 +73,7 @@ export default async function AnalyticsPage() {
       unique: sql<number>`count(case when is_unique = true then 1 end)`
     })
     .from(tapEvents)
-    .where(and(eq(tapEvents.profileId, profile.id), gt(tapEvents.tappedAt, thirtyDaysAgo)))
+    .where(and(profileTapsCondition, gt(tapEvents.tappedAt, thirtyDaysAgo)))
     .groupBy(sql`DATE(tapped_at)`)
     .orderBy(sql`DATE(tapped_at)`);
 
@@ -91,7 +98,7 @@ export default async function AnalyticsPage() {
       count: sql<number>`count(*)`
     })
     .from(tapEvents)
-    .where(eq(tapEvents.profileId, profile.id))
+    .where(profileTapsCondition)
     .groupBy(tapEvents.deviceType);
 
     const deviceStats = deviceStatsRaw
@@ -107,7 +114,7 @@ export default async function AnalyticsPage() {
       count: sql<number>`count(*)`
     })
     .from(tapEvents)
-    .where(eq(tapEvents.profileId, profile.id))
+    .where(profileTapsCondition)
     .groupBy(tapEvents.browser);
 
     const browserStats = browserStatsRaw
@@ -123,7 +130,7 @@ export default async function AnalyticsPage() {
       count: sql<number>`count(*)`
     })
     .from(tapEvents)
-    .where(eq(tapEvents.profileId, profile.id))
+    .where(profileTapsCondition)
     .groupBy(tapEvents.country)
     .orderBy(sql`count(*) DESC`)
     .limit(10); // Top 10 locations

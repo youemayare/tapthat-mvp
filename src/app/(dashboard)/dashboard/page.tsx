@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import { db } from '@/lib/db';
 import { withRlsUser } from '@/lib/db/auth-wrapper';
 import { cards, tapEvents, profiles } from '@/lib/db/schema';
-import { eq, count } from 'drizzle-orm';
+import { eq, count, or, inArray } from 'drizzle-orm';
 import { BarChart3, CreditCard, Eye, Users, Wallet } from 'lucide-react';
 import { getGoogleWalletSaveUrl } from '@/lib/wallet/google';
 import { QrShareCard } from '@/components/dashboard/qr-share-card';
@@ -37,7 +37,13 @@ export default async function DashboardPage() {
       }
 
       if (profile) {
-        const tapRows = await tx.select({ count: count() }).from(tapEvents).where(eq(tapEvents.profileId, profile.id));
+        const userCards = await tx.select({ id: cards.id }).from(cards).where(eq(cards.profileId, profile.id));
+        const cardIds = userCards.map(c => c.id);
+        const profileTapsCondition = cardIds.length > 0
+          ? or(eq(tapEvents.profileId, profile.id), inArray(tapEvents.cardId, cardIds))
+          : eq(tapEvents.profileId, profile.id);
+
+        const tapRows = await tx.select({ count: count() }).from(tapEvents).where(profileTapsCondition);
         totalTaps = tapRows[0]?.count ?? 0;
 
         // Only generate Google Wallet URL if they have a profile and an active card
