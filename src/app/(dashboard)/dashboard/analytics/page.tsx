@@ -47,8 +47,13 @@ export default async function AnalyticsPage(
     const validProfiles = selectedProfiles.length > 0 ? selectedProfiles : userProfiles;
     const profileIds = validProfiles.map(p => p.id);
 
-    // Get ALL cards for this user to include legacy taps that might only have cardId
-    const userCards = await tx.select({ id: cards.id }).from(cards).where(eq(cards.userId, user.id));
+    // Get cards. If a specific profile is selected, only get cards for that profile.
+    // If "All" is selected, get all cards for the user (including those with no profileId yet) to recover legacy taps.
+    const cardsCondition = selectedProfileId
+      ? inArray(cards.profileId, profileIds)
+      : eq(cards.userId, user.id);
+      
+    const userCards = await tx.select({ id: cards.id }).from(cards).where(cardsCondition);
     const cardIds = userCards.map(c => c.id);
     const profileTapsCondition = cardIds.length > 0
       ? or(inArray(tapEvents.profileId, profileIds), inArray(tapEvents.cardId, cardIds))
