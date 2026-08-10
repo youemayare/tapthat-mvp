@@ -6,10 +6,10 @@ import { extractTapData } from '@/lib/analytics';
 import { tapRatelimit } from '@/lib/ratelimit';
 import { z } from 'zod';
 
-const UID_PATTERN = /^[A-Z0-9]{8,64}$/;
+const UID_PATTERN = /^[A-Z0-9-]{8,64}$/;
 
 const schema = z.object({
-  uid: z.string().min(8).max(64),
+  uid: z.string().min(8).max(64).regex(/^[a-zA-Z0-9-]+$/),
   type: z.enum(['tap', 'unclaimed']),
 });
 
