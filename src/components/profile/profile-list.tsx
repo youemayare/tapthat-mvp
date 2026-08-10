@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Plus, User, CheckCircle2, Archive, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import Link from 'next/link';
+import { motion } from 'framer-motion';
 
 interface Profile {
   id: string;
@@ -119,9 +120,13 @@ export function ProfileList({ profiles: initialProfiles }: Props) {
             <Link
               key={p.id}
               href={`/dashboard/profile?id=${p.id}`}
-              className={`group bg-card border rounded-2xl p-5 hover:border-indigo-500/30 transition-all flex flex-col gap-2 ${isArchived ? 'border-border opacity-60' : 'border-border hover:bg-accent/20'
-                }`}
+              className="block outline-none"
             >
+              <motion.div
+                whileTap={{ scale: 0.97 }}
+                transition={{ type: "spring", bounce: 0, duration: 0.4 }}
+                className={`group bg-card border rounded-2xl p-5 hover:border-indigo-500/30 transition-colors flex flex-col gap-2 h-full ${isArchived ? 'border-border opacity-60' : 'border-border hover:bg-accent/20'}`}
+              >
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center flex-shrink-0 overflow-hidden">
@@ -164,6 +169,7 @@ export function ProfileList({ profiles: initialProfiles }: Props) {
                   </span>
                 )}
               </div>
+              </motion.div>
             </Link>
           );
         })}

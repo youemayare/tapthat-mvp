@@ -42,6 +42,7 @@ export const metadata: Metadata = {
 };
 
 import { ThemeProvider } from '@/components/theme-provider';
+import { MotionConfig } from 'framer-motion';
 
 import { Toaster } from '@/components/ui/sonner';
 
@@ -59,8 +60,10 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
-          <Toaster />
+          <MotionConfig reducedMotion="user">
+            {children}
+            <Toaster />
+          </MotionConfig>
         </ThemeProvider>
       </body>
     </html>

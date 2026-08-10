@@ -127,4 +127,16 @@
   html {
     @apply font-sans;
   }
+
+@media (prefers-reduced-transparency: reduce) {
+  .backdrop-blur-sm,
+  .backdrop-blur-md,
+  .backdrop-blur-lg,
+  .backdrop-blur-xl,
+  .backdrop-blur-2xl,
+  .backdrop-blur-3xl {
+    backdrop-filter: none !important;
+    background-color: var(--color-background) !important;
+  }
+}
 }
