@@ -29,8 +29,8 @@ async function runTests() {
   try {
     // Insert into public.users (Simulating auth.users trigger)
     await db.insert(dbUsers).values([
-      { id: userA_id, email: 'test-a@tapthat.local', role: 'authenticated' },
-      { id: userB_id, email: 'test-b@tapthat.local', role: 'authenticated' }
+      { id: userA_id, email: 'test-a@tapthat.local' },
+      { id: userB_id, email: 'test-b@tapthat.local' }
     ]);
     console.log('✅ Created test users A and B.');
 
@@ -40,7 +40,6 @@ async function runTests() {
         id: uuidv4(),
         userId: userA_id,
         firstName: 'UserA',
-        persona: 'business',
         isPublished: false
       }).returning();
     });
@@ -51,7 +50,6 @@ async function runTests() {
         id: uuidv4(),
         userId: userB_id,
         firstName: 'UserB',
-        persona: 'business',
         isPublished: false
       }).returning();
     });
@@ -121,7 +119,6 @@ async function runTests() {
         id: pubId,
         userId: userA_id,
         firstName: 'PublicA',
-        persona: 'creator',
         isPublished: true
       });
     });
