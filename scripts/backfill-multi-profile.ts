@@ -21,7 +21,7 @@
 import { config } from 'dotenv';
 config({ path: '.env.local' });
 
-import { eq, isNull, and } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 
 async function main() {
   const { db } = await import('../src/lib/db');

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import Image from 'next/image';
+
 import { Camera, Loader2, UploadCloud } from 'lucide-react';
 import { toast } from 'sonner';
 import { CropperModal } from './cropper-modal';
@@ -71,8 +71,9 @@ export function ImageUpload({ label, type, currentUrl, onUploadSuccess }: ImageU
       
       onUploadSuccess(publicUrl);
       toast.success(`${label} uploaded successfully!`);
-    } catch (error: any) {
-      toast.error(error.message || 'Something went wrong during upload');
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      toast.error(errorMessage || 'Something went wrong during upload');
     } finally {
       setIsUploading(false);
     }
@@ -94,7 +95,7 @@ export function ImageUpload({ label, type, currentUrl, onUploadSuccess }: ImageU
               src={currentUrl} 
               alt={label} 
               className="w-full h-full object-cover" 
-              onError={(e) => {
+              onError={() => {
                 console.error('Image failed to load:', currentUrl);
                 setImageFailed(true);
               }}

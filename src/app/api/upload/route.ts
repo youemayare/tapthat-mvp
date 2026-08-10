@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { buildStorageKey, getPublicUrl } from '@/lib/r2';
 import { writeFileSync, mkdirSync } from 'fs';
-import { join, dirname, resolve } from 'path';
+import { dirname, resolve } from 'path';
 import { fileTypeFromBuffer } from 'file-type';
 import crypto from 'crypto';
 
@@ -104,8 +104,8 @@ export async function POST(req: Request) {
     const publicUrl = getPublicUrl(key);
 
     return NextResponse.json({ publicUrl, key });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Direct upload error:', error);
-    return NextResponse.json({ error: error.message || 'Failed to upload' }, { status: 500 });
+    return NextResponse.json({ error: error instanceof Error ? error.message : 'Failed to upload' }, { status: 500 });
   }
 }

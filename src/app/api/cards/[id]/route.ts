@@ -46,7 +46,7 @@ export async function PATCH(
 
     // ── Branch: Status change (existing behavior, unchanged) ──────────────────
     return await withRlsUser(user, (tx) => handleStatusChange(tx, cardId, body.status, user.id));
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error updating card:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { toast } from 'sonner';
-import { Loader2, ZapOff, Play, ShieldAlert, CreditCard, RefreshCw, User } from 'lucide-react';
+import { ZapOff, Play, ShieldAlert, CreditCard, RefreshCw, User } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { SwitchProfileDialog } from './switch-profile-dialog';
 
@@ -76,8 +76,8 @@ export function CardList({ initialCards, profiles = [], multiProfileEnabled = fa
 
       toast.success(`Card status updated to ${newStatus}`);
       router.refresh();
-    } catch (err: any) {
-      toast.error(err.message);
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : String(err));
       setCards(previousCards);
     } finally {
       setIsUpdatingId(null);

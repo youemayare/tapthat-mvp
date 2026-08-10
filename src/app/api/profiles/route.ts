@@ -8,7 +8,7 @@
  */
 import { NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
-import { db } from '@/lib/db';
+
 import { withRlsUser } from '@/lib/db/auth-wrapper';
 import { profiles, users } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';

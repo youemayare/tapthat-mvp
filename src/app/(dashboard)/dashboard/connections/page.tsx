@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { db } from '@/lib/db';
-import { connections, profiles, cards } from '@/lib/db/schema';
+import { connections, profiles } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { createClient } from '@/lib/supabase/server';
 import { UserCheck, ExternalLink } from 'lucide-react';

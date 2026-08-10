@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { createClient } from '@/lib/supabase/server';
-import { db } from '@/lib/db';
+
 import { withRlsUser } from '@/lib/db/auth-wrapper';
 import { cards, tapEvents, profiles } from '@/lib/db/schema';
 import { eq, count, or, inArray } from 'drizzle-orm';
@@ -24,12 +24,12 @@ export default async function DashboardPage() {
 
   try {
     await withRlsUser(user, async (tx) => {
-      // Get ALL user's profiles
       const userProfiles = await tx.select().from(profiles).where(eq(profiles.userId, user!.id));
+      const cardRows = await tx.select().from(cards).where(eq(cards.userId, user!.id));
       const profile = userProfiles[0] || null;
+      // eslint-disable-next-line react-hooks/immutability
       profilePublished = profile?.isPublished ?? false;
 
-      const cardRows = await tx.select().from(cards).where(eq(cards.userId, user!.id));
       totalCards = cardRows.length;
       const activeCard = cardRows.find(c => c.status === 'active');
 
@@ -39,8 +39,7 @@ export default async function DashboardPage() {
 
       if (profile) {
         const profileIds = userProfiles.map(p => p.id);
-        const userCards = await tx.select({ id: cards.id }).from(cards).where(eq(cards.userId, user!.id));
-        const cardIds = userCards.map(c => c.id);
+        const cardIds = cardRows.map(c => c.id);
         
         const profileTapsCondition = cardIds.length > 0
           ? or(inArray(tapEvents.profileId, profileIds), inArray(tapEvents.cardId, cardIds))

@@ -2,7 +2,7 @@ import { type NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { db } from '@/lib/db';
 import { connections, cards, profiles, users } from '@/lib/db/schema';
-import { eq, and, isNull } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 
 /**
  * Supabase Auth callback handler.

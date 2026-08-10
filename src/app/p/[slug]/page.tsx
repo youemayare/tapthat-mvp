@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { db } from '@/lib/db';
 import { profiles, connections } from '@/lib/db/schema';
-import { eq, or, and } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 import { ProfileView } from '@/app/n/[uid]/profile-view';
 import { isMultiProfileEnabled } from '@/lib/feature-flags';
 import { validate as isUuid } from 'uuid';

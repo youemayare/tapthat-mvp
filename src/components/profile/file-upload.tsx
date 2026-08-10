@@ -45,8 +45,9 @@ export function FileUpload({ label, type, currentUrl, onUploadSuccess, onRemove 
 
       toast.success(`${label} uploaded successfully!`);
       onUploadSuccess(publicUrl);
-    } catch (error: any) {
-      toast.error(error.message || 'Something went wrong during upload');
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      toast.error(errorMessage || 'Something went wrong during upload');
     } finally {
       setIsUploading(false);
       if (fileInputRef.current) {

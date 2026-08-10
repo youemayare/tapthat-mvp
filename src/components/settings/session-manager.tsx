@@ -26,8 +26,9 @@ export function SessionManager() {
       
       router.push('/login');
       router.refresh(); // clear cached pages
-    } catch (err: any) {
-      toast.error(err.message || 'Error signing out');
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      toast.error(errorMessage || 'Error signing out');
       setIsSigningOutLocal(false);
       setIsSigningOutGlobal(false);
     }

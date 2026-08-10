@@ -33,7 +33,7 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json({ success: true, fullName: trimmedName });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error updating profile:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

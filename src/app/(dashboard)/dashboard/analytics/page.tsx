@@ -27,12 +27,12 @@ export default async function AnalyticsPage(
   }
 
   // Wrap DB reads in RLS wrapper
-  const { userProfiles, validProfiles, totalTaps, uniqueTaps, returningTaps, totalSaves, connectionsSaved, dailyStats, deviceStats, browserStats, locationStats } = await withRlsUser(user, async (tx) => {
+  const { userProfiles, totalTaps, uniqueTaps, returningTaps, totalSaves, connectionsSaved, dailyStats, deviceStats, browserStats, locationStats } = await withRlsUser(user, async (tx) => {
     // Get ALL user's profiles
     const userProfiles = await tx.select().from(profiles).where(eq(profiles.userId, user.id));
     if (userProfiles.length === 0) {
       return { 
-        userProfiles: [], validProfiles: [], totalTaps: 0, uniqueTaps: 0, returningTaps: 0, 
+        userProfiles: [], totalTaps: 0, uniqueTaps: 0, returningTaps: 0, 
         totalSaves: 0, connectionsSaved: 0, dailyStats: [], deviceStats: [], 
         browserStats: [], locationStats: []
       };
@@ -54,55 +54,41 @@ export default async function AnalyticsPage(
       : eq(cards.userId, user.id);
       
     const userCards = await tx.select({ id: cards.id }).from(cards).where(cardsCondition);
+    
     const cardIds = userCards.map(c => c.id);
     const profileTapsCondition = cardIds.length > 0
       ? or(
           inArray(tapEvents.profileId, profileIds),
-          and(isNull(tapEvents.profileId), inArray(tapEvents.cardId, cardIds))
+          inArray(tapEvents.cardId, cardIds)
         )
       : inArray(tapEvents.profileId, profileIds);
-
-    // 1. Top Level Metrics
-    const totalTapsResult = await tx.select({ count: sql<number>`count(*)` })
-      .from(tapEvents)
-      .where(profileTapsCondition);
-    const totalTaps = Number(totalTapsResult[0]?.count || 0);
-
-    const uniqueTapsResult = await tx.select({ count: sql<number>`count(*)` })
-      .from(tapEvents)
-      .where(and(profileTapsCondition, eq(tapEvents.isUnique, true)));
-    const uniqueTaps = Number(uniqueTapsResult[0]?.count || 0);
-
-    const returningTaps = totalTaps - uniqueTaps;
-
-    // Profile saves (how many people saved any of this user's profiles as a connection)
-    // Using db.select() instead of tx to bypass RLS which hides saves where viewer_user_id != user.id
-    const savesResult = await db.select({ count: sql<number>`count(*)` })
-      .from(connections)
-      .where(inArray(connections.profileId, profileIds));
-    const totalSaves = Number(savesResult[0]?.count || 0);
-
-    // Connections the user has saved themselves
-    const connectionsSavedResult = await db.select({ count: sql<number>`count(*)` })
-      .from(connections)
-      .where(eq(connections.viewerUserId, user.id));
-    const connectionsSaved = Number(connectionsSavedResult[0]?.count || 0);
 
     // Time range: last 30 days
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
     thirtyDaysAgo.setHours(0, 0, 0, 0);
 
-    // 2. Daily Stats for Chart
-    const dailyStatsRaw = await tx.select({
-      date: sql<string>`DATE(tapped_at)`,
-      total: sql<number>`count(*)`,
-      unique: sql<number>`count(case when is_unique = true then 1 end)`
-    })
-    .from(tapEvents)
-    .where(and(profileTapsCondition, gt(tapEvents.tappedAt, thirtyDaysAgo)))
-    .groupBy(sql`DATE(tapped_at)`)
-    .orderBy(sql`DATE(tapped_at)`);
+    const [savesResult, connectionsSavedResult] = await Promise.all([
+      db.select({ count: sql<number>`count(*)` }).from(connections).where(inArray(connections.profileId, profileIds)),
+      db.select({ count: sql<number>`count(*)` }).from(connections).where(eq(connections.viewerUserId, user.id))
+    ]);
+
+    // tx queries must be sequential to avoid pg concurrent query warning
+    const totalTapsResult = await tx.select({ count: sql<number>`count(*)` }).from(tapEvents).where(profileTapsCondition);
+    const uniqueTapsResult = await tx.select({ count: sql<number>`count(*)` }).from(tapEvents).where(and(profileTapsCondition, eq(tapEvents.isUnique, true)));
+    
+    const dailyStatsRaw = await tx.select({ date: sql<string>`DATE(tapped_at)`, total: sql<number>`count(*)`, unique: sql<number>`count(case when is_unique = true then 1 end)` })
+        .from(tapEvents).where(and(profileTapsCondition, gt(tapEvents.tappedAt, thirtyDaysAgo))).groupBy(sql`DATE(tapped_at)`).orderBy(sql`DATE(tapped_at)`);
+        
+    const deviceStatsRaw = await tx.select({ deviceType: tapEvents.deviceType, count: sql<number>`count(*)` }).from(tapEvents).where(profileTapsCondition).groupBy(tapEvents.deviceType);
+    const browserStatsRaw = await tx.select({ browser: tapEvents.browser, count: sql<number>`count(*)` }).from(tapEvents).where(profileTapsCondition).groupBy(tapEvents.browser);
+    const locationStatsRaw = await tx.select({ country: tapEvents.country, count: sql<number>`count(*)` }).from(tapEvents).where(profileTapsCondition).groupBy(tapEvents.country).orderBy(sql`count(*) DESC`).limit(10);
+
+    const totalTaps = Number(totalTapsResult[0]?.count || 0);
+    const uniqueTaps = Number(uniqueTapsResult[0]?.count || 0);
+    const returningTaps = totalTaps - uniqueTaps;
+    const totalSaves = Number(savesResult[0]?.count || 0);
+    const connectionsSaved = Number(connectionsSavedResult[0]?.count || 0);
 
     // Fill in missing days
     const dailyStatsMap = new Map(dailyStatsRaw.map(d => [d.date, d]));
@@ -119,15 +105,6 @@ export default async function AnalyticsPage(
       });
     }
 
-    // 3. Device Stats
-    const deviceStatsRaw = await tx.select({
-      deviceType: tapEvents.deviceType,
-      count: sql<number>`count(*)`
-    })
-    .from(tapEvents)
-    .where(profileTapsCondition)
-    .groupBy(tapEvents.deviceType);
-
     const deviceStats = deviceStatsRaw
       .filter(d => d.deviceType) // filter nulls
       .map(d => ({
@@ -135,32 +112,12 @@ export default async function AnalyticsPage(
         value: Number(d.count)
       }));
 
-    // 4. Browser Stats
-    const browserStatsRaw = await tx.select({
-      browser: tapEvents.browser,
-      count: sql<number>`count(*)`
-    })
-    .from(tapEvents)
-    .where(profileTapsCondition)
-    .groupBy(tapEvents.browser);
-
     const browserStats = browserStatsRaw
       .filter(b => b.browser && b.browser !== 'Unknown') // filter nulls
       .map(b => ({
         name: b.browser || 'Unknown',
         value: Number(b.count)
       }));
-
-    // 5. Location Stats (Countries)
-    const locationStatsRaw = await tx.select({
-      country: tapEvents.country,
-      count: sql<number>`count(*)`
-    })
-    .from(tapEvents)
-    .where(profileTapsCondition)
-    .groupBy(tapEvents.country)
-    .orderBy(sql`count(*) DESC`)
-    .limit(10); // Top 10 locations
 
     const locationStats = locationStatsRaw
       .map(l => ({
@@ -191,10 +148,10 @@ export default async function AnalyticsPage(
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-foreground">Analytics</h1>
-          <p className="text-muted-foreground mt-2">Track every tap — see who's visiting your profile, from where, and on what device.</p>
+          <p className="text-muted-foreground mt-2">Track every tap — see who&apos;s visiting your profile, from where, and on what device.</p>
         </div>
         <ProfileFilter 
-          profiles={userProfiles.map((p: any) => ({ 
+          profiles={userProfiles.map((p: { id: string; label: string | null; firstName: string | null; lastName: string | null; companyName: string | null; }) => ({ 
             id: p.id, 
             label: p.label, 
             firstName: p.firstName, 

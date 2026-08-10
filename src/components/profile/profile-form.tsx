@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button, buttonVariants } from '@/components/ui/button';
@@ -65,7 +65,7 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
     register,
     handleSubmit,
     setValue,
-    watch,
+    control,
     formState: { errors },
   } = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
@@ -90,12 +90,12 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
     }
   });
 
-  const isPublished = watch('isPublished');
-  const profilePhotoUrl = watch('profilePhotoUrl');
-  const companyLogoUrl = watch('companyLogoUrl');
-  const cvUrl = watch('cvUrl');
+  const isPublished = useWatch({ control, name: 'isPublished' });
+  const profilePhotoUrl = useWatch({ control, name: 'profilePhotoUrl' });
+  const companyLogoUrl = useWatch({ control, name: 'companyLogoUrl' });
+  const cvUrl = useWatch({ control, name: 'cvUrl' });
 
-  const currentValues = watch();
+  const currentValues = useWatch({ control });
 
   const onSubmit = async (data: ProfileFormValues) => {
     setIsSaving(true);
@@ -119,14 +119,15 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
 
       toast.success('Profile saved successfully!');
       router.refresh();
-    } catch (error: any) {
-      toast.error(error.message);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      toast.error(errorMessage);
     } finally {
       setIsSaving(false);
     }
   };
 
-  const onInvalid = (errors: any) => {
+  const onInvalid = (errors: unknown) => {
     console.error('Form validation failed:', errors);
     toast.error('Please fix the errors in the form before saving.');
   };
@@ -143,8 +144,9 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
       toast.success('Profile deleted successfully');
       router.push('/dashboard/profile');
       router.refresh();
-    } catch (error: any) {
-      toast.error(error.message);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      toast.error(errorMessage);
     } finally {
       setIsDeleting(false);
     }

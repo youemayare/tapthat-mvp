@@ -18,8 +18,8 @@ export default async function CardsPage() {
 
   const multiProfileEnabled = isMultiProfileEnabled();
 
-  const userCards = await db
-    .select({
+  const [userCards, userProfiles] = await Promise.all([
+    db.select({
       id: cards.id,
       cardType: cards.cardType,
       cardUid: cards.cardUid,
@@ -29,24 +29,21 @@ export default async function CardsPage() {
     })
     .from(cards)
     .where(eq(cards.userId, user.id))
-    .orderBy(desc(cards.createdAt));
+    .orderBy(desc(cards.createdAt)),
 
-  // Only fetch profiles when the multi-profile flag is enabled
-  const userProfiles = multiProfileEnabled
-    ? await db
-        .select({
-          id: profiles.id,
-          label: profiles.label,
-          firstName: profiles.firstName,
-          lastName: profiles.lastName,
-          jobTitle: profiles.jobTitle,
-          isPublished: profiles.isPublished,
-          isDefault: profiles.isDefault,
-        })
-        .from(profiles)
-        .where(eq(profiles.userId, user.id))
-        .orderBy(profiles.createdAt)
-    : [];
+    multiProfileEnabled ? db.select({
+      id: profiles.id,
+      label: profiles.label,
+      firstName: profiles.firstName,
+      lastName: profiles.lastName,
+      jobTitle: profiles.jobTitle,
+      isPublished: profiles.isPublished,
+      isDefault: profiles.isDefault,
+    })
+    .from(profiles)
+    .where(eq(profiles.userId, user.id))
+    .orderBy(profiles.createdAt) : Promise.resolve([])
+  ]);
 
   return (
     <div className="space-y-6 max-w-5xl">

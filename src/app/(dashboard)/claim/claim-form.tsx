@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+
 import { claimCardAction } from './actions';
 import { Loader2, Zap, CheckCircle2, XCircle } from 'lucide-react';
 import Link from 'next/link';
@@ -12,7 +12,6 @@ interface Props {
 }
 
 export function ClaimForm({ uid }: Props) {
-  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<
     | null
@@ -29,7 +28,7 @@ export function ClaimForm({ uid }: Props) {
     setLoading(false);
   }
 
-  const springTransition = { type: "spring", bounce: 0.2, duration: 0.5 };
+  const springTransition = { type: "spring" as const, bounce: 0.2, duration: 0.5 };
 
   return (
     <AnimatePresence mode="wait">

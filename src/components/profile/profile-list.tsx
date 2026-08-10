@@ -81,7 +81,7 @@ export function ProfileList({ profiles: initialProfiles }: Props) {
         <div className="bg-card border border-indigo-500/30 rounded-2xl p-5">
           <h3 className="font-semibold text-foreground mb-3">Create a new profile</h3>
           <p className="text-sm text-muted-foreground mb-4">
-            Give this profile a label (e.g., "Business", "Student", "Creator").
+            Give this profile a label (e.g., &quot;Business&quot;, &quot;Student&quot;, &quot;Creator&quot;).
             You&apos;ll set the profile content after creating it.
           </p>
           <div className="flex gap-3">
@@ -131,6 +131,7 @@ export function ProfileList({ profiles: initialProfiles }: Props) {
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center flex-shrink-0 overflow-hidden">
                     {p.profilePhotoUrl ? (
+                      /* eslint-disable-next-line @next/next/no-img-element */
                       <img 
                         src={p.profilePhotoUrl} 
                         alt={getDisplayName(p)} 

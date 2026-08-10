@@ -5,6 +5,8 @@ export const metadata: Metadata = {
   description: 'Sign in to your TapThat account to manage your profile and analytics.',
 };
 
+import Link from 'next/link';
+
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-4">
@@ -15,9 +17,9 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       <div className="relative z-10 w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
-          <a href="/" className="text-2xl font-bold text-foreground tracking-tight">
+          <Link href="/" className="text-2xl font-bold text-foreground tracking-tight">
             Tap<span className="text-indigo-400">That</span>
-          </a>
+          </Link>
         </div>
         {children}
       </div>

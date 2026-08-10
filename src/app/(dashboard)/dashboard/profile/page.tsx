@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
-import { db } from '@/lib/db';
+
 import { withRlsUser } from '@/lib/db/auth-wrapper';
 import { profiles } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';

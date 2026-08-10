@@ -36,7 +36,7 @@ export function ProfileForm({ initialName, email }: ProfileFormProps) {
       if (!res.ok) throw new Error('Failed to update name');
       
       toast.success('Profile updated successfully');
-    } catch (err) {
+    } catch {
       toast.error('Something went wrong updating your profile');
     } finally {
       setIsSaving(false);

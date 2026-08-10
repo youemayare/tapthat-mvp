@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
-import { db } from '@/lib/db';
+
 import { withRlsUser } from '@/lib/db/auth-wrapper';
 import { profiles } from '@/lib/db/schema';
 import { and, eq } from 'drizzle-orm';
@@ -113,7 +113,7 @@ export async function PUT(req: Request) {
     revalidatePath('/dashboard/profile');
     return NextResponse.json(result);
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     if (error instanceof z.ZodError) {
       return NextResponse.json({ error: 'Validation Error', details: error.format() }, { status: 400 });
     }
@@ -121,7 +121,7 @@ export async function PUT(req: Request) {
     if (typeof error === 'object' && error !== null && 'code' in error && error.code === '23505') {
        return NextResponse.json({ error: 'Username/Slug is already taken' }, { status: 409 });
     }
-    if (error?.message === 'Profile not found or does not belong to you') {
+    if (error instanceof Error && error.message === 'Profile not found or does not belong to you') {
       return NextResponse.json({ error: error.message }, { status: 404 });
     }
     console.error('Profile update error:', error);
@@ -171,9 +171,9 @@ export async function DELETE(req: Request) {
 
     revalidatePath('/dashboard/profile');
     return NextResponse.json({ success: true });
-  } catch (error: any) {
-    if (error?.message === 'Profile not found') return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
-    if (error?.message === 'Cannot delete default profile') return NextResponse.json({ error: 'Cannot delete your default profile. Please set another profile as default first.' }, { status: 400 });
+  } catch (error: unknown) {
+    if (error instanceof Error && error.message === 'Profile not found') return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
+    if (error instanceof Error && error.message === 'Cannot delete default profile') return NextResponse.json({ error: 'Cannot delete your default profile. Please set another profile as default first.' }, { status: 400 });
     console.error('Profile deletion error:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }

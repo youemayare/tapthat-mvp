@@ -8,8 +8,7 @@ import {
   BarChart3,
   CreditCard,
   UserCheck,
-  Settings,
-  X,
+  Settings
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 

@@ -36,7 +36,8 @@ export function ProfileView({ profile, cardUid, viewerUserId, isOwner, alreadySa
   }, [cardUid]);
 
   function handleSaveContact() {
-    window.location.href = `/api/vcard/${profile.id}`;
+    // eslint-disable-next-line @next/next/no-location-assign-relative-destination
+    window.location.assign(`/api/vcard/${profile.id}`);
   }
 
   async function handleToggleSave() {

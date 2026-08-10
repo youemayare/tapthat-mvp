@@ -39,8 +39,9 @@ export function PasswordForm() {
       toast.success('Password updated successfully');
       setNewPassword('');
       setConfirmPassword('');
-    } catch (err: any) {
-      toast.error(err.message || 'Something went wrong updating your password');
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      toast.error(errorMessage || 'Something went wrong updating your password');
     } finally {
       setIsSaving(false);
     }

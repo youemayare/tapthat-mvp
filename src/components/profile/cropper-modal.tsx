@@ -15,10 +15,10 @@ interface CropperModalProps {
 export function CropperModal({ imageSrc, type, onClose, onCropComplete }: CropperModalProps) {
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
-  const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<import('react-easy-crop').Area | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const onCropCompleteHandler = useCallback((croppedArea: any, croppedAreaPixels: any) => {
+  const onCropCompleteHandler = useCallback((croppedArea: import('react-easy-crop').Area, croppedAreaPixels: import('react-easy-crop').Area) => {
     setCroppedAreaPixels(croppedAreaPixels);
   }, []);
 

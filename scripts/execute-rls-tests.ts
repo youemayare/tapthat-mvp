@@ -1,19 +1,13 @@
 import * as dotenv from 'dotenv';
 dotenv.config({ path: '.env.staging' });
 
-import { createClient } from '@supabase/supabase-js';
 import { v4 as uuidv4 } from 'uuid';
-import { eq, sql } from 'drizzle-orm';
-
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+import { eq } from 'drizzle-orm';
 
 async function runTests() {
   const { db } = await import('../src/lib/db');
   const { withRlsUser } = await import('../src/lib/db/auth-wrapper');
-  const { profiles, cards, tapEvents, connections, users: dbUsers } = await import('../src/lib/db/schema');
+  const { profiles, users: dbUsers } = await import('../src/lib/db/schema');
 
   console.log('🔄 Starting RLS Isolation and Pooling Tests against Staging DB...\n');
   let passed = 0;
