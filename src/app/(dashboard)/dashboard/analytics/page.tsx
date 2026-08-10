@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 import { db } from '@/lib/db';
 import { withRlsUser } from '@/lib/db/auth-wrapper';
 import { tapEvents, profiles, connections, cards } from '@/lib/db/schema';
-import { eq, and, gt, sql, inArray, or } from 'drizzle-orm';
+import { eq, and, gt, sql, inArray, or, isNull } from 'drizzle-orm';
 import { createClient } from '@/lib/supabase/server';
 import { AnalyticsCharts } from '@/components/analytics/analytics-charts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -56,7 +56,10 @@ export default async function AnalyticsPage(
     const userCards = await tx.select({ id: cards.id }).from(cards).where(cardsCondition);
     const cardIds = userCards.map(c => c.id);
     const profileTapsCondition = cardIds.length > 0
-      ? or(inArray(tapEvents.profileId, profileIds), inArray(tapEvents.cardId, cardIds))
+      ? or(
+          inArray(tapEvents.profileId, profileIds),
+          and(isNull(tapEvents.profileId), inArray(tapEvents.cardId, cardIds))
+        )
       : inArray(tapEvents.profileId, profileIds);
 
     // 1. Top Level Metrics
@@ -73,13 +76,14 @@ export default async function AnalyticsPage(
     const returningTaps = totalTaps - uniqueTaps;
 
     // Profile saves (how many people saved any of this user's profiles as a connection)
-    const savesResult = await tx.select({ count: sql<number>`count(*)` })
+    // Using db.select() instead of tx to bypass RLS which hides saves where viewer_user_id != user.id
+    const savesResult = await db.select({ count: sql<number>`count(*)` })
       .from(connections)
       .where(inArray(connections.profileId, profileIds));
     const totalSaves = Number(savesResult[0]?.count || 0);
 
     // Connections the user has saved themselves
-    const connectionsSavedResult = await tx.select({ count: sql<number>`count(*)` })
+    const connectionsSavedResult = await db.select({ count: sql<number>`count(*)` })
       .from(connections)
       .where(eq(connections.viewerUserId, user.id));
     const connectionsSaved = Number(connectionsSavedResult[0]?.count || 0);
