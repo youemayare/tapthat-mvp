@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { db } from '@/lib/db';
 import { withRlsUser } from '@/lib/db/auth-wrapper';
-import { tapEvents, profiles, connections } from '@/lib/db/schema';
+import { tapEvents, profiles, connections, cards } from '@/lib/db/schema';
 import { eq, and, gt, sql, inArray, or } from 'drizzle-orm';
 import { createClient } from '@/lib/supabase/server';
 import { AnalyticsCharts } from '@/components/analytics/analytics-charts';
