@@ -1,11 +1,12 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { db } from '@/lib/db';
-import { profiles } from '@/lib/db/schema';
-import { eq, or } from 'drizzle-orm';
+import { profiles, connections } from '@/lib/db/schema';
+import { eq, or, and } from 'drizzle-orm';
 import { ProfileView } from '@/app/n/[uid]/profile-view';
 import { isMultiProfileEnabled } from '@/lib/feature-flags';
 import { validate as isUuid } from 'uuid';
+import { createClient } from '@/lib/supabase/server';
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -22,12 +23,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   });
 
   if (!profile || !profile.isPublished) {
-    return { title: 'TapThat — Profile Unavailable' };
+    return { title: 'TapThat - Profile Unavailable' };
   }
 
   const name = [profile.firstName, profile.lastName].filter(Boolean).join(' ');
   return {
-    title: `${name} — ${profile.jobTitle ?? 'Professional Profile'}`,
+    title: `${name} - ${profile.jobTitle ?? 'Professional Profile'}`,
     description: profile.bio ?? `Connect with ${name} on TapThat`,
     openGraph: {
       title: name,
@@ -58,6 +59,16 @@ export default async function PersistentProfilePage({ params }: Props) {
   const { slug } = await params;
   const isId = isUuid(slug);
 
+  // Resolve viewer session server-side
+  let viewerUserId: string | null = null;
+  try {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    viewerUserId = user?.id ?? null;
+  } catch {
+    // No session - public visitor
+  }
+
   const profile = await db.query.profiles.findFirst({
     where: isId ? eq(profiles.id, slug) : eq(profiles.slug, slug),
   });
@@ -86,12 +97,30 @@ export default async function PersistentProfilePage({ params }: Props) {
     return (
       <main className="min-h-screen bg-background flex items-center justify-center p-6 text-center">
         <div>
-          <p className="text-4xl mb-4">🚧</p>
+          <p className="text-4xl mb-4">😔</p>
           <h1 className="text-xl font-bold text-foreground mb-2">Profile Not Published</h1>
           <p className="text-muted-foreground">This person hasn&apos;t published this profile yet.</p>
         </div>
       </main>
     );
+  }
+
+  // Check if viewer already saved this profile
+  const isOwner = viewerUserId === profile.userId;
+  let alreadySaved = false;
+
+  if (viewerUserId && !isOwner) {
+    try {
+      const existing = await db.query.connections.findFirst({
+        where: and(
+          eq(connections.viewerUserId, viewerUserId),
+          eq(connections.profileId, profile.id)
+        ),
+      });
+      alreadySaved = !!existing;
+    } catch {
+      // Non-critical - default to false
+    }
   }
 
   // Persistent profile view — no cardUid needed since this isn't tied to a physical tap
@@ -101,9 +130,9 @@ export default async function PersistentProfilePage({ params }: Props) {
     <ProfileView
       profile={profile}
       cardUid=""
-      viewerUserId={null}
-      isOwner={false}
-      alreadySaved={false}
+      viewerUserId={viewerUserId}
+      isOwner={isOwner}
+      alreadySaved={alreadySaved}
     />
   );
 }
