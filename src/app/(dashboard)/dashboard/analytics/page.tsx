@@ -21,20 +21,19 @@ export default async function AnalyticsPage() {
 
   // Wrap DB reads in RLS wrapper
   const { profile, totalTaps, uniqueTaps, returningTaps, totalSaves, connectionsSaved, dailyStats, deviceStats, browserStats, locationStats } = await withRlsUser(user, async (tx) => {
-    // Get user's profile
-    const profileResult = await tx.select().from(profiles).where(eq(profiles.userId, user.id)).limit(1);
-    const profile = profileResult[0];
-
-    if (!profile) {
+    // Get ALL user's profiles
+    const userProfiles = await tx.select().from(profiles).where(eq(profiles.userId, user.id));
+    if (userProfiles.length === 0) {
       return { profile: null };
     }
+    const profileIds = userProfiles.map(p => p.id);
 
-    // Get all cards for this profile to include legacy taps that might only have cardId
-    const userCards = await tx.select({ id: cards.id }).from(cards).where(eq(cards.profileId, profile.id));
+    // Get ALL cards for this user to include legacy taps that might only have cardId
+    const userCards = await tx.select({ id: cards.id }).from(cards).where(eq(cards.userId, user.id));
     const cardIds = userCards.map(c => c.id);
     const profileTapsCondition = cardIds.length > 0
-      ? or(eq(tapEvents.profileId, profile.id), inArray(tapEvents.cardId, cardIds))
-      : eq(tapEvents.profileId, profile.id);
+      ? or(inArray(tapEvents.profileId, profileIds), inArray(tapEvents.cardId, cardIds))
+      : inArray(tapEvents.profileId, profileIds);
 
     // 1. Top Level Metrics
     const totalTapsResult = await tx.select({ count: sql<number>`count(*)` })
@@ -49,10 +48,10 @@ export default async function AnalyticsPage() {
 
     const returningTaps = totalTaps - uniqueTaps;
 
-    // Profile saves (how many people saved this profile as a connection)
+    // Profile saves (how many people saved any of this user's profiles as a connection)
     const savesResult = await tx.select({ count: sql<number>`count(*)` })
       .from(connections)
-      .where(eq(connections.profileId, profile.id));
+      .where(inArray(connections.profileId, profileIds));
     const totalSaves = Number(savesResult[0]?.count || 0);
 
     // Connections the user has saved themselves
@@ -142,7 +141,7 @@ export default async function AnalyticsPage() {
       }));
 
     return {
-      profile, totalTaps, uniqueTaps, returningTaps, totalSaves, connectionsSaved, dailyStats, deviceStats, browserStats, locationStats
+      profile: userProfiles[0], totalTaps, uniqueTaps, returningTaps, totalSaves, connectionsSaved, dailyStats, deviceStats, browserStats, locationStats
     };
   });
 

@@ -24,8 +24,9 @@ export default async function DashboardPage() {
 
   try {
     await withRlsUser(user, async (tx) => {
-      const profileRows = await tx.select().from(profiles).where(eq(profiles.userId, user!.id)).limit(1);
-      const profile = profileRows[0];
+      // Get ALL user's profiles
+      const userProfiles = await tx.select().from(profiles).where(eq(profiles.userId, user!.id));
+      const profile = userProfiles[0] || null;
       profilePublished = profile?.isPublished ?? false;
 
       const cardRows = await tx.select().from(cards).where(eq(cards.userId, user!.id));
@@ -37,11 +38,13 @@ export default async function DashboardPage() {
       }
 
       if (profile) {
-        const userCards = await tx.select({ id: cards.id }).from(cards).where(eq(cards.profileId, profile.id));
+        const profileIds = userProfiles.map(p => p.id);
+        const userCards = await tx.select({ id: cards.id }).from(cards).where(eq(cards.userId, user!.id));
         const cardIds = userCards.map(c => c.id);
+        
         const profileTapsCondition = cardIds.length > 0
-          ? or(eq(tapEvents.profileId, profile.id), inArray(tapEvents.cardId, cardIds))
-          : eq(tapEvents.profileId, profile.id);
+          ? or(inArray(tapEvents.profileId, profileIds), inArray(tapEvents.cardId, cardIds))
+          : inArray(tapEvents.profileId, profileIds);
 
         const tapRows = await tx.select({ count: count() }).from(tapEvents).where(profileTapsCondition);
         totalTaps = tapRows[0]?.count ?? 0;
