@@ -1,5 +1,5 @@
 import * as dotenv from 'dotenv';
-dotenv.config({ path: '.env.staging' });
+dotenv.config({ path: '.env.local' });
 import { db } from './src/lib/db';
 import { sql } from 'drizzle-orm';
 import * as fs from 'fs';

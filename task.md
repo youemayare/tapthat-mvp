@@ -1,0 +1,16 @@
+- [x] Phase 1: Re-verify the architecture and configure staging schema.
+  - [x] Push schema to staging.
+- [x] Phase 2: Build the RLS context wrapper (`withRlsUser`).
+  - [x] Write `src/lib/db/auth-wrapper.ts`.
+  - [x] Test the `SET LOCAL` role switching in staging to ensure pooler safety.
+- [x] Phase 3: Add RLS policies in staging.
+  - [x] Create raw SQL migration for RLS.
+  - [x] Apply to staging database.
+- [x] Phase 4: Classify database access paths.
+- [x] Phase 5: Refactor user-scoped queries.
+  - [x] `profiles` APIs.
+  - [x] `cards` APIs.
+  - [x] `connections` and analytics.
+- [x] Phase 6: Staging verification.
+  - [x] Run full test suite.
+  - [x] Document deliverables (Status, Rollback, Cutover plan).

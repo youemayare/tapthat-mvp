@@ -9,9 +9,16 @@ import { AnalyticsCharts } from '@/components/analytics/analytics-charts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Users, MousePointerClick, Activity, Bookmark, UserCheck } from 'lucide-react';
 
+import { ProfileFilter } from '@/components/analytics/profile-filter';
+
 export const metadata: Metadata = { title: 'Analytics' };
 
-export default async function AnalyticsPage() {
+export default async function AnalyticsPage(
+  props: { searchParams: Promise<{ [key: string]: string | string[] | undefined }> }
+) {
+  const searchParams = await props.searchParams;
+  const selectedProfileId = typeof searchParams.profile === 'string' ? searchParams.profile : null;
+
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -20,13 +27,25 @@ export default async function AnalyticsPage() {
   }
 
   // Wrap DB reads in RLS wrapper
-  const { profile, totalTaps, uniqueTaps, returningTaps, totalSaves, connectionsSaved, dailyStats, deviceStats, browserStats, locationStats } = await withRlsUser(user, async (tx) => {
+  const { userProfiles, validProfiles, totalTaps, uniqueTaps, returningTaps, totalSaves, connectionsSaved, dailyStats, deviceStats, browserStats, locationStats } = await withRlsUser(user, async (tx) => {
     // Get ALL user's profiles
     const userProfiles = await tx.select().from(profiles).where(eq(profiles.userId, user.id));
     if (userProfiles.length === 0) {
-      return { profile: null };
+      return { 
+        userProfiles: [], validProfiles: [], totalTaps: 0, uniqueTaps: 0, returningTaps: 0, 
+        totalSaves: 0, connectionsSaved: 0, dailyStats: [], deviceStats: [], 
+        browserStats: [], locationStats: []
+      };
     }
-    const profileIds = userProfiles.map(p => p.id);
+    
+    // Default to all profiles, unless a specific profile is selected
+    const selectedProfiles = selectedProfileId 
+      ? userProfiles.filter(p => p.id === selectedProfileId) 
+      : userProfiles;
+      
+    // If the selected profile doesn't belong to the user, fallback to all profiles
+    const validProfiles = selectedProfiles.length > 0 ? selectedProfiles : userProfiles;
+    const profileIds = validProfiles.map(p => p.id);
 
     // Get ALL cards for this user to include legacy taps that might only have cardId
     const userCards = await tx.select({ id: cards.id }).from(cards).where(eq(cards.userId, user.id));
@@ -141,11 +160,11 @@ export default async function AnalyticsPage() {
       }));
 
     return {
-      profile: userProfiles[0], totalTaps, uniqueTaps, returningTaps, totalSaves, connectionsSaved, dailyStats, deviceStats, browserStats, locationStats
+      userProfiles, validProfiles, totalTaps, uniqueTaps, returningTaps, totalSaves, connectionsSaved, dailyStats, deviceStats, browserStats, locationStats
     };
   });
 
-  if (!profile) {
+  if (!userProfiles || userProfiles.length === 0) {
     return (
       <div className="space-y-6">
         <div>
@@ -160,9 +179,20 @@ export default async function AnalyticsPage() {
 
   return (
     <div className="space-y-8 pb-10">
-      <div>
-        <h1 className="text-3xl font-bold text-foreground">Analytics</h1>
-        <p className="text-muted-foreground mt-2">Track every tap — see who's visiting your profile, from where, and on what device.</p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-foreground">Analytics</h1>
+          <p className="text-muted-foreground mt-2">Track every tap — see who's visiting your profile, from where, and on what device.</p>
+        </div>
+        <ProfileFilter 
+          profiles={userProfiles.map((p: any) => ({ 
+            id: p.id, 
+            label: p.label, 
+            firstName: p.firstName, 
+            lastName: p.lastName 
+          }))} 
+          selectedProfileId={selectedProfileId} 
+        />
       </div>
 
       <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-5">
