@@ -91,13 +91,19 @@ async function handleStatusChange(tx: Transaction, cardId: string, requestedStat
       activatedAt: cards.activatedAt,
     });
 
-  await tx.insert(cardStatusEvents).values({
-    cardId: updatedCard.id,
-    userId,
-    previousStatus: currentCard.status,
-    newStatus: updatedCard.status,
-    reason: 'User triggered via dashboard',
-  });
+  // Use db.insert instead of tx.insert to bypass RLS for audit logging
+  // (Production DB is missing the INSERT policy for card_status_events)
+  try {
+    await db.insert(cardStatusEvents).values({
+      cardId: updatedCard.id,
+      userId,
+      previousStatus: currentCard.status,
+      newStatus: updatedCard.status,
+      reason: 'User triggered via dashboard',
+    });
+  } catch (error) {
+    console.error('Failed to write audit log:', error);
+  }
 
   return NextResponse.json({ success: true, card: updatedCard });
 }
@@ -149,14 +155,21 @@ async function handleProfileSwitch(tx: Transaction, cardId: string, profileId: s
     .where(and(eq(cards.id, cardId), eq(cards.userId, userId)))
     .returning();
 
-  // Audit event — record the profile switch
-  await tx.insert(cardStatusEvents).values({
-    cardId: updatedCard.id,
-    userId,
-    previousStatus: currentCard.status,
-    newStatus: currentCard.status, // Status itself doesn't change
-    reason: 'Profile switched via dashboard',
-  });
+  // Use db.insert instead of tx.insert to bypass RLS for audit logging
+  // (Production DB is missing the INSERT policy for card_status_events)
+  try {
+    await db.insert(cardStatusEvents).values({
+      cardId: updatedCard.id,
+      userId,
+      previousStatus: currentCard.status,
+      newStatus: currentCard.status, // Status itself doesn't change
+      reason: 'Profile switched via dashboard',
+      previousProfileId: currentCard.profileId,
+      newProfileId: profileId,
+    });
+  } catch (error) {
+    console.error('Failed to write audit log:', error);
+  }
 
   return NextResponse.json({ success: true, card: updatedCard });
 }
