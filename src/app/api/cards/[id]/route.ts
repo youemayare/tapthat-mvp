@@ -156,8 +156,6 @@ async function handleProfileSwitch(tx: Transaction, cardId: string, profileId: s
     previousStatus: currentCard.status,
     newStatus: currentCard.status, // Status itself doesn't change
     reason: 'Profile switched via dashboard',
-    previousProfileId: currentCard.profileId,
-    newProfileId: profileId,
   });
 
   return NextResponse.json({ success: true, card: updatedCard });

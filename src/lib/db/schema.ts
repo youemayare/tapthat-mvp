@@ -100,9 +100,7 @@ export const cardStatusEvents = pgTable('card_status_events', {
   previousStatus: text('previous_status').notNull(),
   newStatus: text('new_status').notNull(),
   reason: text('reason'),
-  // ── Multi-Profile audit: track profile switches ───────────────────────────
-  previousProfileId: uuid('previous_profile_id').references(() => profiles.id, { onDelete: 'set null' }),
-  newProfileId: uuid('new_profile_id').references(() => profiles.id, { onDelete: 'set null' }),
+  // ── Multi-Profile audit: track profile switches (REMOVED TO MATCH PRODUCTION DB) ──
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
 }, (t) => [
   index('idx_card_events_card_id').on(t.cardId),
