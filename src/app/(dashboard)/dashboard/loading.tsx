@@ -5,8 +5,8 @@ export default function DashboardOverviewLoading() {
     <div className="space-y-8 animate-in fade-in duration-500">
       {/* Greeting Skeleton */}
       <div>
-        <Skeleton className="h-8 w-64 mb-2 bg-white/5 border border-white/10" />
-        <Skeleton className="h-4 w-96 bg-white/5 border border-white/10" />
+        <Skeleton className="h-8 w-3/4 max-w-[16rem] mb-2 bg-white/5 border border-white/10" />
+        <Skeleton className="h-4 w-full max-w-[24rem] bg-white/5 border border-white/10" />
       </div>
 
       {/* Stats Skeleton */}

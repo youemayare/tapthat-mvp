@@ -5,11 +5,11 @@ export default function AnalyticsLoading() {
   return (
     <div className="space-y-8 pb-10 animate-in fade-in duration-500">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <Skeleton className="h-9 w-48 mb-2 bg-white/5 border border-white/10" />
-          <Skeleton className="h-4 w-96 bg-white/5 border border-white/10" />
+        <div className="w-full">
+          <Skeleton className="h-9 w-3/4 max-w-[12rem] mb-2 bg-white/5 border border-white/10" />
+          <Skeleton className="h-4 w-full max-w-[24rem] bg-white/5 border border-white/10" />
         </div>
-        <Skeleton className="h-10 w-48 rounded-xl bg-white/5 border border-white/10" />
+        <Skeleton className="h-10 w-full sm:w-48 rounded-xl bg-white/5 border border-white/10" />
       </div>
 
       <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-5">
@@ -21,7 +21,7 @@ export default function AnalyticsLoading() {
             </CardHeader>
             <CardContent>
               <Skeleton className="h-8 w-16 mb-2 bg-white/5 border border-white/10" />
-              <Skeleton className="h-3 w-32 bg-white/5 border border-white/10" />
+              <Skeleton className="h-3 w-full max-w-[8rem] bg-white/5 border border-white/10" />
             </CardContent>
           </Card>
         ))}

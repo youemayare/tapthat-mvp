@@ -3,9 +3,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 export default function ProfileLoading() {
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-      <div>
+      <div className="w-full">
         <Skeleton className="h-8 w-48 mb-2 bg-white/5 border border-white/10" />
-        <Skeleton className="h-4 w-96 max-w-full bg-white/5 border border-white/10" />
+        <Skeleton className="h-4 w-full max-w-[24rem] bg-white/5 border border-white/10" />
       </div>
 
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
