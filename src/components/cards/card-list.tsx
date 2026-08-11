@@ -142,13 +142,10 @@ export function CardList({ initialCards, profiles = [], multiProfileEnabled = fa
           <CreditCard className="w-8 h-8 text-foreground/70" />
         </div>
         <h3 className="text-xl font-bold text-foreground mb-3">No Cards Found</h3>
-        <p className="text-muted-foreground max-w-md mx-auto mb-2 leading-relaxed">
-          You don&apos;t have any registered cards yet.
-        </p>
         <p className="text-sm text-muted-foreground max-w-md mx-auto mb-8 leading-relaxed">
           Tap your physical TapThat card to claim it, or purchase a new one to get started.
         </p>
-        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+        <div className="flex flex-col sm:flex-row justify-center gap-3 w-full sm:w-auto">
           <a
             href="https://tapthat.vercel.app/"
             target="_blank"
@@ -157,12 +154,6 @@ export function CardList({ initialCards, profiles = [], multiProfileEnabled = fa
           >
             Get My Card
           </a>
-          <button
-            onClick={() => router.push('/claim')}
-            className="inline-flex items-center justify-center px-6 py-3 bg-white/5 border border-white/10 text-foreground hover:bg-white/10 font-medium rounded-xl transition-colors"
-          >
-            Claim Card
-          </button>
         </div>
       </div>
     );
