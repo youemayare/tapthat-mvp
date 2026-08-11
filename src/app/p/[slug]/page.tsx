@@ -99,7 +99,7 @@ export default async function PersistentProfilePage({ params }: Props) {
         <div>
           <p className="text-4xl mb-4">😔</p>
           <h1 className="text-xl font-bold text-foreground mb-2">Profile Not Published</h1>
-          <p className="text-muted-foreground">This person hasn&apos;t published this profile yet.</p>
+          <p className="text-muted-foreground">This person has either drafted their profile or it hasn&apos;t been published yet.</p>
         </div>
       </main>
     );
