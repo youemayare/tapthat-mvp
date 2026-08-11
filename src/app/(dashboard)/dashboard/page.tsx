@@ -18,7 +18,7 @@ export default async function DashboardPage() {
   // Quick stats
   let totalTaps = 0;
   let totalCards = 0;
-  let profilePublished = false;
+  let userProfilesCount = 0;
   let googleWalletUrl: string | null = null;
   let activeCardUid: string | null = null;
 
@@ -27,8 +27,7 @@ export default async function DashboardPage() {
       const userProfiles = await tx.select().from(profiles).where(eq(profiles.userId, user!.id));
       const cardRows = await tx.select().from(cards).where(eq(cards.userId, user!.id));
       const profile = userProfiles[0] || null;
-      // eslint-disable-next-line react-hooks/immutability
-      profilePublished = profile?.isPublished ?? false;
+      userProfilesCount = userProfiles.length;
 
       totalCards = cardRows.length;
       const activeCard = cardRows.find(c => c.status === 'active');
@@ -68,7 +67,7 @@ export default async function DashboardPage() {
   const stats = [
     { label: 'Total Taps', value: totalTaps, icon: Eye, color: 'indigo' },
     { label: 'Cards Registered', value: totalCards, icon: CreditCard, color: 'violet' },
-    { label: 'Profile', value: profilePublished ? 'Published' : 'Draft', icon: Users, color: 'emerald' },
+    { label: 'Active Profiles', value: userProfilesCount, icon: Users, color: 'emerald' },
   ];
 
   return (
