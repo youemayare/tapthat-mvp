@@ -75,7 +75,7 @@ export default async function DashboardPage() {
     <div className="space-y-8">
       {/* Greeting */}
       <div>
-        <h1 className="text-2xl font-bold text-foreground">Good to see you, {name} 👋</h1>
+        <h1 className="text-2xl font-bold text-foreground">Good to see you, {name}</h1>
         <p className="text-muted-foreground mt-1">Here&apos;s an overview of your TapThat profile.</p>
       </div>
 
