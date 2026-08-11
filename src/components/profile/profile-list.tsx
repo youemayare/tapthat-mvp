@@ -131,7 +131,7 @@ export function ProfileList({ profiles: initialProfiles, hasCards = true }: Prop
             rel="noopener noreferrer"
             className="inline-flex items-center justify-center px-6 py-3 bg-foreground text-background hover:bg-foreground/90 font-medium rounded-xl transition-colors"
           >
-            Purchase Card
+            Get My Card
           </a>
         </div>
       )}
