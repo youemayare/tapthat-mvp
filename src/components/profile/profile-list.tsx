@@ -22,9 +22,10 @@ interface Profile {
 
 interface Props {
   profiles: Profile[];
+  hasCards?: boolean;
 }
 
-export function ProfileList({ profiles: initialProfiles }: Props) {
+export function ProfileList({ profiles: initialProfiles, hasCards = true }: Props) {
   const router = useRouter();
   const [profiles] = useState<Profile[]>(initialProfiles);
   const [creating, setCreating] = useState(false);
@@ -68,16 +69,18 @@ export function ProfileList({ profiles: initialProfiles }: Props) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-end">
-        <button
-          onClick={() => setShowCreateForm(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold rounded-xl transition-all"
-        >
-          <Plus className="w-4 h-4" /> New Profile
-        </button>
+        {hasCards && (
+          <button
+            onClick={() => setShowCreateForm(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold rounded-xl transition-all"
+          >
+            <Plus className="w-4 h-4" /> New Profile
+          </button>
+        )}
       </div>
 
       {/* Create form */}
-      {showCreateForm && (
+      {showCreateForm && hasCards && (
         <div className="bg-card border border-indigo-500/30 rounded-2xl p-5">
           <h3 className="font-semibold text-foreground mb-3">Create a new profile</h3>
           <p className="text-sm text-muted-foreground mb-4">
@@ -109,6 +112,41 @@ export function ProfileList({ profiles: initialProfiles }: Props) {
               Cancel
             </button>
           </div>
+        </div>
+      )}
+
+      {/* Empty States */}
+      {profiles.length === 0 && !hasCards && (
+        <div className="mt-8 flex flex-col items-center justify-center p-12 bg-card/60 backdrop-blur-xl border border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.12)] rounded-3xl text-center">
+          <div className="w-16 h-16 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center mb-6">
+            <User className="w-8 h-8 text-foreground/70" />
+          </div>
+          <h3 className="text-xl font-bold text-foreground mb-3">Profile Locked</h3>
+          <p className="text-muted-foreground max-w-md mx-auto mb-8 leading-relaxed">
+            No cards found. Get a TapThat card to unlock your digital profile and start sharing your contact info with a simple tap.
+          </p>
+          <a
+            href="https://tapthat.vercel.app/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center px-6 py-3 bg-foreground text-background hover:bg-foreground/90 font-medium rounded-xl transition-colors"
+          >
+            Purchase Card
+          </a>
+        </div>
+      )}
+
+      {profiles.length > 0 && !hasCards && (
+        <div className="bg-card/40 backdrop-blur-md border border-white/5 rounded-2xl p-4 flex items-center justify-between mb-4">
+          <p className="text-sm text-muted-foreground">To create additional profiles, add a TapThat card to your account.</p>
+          <a
+            href="https://tapthat.vercel.app/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm font-medium text-foreground hover:text-indigo-400 transition-colors"
+          >
+            Get a Card
+          </a>
         </div>
       )}
 

@@ -137,9 +137,33 @@ export function CardList({ initialCards, profiles = [], multiProfileEnabled = fa
 
   if (cards.length === 0) {
     return (
-      <div className="bg-card text-card-foreground border border-border rounded-2xl p-8 text-center">
-        <p className="text-muted-foreground">You don&apos;t have any registered cards yet.</p>
-        <p className="text-sm text-muted-foreground mt-2">Tap a new card to your phone to claim it.</p>
+      <div className="mt-8 flex flex-col items-center justify-center p-12 bg-card/60 backdrop-blur-xl border border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.12)] rounded-3xl text-center">
+        <div className="w-16 h-16 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center mb-6">
+          <CreditCard className="w-8 h-8 text-foreground/70" />
+        </div>
+        <h3 className="text-xl font-bold text-foreground mb-3">No Cards Found</h3>
+        <p className="text-muted-foreground max-w-md mx-auto mb-2 leading-relaxed">
+          You don&apos;t have any registered cards yet.
+        </p>
+        <p className="text-sm text-muted-foreground max-w-md mx-auto mb-8 leading-relaxed">
+          Tap your physical TapThat card to claim it, or purchase a new one to get started.
+        </p>
+        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+          <a
+            href="https://tapthat.vercel.app/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center px-6 py-3 bg-foreground text-background hover:bg-foreground/90 font-medium rounded-xl transition-colors"
+          >
+            Purchase Card
+          </a>
+          <button
+            onClick={() => router.push('/claim')}
+            className="inline-flex items-center justify-center px-6 py-3 bg-white/5 border border-white/10 text-foreground hover:bg-white/10 font-medium rounded-xl transition-colors"
+          >
+            Claim Card
+          </button>
+        </div>
       </div>
     );
   }

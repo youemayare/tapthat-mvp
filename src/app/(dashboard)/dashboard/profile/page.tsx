@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 
 import { withRlsUser } from '@/lib/db/auth-wrapper';
-import { profiles } from '@/lib/db/schema';
+import { profiles, cards } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { ProfileForm } from '@/components/profile/profile-form';
 import { ProfileList } from '@/components/profile/profile-list';
@@ -64,22 +64,31 @@ export default async function ProfilePage({
     }
 
       // No specific profile → show the profile list (profile overview)
-      const allProfiles = await tx
-        .select({
-          id: profiles.id,
-          label: profiles.label,
-          firstName: profiles.firstName,
-          lastName: profiles.lastName,
-          jobTitle: profiles.jobTitle,
-          slug: profiles.slug,
-          isPublished: profiles.isPublished,
-          isDefault: profiles.isDefault,
-          archivedAt: profiles.archivedAt,
-          profilePhotoUrl: profiles.profilePhotoUrl,
-        })
-        .from(profiles)
-        .where(eq(profiles.userId, user.id))
-        .orderBy(profiles.createdAt);
+      const [allProfiles, userCardsResult] = await Promise.all([
+        tx
+          .select({
+            id: profiles.id,
+            label: profiles.label,
+            firstName: profiles.firstName,
+            lastName: profiles.lastName,
+            jobTitle: profiles.jobTitle,
+            slug: profiles.slug,
+            isPublished: profiles.isPublished,
+            isDefault: profiles.isDefault,
+            archivedAt: profiles.archivedAt,
+            profilePhotoUrl: profiles.profilePhotoUrl,
+          })
+          .from(profiles)
+          .where(eq(profiles.userId, user.id))
+          .orderBy(profiles.createdAt),
+        tx
+          .select({ id: cards.id })
+          .from(cards)
+          .where(eq(cards.userId, user.id))
+          .limit(1)
+      ]);
+
+      const hasCards = userCardsResult.length > 0;
 
     return (
       <div className="space-y-8">
@@ -89,7 +98,7 @@ export default async function ProfilePage({
             Each profile is a separate public persona. Assign a profile to a card to control what people see when you tap your card. You can switch your active profile in My Cards.
           </p>
         </div>
-        <ProfileList profiles={allProfiles} />
+        <ProfileList profiles={allProfiles} hasCards={hasCards} />
       </div>
     );
   }

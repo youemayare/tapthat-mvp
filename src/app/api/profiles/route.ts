@@ -10,7 +10,7 @@ import { NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
 
 import { withRlsUser } from '@/lib/db/auth-wrapper';
-import { profiles, users } from '@/lib/db/schema';
+import { profiles, users, cards } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { createClient } from '@/lib/supabase/server';
 import { isMultiProfileEnabled } from '@/lib/feature-flags';
@@ -73,6 +73,20 @@ export async function POST(req: Request) {
         email: user.email || '',
         fullName: user.user_metadata?.full_name ?? null,
       }).onConflictDoNothing();
+
+      // Check if user owns at least one card
+      const userCardsResult = await tx
+        .select({ id: cards.id })
+        .from(cards)
+        .where(eq(cards.userId, user.id))
+        .limit(1);
+
+      if (userCardsResult.length === 0) {
+        return NextResponse.json(
+          { error: 'You must own a TapThat card to create a new profile.' },
+          { status: 403 }
+        );
+      }
 
       const [newProfile] = await tx
         .insert(profiles)
