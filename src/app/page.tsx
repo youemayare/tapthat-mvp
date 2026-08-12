@@ -34,10 +34,7 @@ export default function LandingPage() {
         </div>
 
         <div className="relative z-10 max-w-4xl">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-brand-500/30 bg-brand-500/10 text-brand-300 text-sm font-medium mb-8">
-            <Zap className="w-3.5 h-3.5" />
-            NFC + QR · No App Required
-          </div>
+
 
           <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight leading-tight mb-6">
             Your Professional Identity,
@@ -48,7 +45,7 @@ export default function LandingPage() {
           </h1>
 
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed">
-            Premium NFC cards that open your profile instantly — editable forever,
+            Premium NFC cards that open your profile instantly editable forever,
             with built-in analytics and instant contact saving. No app, no friction.
           </p>
 
