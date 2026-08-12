@@ -14,7 +14,7 @@ import { ThemeToggle } from '@/components/theme-toggle';
 import { toast } from 'sonner';
 
 interface Props {
-  profile: Profile;
+  profile: Partial<Profile> & { id: string, userId: string };
   cardUid: string;
   viewerUserId: string | null;
   isOwner: boolean;

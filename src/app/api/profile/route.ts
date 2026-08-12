@@ -110,6 +110,13 @@ export async function PUT(req: Request) {
       }
     });
 
+    // Invalidate the cache for this specific profile
+    const { revalidateTag } = await import('next/cache');
+    if (result) {
+      if (result.id) revalidateTag(`profile-${result.id}`, { expire: 0 });
+      if (result.slug) revalidateTag(`profile-${result.slug}`, { expire: 0 });
+    }
+
     revalidatePath('/dashboard/profile');
     return NextResponse.json(result);
 

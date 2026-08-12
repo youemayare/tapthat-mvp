@@ -1,12 +1,12 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { db } from '@/lib/db';
-import { profiles, connections } from '@/lib/db/schema';
+import { connections } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
 import { ProfileView } from '@/app/n/[uid]/profile-view';
 import { isMultiProfileEnabled } from '@/lib/feature-flags';
-import { validate as isUuid } from 'uuid';
 import { createClient } from '@/lib/supabase/server';
+import { getCachedProfileBySlug } from '@/lib/queries';
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -16,11 +16,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!isMultiProfileEnabled()) return { title: 'TapThat' };
 
   const { slug } = await params;
-  const isId = isUuid(slug);
-  
-  const profile = await db.query.profiles.findFirst({
-    where: isId ? eq(profiles.id, slug) : eq(profiles.slug, slug),
-  });
+  const profile = await getCachedProfileBySlug(slug);
 
   if (!profile || !profile.isPublished) {
     return { title: 'TapThat - Profile Unavailable' };
@@ -57,7 +53,6 @@ export default async function PersistentProfilePage({ params }: Props) {
   }
 
   const { slug } = await params;
-  const isId = isUuid(slug);
 
   // Resolve viewer session server-side
   let viewerUserId: string | null = null;
@@ -69,9 +64,7 @@ export default async function PersistentProfilePage({ params }: Props) {
     // No session - public visitor
   }
 
-  const profile = await db.query.profiles.findFirst({
-    where: isId ? eq(profiles.id, slug) : eq(profiles.slug, slug),
-  });
+  const profile = await getCachedProfileBySlug(slug);
 
   if (!profile) {
     notFound();

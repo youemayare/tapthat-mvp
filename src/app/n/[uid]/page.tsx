@@ -6,6 +6,7 @@ import { eq, and } from 'drizzle-orm';
 import { ClaimCard } from './claim-card';
 import { ProfileView } from './profile-view';
 import { createClient } from '@/lib/supabase/server';
+import { getCachedCardAndProfile } from '@/lib/queries';
 
 interface Props {
   params: Promise<{ uid: string }>;
@@ -22,14 +23,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   try {
-    const result = await db
-      .select({ card: cards, profile: profiles })
-      .from(cards)
-      .leftJoin(profiles, eq(cards.profileId, profiles.id))
-      .where(eq(cards.cardUid, sanitizedUid))
-      .limit(1);
-
-    const row = result[0];
+    const row = await getCachedCardAndProfile(sanitizedUid);
     
     // Revoked cards: completely dead, don't show any profile info
     if (row?.card.status === 'revoked') {
@@ -93,14 +87,7 @@ export default async function NfcTapPage({ params }: Props) {
   let profile = null;
 
   try {
-    const result = await db
-      .select({ card: cards, profile: profiles })
-      .from(cards)
-      .leftJoin(profiles, eq(cards.profileId, profiles.id))
-      .where(eq(cards.cardUid, sanitizedUid))
-      .limit(1);
-
-    const row = result[0];
+    const row = await getCachedCardAndProfile(sanitizedUid);
     card = row?.card ?? null;
     profile = row?.profile ?? null;
   } catch {
