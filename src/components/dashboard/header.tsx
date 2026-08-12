@@ -62,7 +62,7 @@ export function DashboardHeader({ user }: Props) {
         </Sheet>
         
         <Link href="/" className="text-xl font-bold text-foreground">
-          Tap<span className="text-indigo-400">That</span>
+          Tap<span className="text-brand-400">That</span>
         </Link>
       </div>
 
@@ -81,7 +81,7 @@ export function DashboardHeader({ user }: Props) {
               </div>
               <Avatar className="w-8 h-8">
                 <AvatarImage src={user.user_metadata?.avatar_url} />
-                <AvatarFallback className="bg-indigo-500/20 text-indigo-300 text-xs font-bold">
+                <AvatarFallback className="bg-brand-500/20 text-brand-300 text-xs font-bold">
                   {initials}
                 </AvatarFallback>
               </Avatar>

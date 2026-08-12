@@ -26,7 +26,7 @@ interface AnalyticsChartsProps {
   locationStats: BreakdownStat[];
 }
 
-const COLORS = ['#6366f1', '#a855f7', '#ec4899', '#14b8a6', '#f59e0b', '#3b82f6'];
+const COLORS = ['#0071e3', '#ec4899', '#f59e0b', '#10b981', '#8b5cf6', '#06b6d4'];
 
 /**
  * Normalizes ISO country codes to readable names.
@@ -76,12 +76,12 @@ export function AnalyticsCharts({ dailyStats, deviceStats, browserStats, locatio
               >
                 <defs>
                   <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#6366f1" stopOpacity={0.8} />
-                    <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
+                    <stop offset="5%" stopColor="#0071e3" stopOpacity={0.8} />
+                    <stop offset="95%" stopColor="#0071e3" stopOpacity={0} />
                   </linearGradient>
                   <linearGradient id="colorUnique" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#a855f7" stopOpacity={0.8} />
-                    <stop offset="95%" stopColor="#a855f7" stopOpacity={0} />
+                    <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.8} />
+                    <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={gridColor} />
@@ -108,7 +108,7 @@ export function AnalyticsCharts({ dailyStats, deviceStats, browserStats, locatio
                   type="monotone" 
                   dataKey="total" 
                   name="Total Taps"
-                  stroke="#6366f1" 
+                  stroke="#0071e3" 
                   strokeWidth={2}
                   fillOpacity={1} 
                   fill="url(#colorTotal)" 
@@ -117,7 +117,7 @@ export function AnalyticsCharts({ dailyStats, deviceStats, browserStats, locatio
                   type="monotone" 
                   dataKey="unique" 
                   name="Unique Visitors"
-                  stroke="#a855f7" 
+                  stroke="#8b5cf6" 
                   strokeWidth={2}
                   fillOpacity={1} 
                   fill="url(#colorUnique)" 
@@ -159,7 +159,7 @@ export function AnalyticsCharts({ dailyStats, deviceStats, browserStats, locatio
                     cursor={{ fill: gridColor, opacity: 0.4 }}
                     contentStyle={{ backgroundColor: tooltipBg, borderColor: tooltipBorder, borderRadius: '8px' }}
                   />
-                  <Bar dataKey="value" name="Taps" fill="#6366f1" radius={[0, 4, 4, 0]} barSize={20} />
+                  <Bar dataKey="value" name="Taps" fill="#0071e3" radius={[0, 4, 4, 0]} barSize={20} />
                 </BarChart>
               </ResponsiveContainer>
             </div>

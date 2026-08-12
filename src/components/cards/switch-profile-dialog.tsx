@@ -108,12 +108,12 @@ export function SwitchProfileDialog({
                     onClick={() => setSelectedProfile(p)}
                     className={`w-full flex items-center gap-4 p-4 rounded-2xl border text-left transition-all ${
                       selectedProfile?.id === p.id
-                        ? 'border-indigo-500/60 bg-indigo-500/10'
-                        : 'border-border hover:border-indigo-500/30 hover:bg-accent/30'
+                        ? 'border-brand-500/60 bg-brand-500/10'
+                        : 'border-border hover:border-brand-500/30 hover:bg-accent/30'
                     }`}
                   >
-                    <div className="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center flex-shrink-0">
-                      <User className="w-5 h-5 text-indigo-400" />
+                    <div className="w-10 h-10 rounded-xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center flex-shrink-0">
+                      <User className="w-5 h-5 text-brand-400" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-semibold text-foreground">{getProfileDisplayName(p)}</p>
@@ -122,7 +122,7 @@ export function SwitchProfileDialog({
                       )}
                     </div>
                     {selectedProfile?.id === p.id && (
-                      <CheckCircle2 className="w-5 h-5 text-indigo-400 flex-shrink-0" />
+                      <CheckCircle2 className="w-5 h-5 text-brand-400 flex-shrink-0" />
                     )}
                   </button>
                 ))}
@@ -139,7 +139,7 @@ export function SwitchProfileDialog({
               <button
                 onClick={() => setStep('confirm')}
                 disabled={!selectedProfile}
-                className="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-2xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 text-white text-sm font-semibold transition-all"
+                className="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-2xl bg-brand-600 hover:bg-brand-500 disabled:opacity-40 text-white text-sm font-semibold transition-all"
               >
                 Next <ChevronRight className="w-4 h-4" />
               </button>
@@ -162,8 +162,8 @@ export function SwitchProfileDialog({
 
             <div className="mb-6">
               <div className="flex items-center gap-3 p-4 bg-card border border-border rounded-2xl">
-                <div className="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center flex-shrink-0">
-                  <User className="w-5 h-5 text-indigo-400" />
+                <div className="w-10 h-10 rounded-xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center flex-shrink-0">
+                  <User className="w-5 h-5 text-brand-400" />
                 </div>
                 <div>
                   <p className="font-semibold text-foreground">{getProfileDisplayName(selectedProfile)}</p>
@@ -185,7 +185,7 @@ export function SwitchProfileDialog({
               <button
                 onClick={handleSwitch}
                 disabled={switching}
-                className="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-2xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 text-white text-sm font-semibold transition-all"
+                className="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-2xl bg-brand-600 hover:bg-brand-500 disabled:opacity-40 text-white text-sm font-semibold transition-all"
               >
                 {switching ? (
                   <><Loader2 className="w-4 h-4 animate-spin" /> Switching…</>

@@ -177,9 +177,9 @@ export default async function AnalyticsPage(
 
       <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-5">
         <Card className="border-border bg-card">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
+          <CardHeader className="flex flex-row items-start justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Total Taps</CardTitle>
-            <Activity className="h-4 w-4 text-indigo-500" />
+            <Activity className="h-4 w-4 text-brand-500" />
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold text-foreground">{totalTaps}</div>
@@ -187,9 +187,9 @@ export default async function AnalyticsPage(
           </CardContent>
         </Card>
         <Card className="border-border bg-card">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
+          <CardHeader className="flex flex-row items-start justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Unique Visitors</CardTitle>
-            <Users className="h-4 w-4 text-purple-500" />
+            <Users className="h-4 w-4 text-violet-500" />
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold text-foreground">{uniqueTaps}</div>
@@ -197,7 +197,7 @@ export default async function AnalyticsPage(
           </CardContent>
         </Card>
         <Card className="border-border bg-card">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
+          <CardHeader className="flex flex-row items-start justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Returning Visitors</CardTitle>
             <MousePointerClick className="h-4 w-4 text-pink-500" />
           </CardHeader>
@@ -207,7 +207,7 @@ export default async function AnalyticsPage(
           </CardContent>
         </Card>
         <Card className="border-border bg-card">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
+          <CardHeader className="flex flex-row items-start justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Profile Saves</CardTitle>
             <Bookmark className="h-4 w-4 text-emerald-500" />
           </CardHeader>
@@ -217,7 +217,7 @@ export default async function AnalyticsPage(
           </CardContent>
         </Card>
         <Card className="border-border bg-card">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
+          <CardHeader className="flex flex-row items-start justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Connections Saved</CardTitle>
             <UserCheck className="h-4 w-4 text-amber-500" />
           </CardHeader>
@@ -237,8 +237,8 @@ export default async function AnalyticsPage(
         />
       ) : (
         <div className="bg-card border border-border rounded-3xl p-12 text-center shadow-sm">
-          <div className="w-16 h-16 bg-indigo-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Activity className="w-8 h-8 text-indigo-500" />
+          <div className="w-16 h-16 bg-brand-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Activity className="w-8 h-8 text-brand-500" />
           </div>
           <h3 className="text-xl font-bold text-foreground mb-2">No data yet</h3>
           <p className="text-muted-foreground max-w-sm mx-auto">

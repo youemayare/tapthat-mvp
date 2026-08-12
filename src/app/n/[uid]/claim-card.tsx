@@ -27,12 +27,12 @@ export function ClaimCard({ uid }: Props) {
     <main className="min-h-screen bg-background flex items-center justify-center px-6">
       {/* Background glow */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-indigo-600/15 blur-[120px]" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-brand-600/15 blur-[120px]" />
       </div>
 
       <div className="relative z-10 text-center max-w-md">
-        <div className="w-20 h-20 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center mx-auto mb-8">
-          <Zap className="w-9 h-9 text-indigo-400" />
+        <div className="w-20 h-20 rounded-2xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center mx-auto mb-8">
+          <Zap className="w-9 h-9 text-brand-400" />
         </div>
 
         <h1 className="text-3xl font-bold text-foreground mb-3">
@@ -48,7 +48,7 @@ export function ClaimCard({ uid }: Props) {
         <div className="space-y-3">
           <Link
             href={`/claim?uid=${uid}`}
-            className="group w-full flex items-center justify-center gap-2 py-4 px-6 bg-indigo-600 hover:bg-indigo-500 text-foreground font-semibold rounded-2xl transition-all duration-200 hover:scale-[1.02]"
+            className="group w-full flex items-center justify-center gap-2 py-4 px-6 bg-brand-600 hover:bg-brand-500 text-foreground font-semibold rounded-2xl transition-all duration-200 hover:scale-[1.02]"
           >
             Claim this card
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />

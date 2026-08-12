@@ -138,7 +138,7 @@ export function CardList({ initialCards, profiles = [], multiProfileEnabled = fa
   if (cards.length === 0) {
     return (
       <div className="mt-8 flex flex-col items-center justify-center p-12 bg-card/60 backdrop-blur-xl border border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.12)] rounded-3xl text-center">
-        <div className="w-16 h-16 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center mb-6">
+        <div className="w-16 h-16 bg-black/5 dark:bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl flex items-center justify-center mb-6">
           <CreditCard className="w-8 h-8 text-foreground/70" />
         </div>
         <h3 className="text-xl font-bold text-foreground mb-3">No Cards Found</h3>
@@ -214,7 +214,7 @@ export function CardList({ initialCards, profiles = [], multiProfileEnabled = fa
                   <button
                     onClick={() => handleSwitchProfileClick(card)}
                     disabled={isPending}
-                    className="w-full flex items-center justify-center gap-2 bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 hover:bg-indigo-500/20 px-3 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 mb-1"
+                    className="w-full flex items-center justify-center gap-2 bg-brand-500/10 border border-brand-500/20 text-brand-400 hover:bg-brand-500/20 px-3 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 mb-1"
                   >
                     <RefreshCw className="w-4 h-4" /> Switch Profile
                   </button>

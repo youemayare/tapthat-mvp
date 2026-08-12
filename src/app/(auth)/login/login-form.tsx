@@ -73,7 +73,7 @@ export default function LoginForm({ searchParams }: Props) {
       <p className="text-muted-foreground text-sm mb-8">Sign in to your TapThat account</p>
 
       {message && (
-        <div className="mb-4 p-3 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-sm">
+        <div className="mb-4 p-3 rounded-lg bg-brand-500/10 border border-brand-500/20 text-brand-300 text-sm">
           {message}
         </div>
       )}
@@ -96,7 +96,7 @@ export default function LoginForm({ searchParams }: Props) {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="you@example.com"
-            className="w-full px-4 py-3 rounded-xl bg-card text-card-foreground border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-indigo-500/60 focus:ring-1 focus:ring-indigo-500/30 transition-all"
+            className="w-full px-4 py-3 rounded-xl bg-card text-card-foreground border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-brand-500/60 focus:ring-1 focus:ring-brand-500/30 transition-all"
           />
         </div>
 
@@ -105,7 +105,7 @@ export default function LoginForm({ searchParams }: Props) {
             <label htmlFor="password" className="block text-sm font-medium text-muted-foreground">
               Password
             </label>
-            <Link href="/forgot-password" className="text-xs text-indigo-400 hover:text-indigo-300 transition-colors">
+            <Link href="/forgot-password" className="text-xs text-brand-400 hover:text-brand-300 transition-colors">
               Forgot password?
             </Link>
           </div>
@@ -117,7 +117,7 @@ export default function LoginForm({ searchParams }: Props) {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              className="w-full px-4 py-3 rounded-xl bg-card text-card-foreground border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-indigo-500/60 focus:ring-1 focus:ring-indigo-500/30 transition-all pr-12"
+              className="w-full px-4 py-3 rounded-xl bg-card text-card-foreground border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-brand-500/60 focus:ring-1 focus:ring-brand-500/30 transition-all pr-12"
             />
             <button
               type="button"
@@ -132,7 +132,7 @@ export default function LoginForm({ searchParams }: Props) {
         <button
           type="submit"
           disabled={loading}
-          className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-60 disabled:cursor-not-allowed text-foreground font-semibold rounded-xl transition-all"
+          className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-brand-600 hover:bg-brand-500 disabled:opacity-60 disabled:cursor-not-allowed text-foreground font-semibold rounded-xl transition-all"
         >
           {loading && <Loader2 className="w-4 h-4 animate-spin" />}
           Sign In
@@ -166,7 +166,7 @@ export default function LoginForm({ searchParams }: Props) {
         Don&apos;t have an account?{' '}
         <Link
           href={`/signup?${new URLSearchParams({ ...(redirectTo ? { redirectTo } : {}), ...(save ? { save } : {}) }).toString()}`}
-          className="text-indigo-400 hover:text-indigo-300 font-medium transition-colors"
+          className="text-brand-400 hover:text-brand-300 font-medium transition-colors"
         >
           Sign up
         </Link>

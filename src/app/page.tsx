@@ -7,7 +7,7 @@ export default function LandingPage() {
       {/* ── Nav ── */}
       <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4 backdrop-blur-md border-b border-border">
         <span className="text-xl font-bold tracking-tight">
-          Tap<span className="text-indigo-400">That</span>
+          Tap<span className="text-brand-400">That</span>
         </span>
         <div className="flex items-center gap-4">
           <Link
@@ -29,12 +29,12 @@ export default function LandingPage() {
       <section className="relative flex flex-col items-center justify-center min-h-screen px-6 text-center pt-20">
         {/* Gradient glow */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-indigo-600/20 blur-[120px]" />
+          <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-brand-600/20 blur-[120px]" />
           <div className="absolute top-1/2 left-1/3 w-[400px] h-[400px] rounded-full bg-violet-600/15 blur-[100px]" />
         </div>
 
         <div className="relative z-10 max-w-4xl">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-indigo-500/30 bg-indigo-500/10 text-indigo-300 text-sm font-medium mb-8">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-brand-500/30 bg-brand-500/10 text-brand-300 text-sm font-medium mb-8">
             <Zap className="w-3.5 h-3.5" />
             NFC + QR · No App Required
           </div>
@@ -42,7 +42,7 @@ export default function LandingPage() {
           <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight leading-tight mb-6">
             Your Professional Identity,
             <br />
-            <span className="bg-gradient-to-r from-indigo-400 via-violet-400 to-purple-400 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-brand-400 via-violet-400 to-brand-400 bg-clip-text text-transparent">
               One Tap Away
             </span>
           </h1>
@@ -55,7 +55,7 @@ export default function LandingPage() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href="/signup"
-              className="group inline-flex items-center gap-2 px-8 py-4 bg-indigo-600 hover:bg-indigo-500 text-foreground font-semibold rounded-2xl transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-indigo-500/25"
+              className="group inline-flex items-center gap-2 px-8 py-4 bg-brand-600 hover:bg-brand-500 text-foreground font-semibold rounded-2xl transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-brand-500/25"
             >
               Get Your Card
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -93,10 +93,10 @@ export default function LandingPage() {
             {features.map((feature) => (
               <div
                 key={feature.title}
-                className="group p-6 rounded-2xl border border-border bg-primary/2 hover:bg-card text-card-foreground hover:border-indigo-500/30 transition-all duration-300"
+                className="group p-6 rounded-2xl border border-border bg-primary/2 hover:bg-card text-card-foreground hover:border-brand-500/30 transition-all duration-300"
               >
-                <div className="w-12 h-12 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center mb-4 group-hover:bg-indigo-500/20 transition-colors">
-                  <feature.icon className="w-5 h-5 text-indigo-400" />
+                <div className="w-12 h-12 rounded-xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center mb-4 group-hover:bg-brand-500/20 transition-colors">
+                  <feature.icon className="w-5 h-5 text-brand-400" />
                 </div>
                 <h3 className="text-lg font-semibold mb-2">{feature.title}</h3>
                 <p className="text-muted-foreground text-sm leading-relaxed">{feature.description}</p>
@@ -115,7 +115,7 @@ export default function LandingPage() {
           <div className="grid md:grid-cols-3 gap-8">
             {steps.map((step, i) => (
               <div key={i} className="flex flex-col items-center gap-4">
-                <div className="w-14 h-14 rounded-full bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center text-indigo-300 font-bold text-xl">
+                <div className="w-14 h-14 rounded-full bg-brand-600/20 border border-brand-500/30 flex items-center justify-center text-brand-300 font-bold text-xl">
                   {i + 1}
                 </div>
                 <h3 className="font-semibold text-lg">{step.title}</h3>
@@ -132,7 +132,7 @@ export default function LandingPage() {
           <h2 className="text-4xl font-bold mb-4">Simple pricing</h2>
           <p className="text-muted-foreground mb-12">One card. Lifetime profile. No expiry.</p>
 
-          <div className="inline-flex items-center gap-3 px-6 py-4 rounded-2xl border border-indigo-500/30 bg-indigo-500/10 text-indigo-200 text-lg font-medium">
+          <div className="inline-flex items-center gap-3 px-6 py-4 rounded-2xl border border-brand-500/30 bg-brand-500/10 text-brand-200 text-lg font-medium">
             <Zap className="w-5 h-5" />
             Pricing coming soon — <Link href="/signup" className="underline underline-offset-4 hover:text-foreground transition-colors">join the waitlist</Link>
           </div>
@@ -150,7 +150,7 @@ export default function LandingPage() {
           </p>
           <Link
             href="/signup"
-            className="group inline-flex items-center gap-2 px-10 py-5 bg-indigo-600 hover:bg-indigo-500 text-foreground font-bold text-lg rounded-2xl transition-all duration-200 hover:scale-105 hover:shadow-xl hover:shadow-indigo-500/30"
+            className="group inline-flex items-center gap-2 px-10 py-5 bg-brand-600 hover:bg-brand-500 text-foreground font-bold text-lg rounded-2xl transition-all duration-200 hover:scale-105 hover:shadow-xl hover:shadow-brand-500/30"
           >
             Get Your Card
             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />

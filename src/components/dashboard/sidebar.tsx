@@ -40,7 +40,7 @@ export function SidebarContent({ pathname, onItemClick }: { pathname: string, on
       {/* Logo */}
       <div className="flex items-center gap-2 px-6 h-[72px] border-b border-border shrink-0">
         <Link href="/" className="text-xl font-bold text-foreground tracking-tight" onClick={onItemClick}>
-          Tap<span className="text-indigo-400">That</span>
+          Tap<span className="text-brand-400">That</span>
         </Link>
       </div>
 
@@ -56,11 +56,11 @@ export function SidebarContent({ pathname, onItemClick }: { pathname: string, on
               className={cn(
                 'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all',
                 isActive
-                  ? 'bg-indigo-600/15 text-indigo-300 border border-indigo-500/20'
+                  ? 'bg-brand-600/15 text-brand-300 border border-brand-500/20'
                   : 'text-muted-foreground hover:text-foreground hover:bg-accent hover:text-accent-foreground'
               )}
             >
-              <Icon className={cn('w-4 h-4', isActive ? 'text-indigo-400' : '')} />
+              <Icon className={cn('w-4 h-4', isActive ? 'text-brand-400' : '')} />
               {label}
             </Link>
           );

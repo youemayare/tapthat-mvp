@@ -65,7 +65,7 @@ export default async function DashboardPage() {
   }
 
   const stats = [
-    { label: 'Total Taps', value: totalTaps, icon: Eye, color: 'indigo' },
+    { label: 'Total Taps', value: totalTaps, icon: Eye, color: 'brand' },
     { label: 'Cards Registered', value: totalCards, icon: CreditCard, color: 'violet' },
     { label: 'Active Profiles', value: userProfilesCount, icon: Users, color: 'emerald' },
   ];
@@ -85,8 +85,8 @@ export default async function DashboardPage() {
             key={label}
             className="bg-card text-card-foreground border border-border rounded-2xl p-5 flex items-center gap-4"
           >
-            <div className="w-11 h-11 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center flex-shrink-0">
-              <Icon className="w-5 h-5 text-indigo-400" />
+            <div className="w-11 h-11 rounded-xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center flex-shrink-0">
+              <Icon className="w-5 h-5 text-brand-400" />
             </div>
             <div>
               <p className="text-2xl font-bold text-foreground">{value}</p>
@@ -102,27 +102,27 @@ export default async function DashboardPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <a
             href="/dashboard/profile"
-            className="group bg-card text-card-foreground border border-border rounded-2xl p-5 hover:bg-primary/8 hover:border-indigo-500/30 transition-all"
+            className="group bg-card text-card-foreground border border-border rounded-2xl p-5 hover:bg-primary/8 hover:border-brand-500/30 transition-all"
           >
-            <Users className="w-6 h-6 text-indigo-400 mb-3 group-hover:scale-110 transition-transform" />
+            <Users className="w-6 h-6 text-brand-400 mb-3 group-hover:scale-110 transition-transform" />
             <h3 className="text-foreground font-semibold mb-1">Set Up Profile</h3>
             <p className="text-muted-foreground text-sm">Add your photo, contact info, and social links.</p>
           </a>
           
           <a
             href="/dashboard/cards"
-            className="group bg-card text-card-foreground border border-border rounded-2xl p-5 hover:bg-primary/8 hover:border-indigo-500/30 transition-all"
+            className="group bg-card text-card-foreground border border-border rounded-2xl p-5 hover:bg-primary/8 hover:border-brand-500/30 transition-all"
           >
-            <CreditCard className="w-6 h-6 text-indigo-400 mb-3 group-hover:scale-110 transition-transform" />
+            <CreditCard className="w-6 h-6 text-brand-400 mb-3 group-hover:scale-110 transition-transform" />
             <h3 className="text-foreground font-semibold mb-1">Register Card</h3>
             <p className="text-muted-foreground text-sm">Link your NFC card UID to your profile.</p>
           </a>
 
           <a
             href="/dashboard/analytics"
-            className="group bg-card text-card-foreground border border-border rounded-2xl p-5 hover:bg-primary/8 hover:border-indigo-500/30 transition-all"
+            className="group bg-card text-card-foreground border border-border rounded-2xl p-5 hover:bg-primary/8 hover:border-brand-500/30 transition-all"
           >
-            <BarChart3 className="w-6 h-6 text-indigo-400 mb-3 group-hover:scale-110 transition-transform" />
+            <BarChart3 className="w-6 h-6 text-brand-400 mb-3 group-hover:scale-110 transition-transform" />
             <h3 className="text-foreground font-semibold mb-1">View Analytics</h3>
             <p className="text-muted-foreground text-sm">See who tapped your card and from where.</p>
           </a>
@@ -137,9 +137,9 @@ export default async function DashboardPage() {
               href={googleWalletUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="group bg-card text-card-foreground border border-border rounded-2xl p-5 hover:bg-primary/8 hover:border-indigo-500/30 transition-all"
+              className="group bg-card text-card-foreground border border-border rounded-2xl p-5 hover:bg-primary/8 hover:border-brand-500/30 transition-all"
             >
-              <Wallet className="w-6 h-6 text-indigo-400 mb-3 group-hover:scale-110 transition-transform" />
+              <Wallet className="w-6 h-6 text-brand-400 mb-3 group-hover:scale-110 transition-transform" />
               <h3 className="text-foreground font-semibold mb-1">Save to Google Wallet</h3>
               <p className="text-muted-foreground text-sm">Add your digital business card to your mobile wallet.</p>
             </a>

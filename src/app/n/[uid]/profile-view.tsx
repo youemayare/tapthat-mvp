@@ -76,7 +76,7 @@ export function ProfileView({ profile, cardUid, viewerUserId, isOwner, alreadySa
 
       {/* Background gradient */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] rounded-full bg-indigo-600/10 blur-[100px]" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] rounded-full bg-brand-600/10 blur-[100px]" />
       </div>
 
       <div className="relative z-10 w-full max-w-sm space-y-6">
@@ -85,7 +85,7 @@ export function ProfileView({ profile, cardUid, viewerUserId, isOwner, alreadySa
         <div className="bg-card text-card-foreground border border-border rounded-3xl p-6 backdrop-blur-sm text-center shadow-xl">
           {/* Avatar */}
           {profile.profilePhotoUrl ? (
-            <div className="relative w-24 h-24 rounded-full mx-auto mb-4 ring-2 ring-indigo-500/30 ring-offset-2 ring-offset-background overflow-hidden">
+            <div className="relative w-24 h-24 rounded-full mx-auto mb-4 ring-2 ring-brand-500/30 ring-offset-2 ring-offset-background overflow-hidden">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={profile.profilePhotoUrl}
@@ -94,8 +94,8 @@ export function ProfileView({ profile, cardUid, viewerUserId, isOwner, alreadySa
               />
             </div>
           ) : (
-            <div className="w-24 h-24 rounded-full mx-auto mb-4 bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center ring-2 ring-indigo-500/30 ring-offset-2 ring-offset-background">
-              <span className="text-3xl font-bold text-indigo-300">
+            <div className="w-24 h-24 rounded-full mx-auto mb-4 bg-brand-500/20 border border-brand-500/30 flex items-center justify-center ring-2 ring-brand-500/30 ring-offset-2 ring-offset-background">
+              <span className="text-3xl font-bold text-brand-300">
                 {profile.firstName?.[0] ?? '?'}
               </span>
             </div>
@@ -104,7 +104,7 @@ export function ProfileView({ profile, cardUid, viewerUserId, isOwner, alreadySa
           {/* Name & title */}
           <h1 className="text-2xl font-bold text-foreground mb-1">{fullName}</h1>
           {profile.jobTitle && (
-            <p className="text-indigo-300 font-medium text-sm mb-1">{profile.jobTitle}</p>
+            <p className="text-brand-300 font-medium text-sm mb-1">{profile.jobTitle}</p>
           )}
 
           {/* Company */}
@@ -135,7 +135,7 @@ export function ProfileView({ profile, cardUid, viewerUserId, isOwner, alreadySa
             className={`w-full flex items-center justify-center gap-3 py-3.5 px-6 font-semibold text-sm rounded-2xl transition-all duration-200 active:scale-95 border ${
               saved
                 ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20'
-                : 'bg-card border-border text-foreground hover:border-indigo-500/40 hover:bg-indigo-500/5'
+                : 'bg-card border-border text-foreground hover:border-brand-500/40 hover:bg-brand-500/5'
             }`}
           >
             {saved ? (
@@ -151,7 +151,7 @@ export function ProfileView({ profile, cardUid, viewerUserId, isOwner, alreadySa
           <Link
             href={`/signup?save=${cardUid}`}
             id="signup-save-cta"
-            className="w-full flex items-center justify-center gap-3 py-3.5 px-6 bg-card border border-border text-muted-foreground hover:border-indigo-500/40 hover:text-foreground text-sm font-medium rounded-2xl transition-all duration-200"
+            className="w-full flex items-center justify-center gap-3 py-3.5 px-6 bg-card border border-border text-muted-foreground hover:border-brand-500/40 hover:text-foreground text-sm font-medium rounded-2xl transition-all duration-200"
           >
             <UserPlus className="w-4 h-4" />
             Sign in to TapThat to save as a Connection
@@ -162,7 +162,7 @@ export function ProfileView({ profile, cardUid, viewerUserId, isOwner, alreadySa
         <button
           onClick={handleSaveContact}
           id="save-contact-btn"
-          className="w-full flex items-center justify-center gap-3 py-4 px-6 bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white font-bold text-lg rounded-2xl transition-all duration-200 shadow-lg shadow-indigo-500/25"
+          className="w-full flex items-center justify-center gap-3 py-4 px-6 bg-brand-600 hover:bg-brand-500 active:scale-95 text-white font-bold text-lg rounded-2xl transition-all duration-200 shadow-lg shadow-brand-500/25"
         >
           <Contact className="w-5 h-5" />
           Save Contact
@@ -212,8 +212,8 @@ export function ProfileView({ profile, cardUid, viewerUserId, isOwner, alreadySa
               id="email-link"
               className="flex items-center gap-4 p-4 bg-card text-card-foreground border border-border rounded-2xl hover:bg-accent transition-all group"
             >
-              <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center flex-shrink-0">
-                <Mail className="w-4 h-4 text-blue-400" />
+              <div className="w-10 h-10 rounded-xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center flex-shrink-0">
+                <Mail className="w-4 h-4 text-brand-400" />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-xs text-muted-foreground mb-0.5">Email</p>
@@ -231,8 +231,8 @@ export function ProfileView({ profile, cardUid, viewerUserId, isOwner, alreadySa
               id="website-link"
               className="flex items-center gap-4 p-4 bg-card text-card-foreground border border-border rounded-2xl hover:bg-accent transition-all group"
             >
-              <div className="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center flex-shrink-0">
-                <Globe className="w-4 h-4 text-purple-400" />
+              <div className="w-10 h-10 rounded-xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center flex-shrink-0">
+                <Globe className="w-4 h-4 text-brand-400" />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-xs text-muted-foreground mb-0.5">Website</p>
@@ -254,7 +254,7 @@ export function ProfileView({ profile, cardUid, viewerUserId, isOwner, alreadySa
                 id="linkedin-link"
                 className="flex-1 flex items-center justify-center gap-2 py-3 px-4 bg-card text-card-foreground border border-border rounded-2xl hover:bg-accent transition-all"
               >
-                <FaLinkedin className="w-4 h-4 text-blue-400" />
+                <FaLinkedin className="w-4 h-4 text-brand-400" />
                 <span className="text-foreground text-sm font-medium">LinkedIn</span>
               </a>
             )}
@@ -300,7 +300,7 @@ export function ProfileView({ profile, cardUid, viewerUserId, isOwner, alreadySa
         </Link>
 
         <p className="text-xs text-muted-foreground/60 font-medium mt-2">
-          Powered by <Link href="/" className="hover:text-indigo-400 transition-colors">TapThat</Link>
+          Powered by <Link href="/" className="hover:text-brand-400 transition-colors">TapThat</Link>
         </p>
       </div>
     </main>

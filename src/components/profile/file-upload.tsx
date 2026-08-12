@@ -62,8 +62,8 @@ export function FileUpload({ label, type, currentUrl, onUploadSuccess, onRemove 
       
       {currentUrl ? (
         <div className="flex items-center gap-4 bg-card text-card-foreground border border-border rounded-xl p-4 w-full">
-          <div className="w-10 h-10 rounded-lg bg-indigo-500/10 flex items-center justify-center flex-shrink-0">
-            <FileText className="w-5 h-5 text-indigo-400" />
+          <div className="w-10 h-10 rounded-lg bg-brand-500/10 flex items-center justify-center flex-shrink-0">
+            <FileText className="w-5 h-5 text-brand-400" />
           </div>
           <div className="flex-1 min-w-0">
             <a href={currentUrl} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-foreground hover:underline truncate block">

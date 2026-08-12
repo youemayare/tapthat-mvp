@@ -28,7 +28,7 @@ export default async function ClaimPage({ searchParams }: Props) {
     <main className="min-h-[80vh] flex items-center justify-center px-6">
       {/* Background glow */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-indigo-600/10 blur-[120px]" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-brand-600/10 blur-[120px]" />
       </div>
 
       <div className="relative z-10 w-full max-w-md">
