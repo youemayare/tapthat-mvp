@@ -44,7 +44,7 @@ export default function LandingPage() {
             </span>
           </h1>
 
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed">
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-10 leading-relaxed">
             Premium NFC cards that open your profile instantly. Edit anytime, track with built-in analytics, and let people save your contact in one tap. No app, no friction.
           </p>
 
