@@ -40,7 +40,7 @@ export function SidebarContent({ pathname, onItemClick }: { pathname: string, on
       {/* Logo */}
       <div className="flex items-center gap-2 px-6 h-[72px] border-b border-border shrink-0">
         <Link href="/" className="text-xl font-bold text-foreground tracking-tight" onClick={onItemClick}>
-          Tap<span className="text-brand-400">That</span>
+          Ano<span className="text-brand-400">ya</span>
         </Link>
       </div>
 
@@ -69,7 +69,7 @@ export function SidebarContent({ pathname, onItemClick }: { pathname: string, on
 
       {/* Footer */}
       <div className="px-6 py-4 border-t border-border">
-        <p className="text-xs text-zinc-600">TapThat MVP · v0.1.0</p>
+        <p className="text-xs text-zinc-600">Anoya MVP · v0.1.0</p>
       </div>
     </>
   );

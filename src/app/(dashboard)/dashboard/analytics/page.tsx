@@ -213,7 +213,7 @@ export default async function AnalyticsPage(
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold text-foreground">{totalSaves}</div>
-            <p className="text-xs text-muted-foreground mt-1">Saved to TapThat accounts</p>
+            <p className="text-xs text-muted-foreground mt-1">Saved to Anoya accounts</p>
           </CardContent>
         </Card>
         <Card className="border-border bg-card">

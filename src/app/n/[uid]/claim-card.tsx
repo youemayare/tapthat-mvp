@@ -39,7 +39,7 @@ export function ClaimCard({ uid }: Props) {
           This card is unclaimed
         </h1>
         <p className="text-muted-foreground leading-relaxed mb-2">
-          This TapThat card hasn&apos;t been set up yet.
+          This Anoya card hasn&apos;t been set up yet.
         </p>
         <p className="text-muted-foreground text-sm mb-10 font-mono bg-card text-card-foreground border border-border rounded-lg px-4 py-2 inline-block">
           Card ID: {uid}
@@ -58,7 +58,7 @@ export function ClaimCard({ uid }: Props) {
         <p className="text-zinc-600 text-xs mt-8">
           Powered by{' '}
           <Link href="/" className="text-muted-foreground hover:text-muted-foreground transition-colors">
-            TapThat
+            Anoya
           </Link>
         </p>
       </div>

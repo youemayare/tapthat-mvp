@@ -7,7 +7,7 @@ export default function LandingPage() {
       {/* ── Nav ── */}
       <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4 backdrop-blur-md border-b border-border">
         <span className="text-xl font-bold tracking-tight">
-          Tap<span className="text-brand-400">That</span>
+          Ano<span className="text-brand-400">ya</span>
         </span>
         <div className="flex items-center gap-4">
           <Link
@@ -151,7 +151,7 @@ export default function LandingPage() {
 
       {/* ── Footer ── */}
       <footer className="py-10 px-6 border-t border-border text-center text-muted-foreground text-sm">
-        <p>© {new Date().getFullYear()} TapThat. Built with ❤️ for GCC professionals.</p>
+        <p>© {new Date().getFullYear()} Anoya. Built with ❤️ for GCC professionals.</p>
       </footer>
     </main>
   );
@@ -193,7 +193,7 @@ const features = [
 const steps = [
   {
     title: 'Tap your card',
-    description: 'Hold your TapThat card near any phone. Your profile opens instantly in the browser.',
+    description: 'Hold your Anoya card near any phone. Your profile opens instantly in the browser.',
   },
   {
     title: 'They save your contact',

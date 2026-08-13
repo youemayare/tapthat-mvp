@@ -208,7 +208,7 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
           </div>
           <div className="space-y-2">
             <Label htmlFor="companyName">Company Name</Label>
-            <Input id="companyName" {...register('companyName')} placeholder="TapThat" />
+            <Input id="companyName" {...register('companyName')} placeholder="Anoya" />
             {errors.companyName && <p className="text-sm text-red-500">{errors.companyName.message}</p>}
           </div>
         </div>
@@ -248,7 +248,7 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
           </div>
           <div className="space-y-2">
             <Label htmlFor="websiteUrl">Website</Label>
-            <Input id="websiteUrl" type="url" {...register('websiteUrl')} placeholder="https://tapthat.ae" />
+            <Input id="websiteUrl" type="url" {...register('websiteUrl')} placeholder="https://anoya.ae" />
             {errors.websiteUrl && <p className="text-sm text-red-500">{errors.websiteUrl.message}</p>}
           </div>
         </div>
@@ -261,7 +261,7 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
           </div>
           <div className="space-y-2">
             <Label htmlFor="instagramUrl">Instagram URL</Label>
-            <Input id="instagramUrl" type="url" {...register('instagramUrl')} placeholder="https://instagram.com/tapthat" />
+            <Input id="instagramUrl" type="url" {...register('instagramUrl')} placeholder="https://instagram.com/anoya" />
             {errors.instagramUrl && <p className="text-sm text-red-500">{errors.instagramUrl.message}</p>}
           </div>
         </div>
@@ -286,7 +286,7 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
           <Label htmlFor="slug">Custom Profile URL (Username)</Label>
           <div className="flex items-center">
             <span className="bg-accent text-accent-foreground border border-r-0 border-border px-3 py-2 rounded-l-md text-muted-foreground text-sm">
-              tapthat.ae/p/
+              anoya.ae/p/
             </span>
             <Input 
               id="slug" 

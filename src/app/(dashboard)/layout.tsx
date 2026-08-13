@@ -5,7 +5,7 @@ import { DashboardHeader } from '@/components/dashboard/header';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: { default: 'Dashboard | TapThat', template: '%s | TapThat' },
+  title: { default: 'Dashboard | Anoya', template: '%s | Anoya' },
   robots: { index: false },
 };
 

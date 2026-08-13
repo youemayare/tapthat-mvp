@@ -62,7 +62,7 @@ export function DashboardHeader({ user }: Props) {
         </Sheet>
         
         <Link href="/" className="text-xl font-bold text-foreground">
-          Tap<span className="text-brand-400">That</span>
+          Ano<span className="text-brand-400">ya</span>
         </Link>
       </div>
 

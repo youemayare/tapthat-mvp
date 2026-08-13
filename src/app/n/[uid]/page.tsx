@@ -17,8 +17,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const sanitizedUid = uid.toUpperCase();
   if (!/^[A-Z0-9-]{8,64}$/.test(sanitizedUid)) {
     return {
-      title: 'TapThat — Claim Your Card',
-      description: 'Set up your professional profile on TapThat.',
+      title: 'Anoya — Claim Your Card',
+      description: 'Set up your professional profile on Anoya.',
     };
   }
 
@@ -28,7 +28,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     // Revoked cards: completely dead, don't show any profile info
     if (row?.card.status === 'revoked') {
       return {
-        title: 'TapThat — Card Unavailable',
+        title: 'Anoya — Card Unavailable',
         description: 'This card has been permanently revoked and is no longer usable.',
       };
     }
@@ -36,7 +36,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     // Deactivated cards: temporarily unavailable
     if (row?.card.status === 'deactivated') {
       return {
-        title: 'TapThat — Card Unavailable',
+        title: 'Anoya — Card Unavailable',
         description: 'This card is temporarily unavailable.',
       };
     }
@@ -45,7 +45,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       const name = [row.profile.firstName, row.profile.lastName].filter(Boolean).join(' ');
       return {
         title: `${name} — ${row.profile.jobTitle ?? 'Professional Profile'}`,
-        description: row.profile.bio ?? `Connect with ${name} on TapThat`,
+        description: row.profile.bio ?? `Connect with ${name} on Anoya`,
         openGraph: {
           title: name,
           description: row.profile.jobTitle ?? '',
@@ -58,8 +58,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   return {
-    title: 'TapThat — Claim Your Card',
-    description: 'Set up your professional profile on TapThat.',
+    title: 'Anoya — Claim Your Card',
+    description: 'Set up your professional profile on Anoya.',
   };
 }
 

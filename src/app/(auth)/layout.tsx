@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Sign In',
-  description: 'Sign in to your TapThat account to manage your profile and analytics.',
+  description: 'Sign in to your Anoya account to manage your profile and analytics.',
 };
 
 import Link from 'next/link';
@@ -18,7 +18,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         {/* Logo */}
         <div className="text-center mb-8">
           <Link href="/" className="text-2xl font-bold text-foreground tracking-tight">
-            Tap<span className="text-brand-400">That</span>
+            Ano<span className="text-brand-400">ya</span>
           </Link>
         </div>
         {children}

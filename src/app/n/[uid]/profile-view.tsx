@@ -52,7 +52,7 @@ export function ProfileView({ profile, cardUid, viewerUserId, isOwner, alreadySa
       });
       if (res.ok) {
         setSaved(!saved);
-        toast.success(saved ? 'Removed from your connections' : 'Saved to My TapThat! 🎉', {
+        toast.success(saved ? 'Removed from your connections' : 'Saved to My Anoya! 🎉', {
           description: saved
             ? undefined
             : `${fullName} is now in your My Connections list.`,
@@ -126,7 +126,7 @@ export function ProfileView({ profile, cardUid, viewerUserId, isOwner, alreadySa
           )}
         </div>
 
-        {/* ── Save to TapThat (for logged-in non-owners) ── */}
+        {/* ── Save to Anoya (for logged-in non-owners) ── */}
         {viewerUserId && !isOwner && (
           <button
             onClick={handleToggleSave}
@@ -154,7 +154,7 @@ export function ProfileView({ profile, cardUid, viewerUserId, isOwner, alreadySa
             className="w-full flex items-center justify-center gap-3 py-3.5 px-6 bg-card border border-border text-muted-foreground hover:border-brand-500/40 hover:text-foreground text-sm font-medium rounded-2xl transition-all duration-200"
           >
             <UserPlus className="w-4 h-4" />
-            Sign in to TapThat to save as a Connection
+            Sign in to Anoya to save as a Connection
           </Link>
         )}
 
@@ -296,11 +296,11 @@ export function ProfileView({ profile, cardUid, viewerUserId, isOwner, alreadySa
           href="/"
           className="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-muted/50 hover:bg-muted text-muted-foreground text-xs font-medium rounded-full transition-all duration-200"
         >
-          Want your own custom card? <span className="text-foreground ml-0.5">Get TapThat</span>
+          Want your own custom card? <span className="text-foreground ml-0.5">Get Anoya</span>
         </Link>
 
         <p className="text-xs text-muted-foreground/60 font-medium mt-2">
-          Powered by <Link href="/" className="hover:text-brand-400 transition-colors">TapThat</Link>
+          Powered by <Link href="/" className="hover:text-brand-400 transition-colors">Anoya</Link>
         </p>
       </div>
     </main>

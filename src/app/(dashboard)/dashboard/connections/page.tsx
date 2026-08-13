@@ -34,7 +34,7 @@ export default async function ConnectionsPage() {
       <div>
         <h1 className="text-3xl font-bold text-foreground">My Connections</h1>
         <p className="text-muted-foreground mt-2">
-          People you&apos;ve saved while exploring TapThat profiles.
+          People you&apos;ve saved while exploring Anoya profiles.
         </p>
       </div>
 
@@ -45,7 +45,7 @@ export default async function ConnectionsPage() {
           </div>
           <h3 className="text-xl font-bold text-foreground mb-2">No connections yet</h3>
           <p className="text-muted-foreground max-w-sm mx-auto">
-            When you tap someone&apos;s TapThat card and hit &quot;Save to My Connections&quot;, they&apos;ll appear here.
+            When you tap someone&apos;s Anoya card and hit &quot;Save to My Connections&quot;, they&apos;ll appear here.
           </p>
         </div>
       ) : (

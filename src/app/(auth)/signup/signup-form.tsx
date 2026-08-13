@@ -100,7 +100,7 @@ export default function SignupForm({ searchParams }: Props) {
   return (
     <div className="bg-card text-card-foreground border border-border rounded-2xl p-8 backdrop-blur-sm">
       <h1 className="text-2xl font-bold text-foreground mb-1">Create your account</h1>
-      <p className="text-muted-foreground text-sm mb-8">Get started with TapThat for free</p>
+      <p className="text-muted-foreground text-sm mb-8">Get started with Anoya for free</p>
 
       {error && (
         <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-300 text-sm">

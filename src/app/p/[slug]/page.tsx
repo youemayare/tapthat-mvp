@@ -13,19 +13,19 @@ interface Props {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  if (!isMultiProfileEnabled()) return { title: 'TapThat' };
+  if (!isMultiProfileEnabled()) return { title: 'Anoya' };
 
   const { slug } = await params;
   const profile = await getCachedProfileBySlug(slug);
 
   if (!profile || !profile.isPublished) {
-    return { title: 'TapThat - Profile Unavailable' };
+    return { title: 'Anoya - Profile Unavailable' };
   }
 
   const name = [profile.firstName, profile.lastName].filter(Boolean).join(' ');
   return {
     title: `${name} - ${profile.jobTitle ?? 'Professional Profile'}`,
-    description: profile.bio ?? `Connect with ${name} on TapThat`,
+    description: profile.bio ?? `Connect with ${name} on Anoya`,
     openGraph: {
       title: name,
       description: profile.jobTitle ?? '',

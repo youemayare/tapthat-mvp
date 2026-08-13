@@ -70,7 +70,7 @@ export default function LoginForm({ searchParams }: Props) {
   return (
     <div className="bg-card text-card-foreground border border-border rounded-2xl p-8 backdrop-blur-sm">
       <h1 className="text-2xl font-bold text-foreground mb-1">Welcome back</h1>
-      <p className="text-muted-foreground text-sm mb-8">Sign in to your TapThat account</p>
+      <p className="text-muted-foreground text-sm mb-8">Sign in to your Anoya account</p>
 
       {message && (
         <div className="mb-4 p-3 rounded-lg bg-brand-500/10 border border-brand-500/20 text-brand-300 text-sm">

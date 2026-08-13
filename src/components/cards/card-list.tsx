@@ -143,7 +143,7 @@ export function CardList({ initialCards, profiles = [], multiProfileEnabled = fa
         </div>
         <h3 className="text-xl font-bold text-foreground mb-3">No Cards Found</h3>
         <p className="text-sm text-muted-foreground max-w-md mx-auto mb-8 leading-relaxed">
-          Tap your physical TapThat card to claim it, or purchase a new one to get started.
+          Tap your physical Anoya card to claim it, or purchase a new one to get started.
         </p>
         <div className="flex flex-col sm:flex-row justify-center gap-3 w-full sm:w-auto">
           <a

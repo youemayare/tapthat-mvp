@@ -42,7 +42,7 @@ export function getGoogleWalletSaveUrl(profile: ProfileData): string {
     cardTitle: {
       defaultValue: {
         language: 'en',
-        value: 'TapThat Contact Card'
+        value: 'Anoya Contact Card'
       }
     },
     header: {
@@ -54,7 +54,7 @@ export function getGoogleWalletSaveUrl(profile: ProfileData): string {
     subheader: {
       defaultValue: {
         language: 'en',
-        value: [profile.jobTitle, profile.company].filter(Boolean).join(' at ') || 'TapThat Member'
+        value: [profile.jobTitle, profile.company].filter(Boolean).join(' at ') || 'Anoya Member'
       }
     },
     barcode: {

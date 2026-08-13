@@ -3,8 +3,8 @@ import { notFound } from 'next/navigation';
 import { ClaimForm } from './claim-form';
 
 export const metadata: Metadata = {
-  title: 'Activate Card | TapThat',
-  description: 'Link a physical NFC card to your TapThat account.',
+  title: 'Activate Card | Anoya',
+  description: 'Link a physical NFC card to your Anoya account.',
 };
 
 interface Props {

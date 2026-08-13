@@ -123,7 +123,7 @@ export function ProfileList({ profiles: initialProfiles, hasCards = true }: Prop
           </div>
           <h3 className="text-xl font-bold text-foreground mb-3">Profile Locked</h3>
           <p className="text-muted-foreground max-w-md mx-auto mb-8 leading-relaxed">
-            No cards found. Get a TapThat card to unlock your digital profile and start sharing your contact info with a simple tap.
+            No cards found. Get a Anoya card to unlock your digital profile and start sharing your contact info with a simple tap.
           </p>
           <a
             href="https://tapthat.vercel.app/"
@@ -138,7 +138,7 @@ export function ProfileList({ profiles: initialProfiles, hasCards = true }: Prop
 
       {profiles.length > 0 && !hasCards && (
         <div className="bg-card/40 backdrop-blur-md border border-white/5 rounded-2xl p-4 flex items-center justify-between mb-4">
-          <p className="text-sm text-muted-foreground">To create additional profiles, add a TapThat card to your account.</p>
+          <p className="text-sm text-muted-foreground">To create additional profiles, add a Anoya card to your account.</p>
           <a
             href="https://tapthat.vercel.app/"
             target="_blank"

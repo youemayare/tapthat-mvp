@@ -83,7 +83,7 @@ export async function POST(req: Request) {
 
       if (userCardsResult.length === 0) {
         return NextResponse.json(
-          { error: 'You must own a TapThat card to create a new profile.' },
+          { error: 'You must own a Anoya card to create a new profile.' },
           { status: 403 }
         );
       }
