@@ -45,10 +45,10 @@ export default function LandingPage() {
           </h1>
 
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-10 leading-relaxed">
-            Premium NFC cards that open your profile instantly. Edit anytime, track with built-in analytics, and let people save your contact in one tap. No app, no friction.
+            Premium NFC cards that open your profile instantly. Edit anytime and let people save your contact in one tap. No app, no friction.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Link
               href="/signup"
               className="group inline-flex items-center gap-2 px-8 py-4 bg-brand-600 hover:bg-brand-500 text-foreground font-semibold rounded-2xl transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-brand-500/25"
