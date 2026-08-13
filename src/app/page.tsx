@@ -3,7 +3,7 @@ import { ArrowRight, Zap, BarChart3, RefreshCw, Smartphone, Shield, Globe } from
 
 export default function LandingPage() {
   return (
-    <main className="min-h-screen bg-background text-foreground overflow-hidden">
+    <main className="force-light min-h-screen bg-background text-foreground overflow-hidden">
       {/* ── Nav ── */}
       <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4 backdrop-blur-md border-b border-border">
         <span className="text-xl font-bold tracking-tight">
