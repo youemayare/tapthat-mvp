@@ -51,14 +51,14 @@ export default function LandingPage() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Link
               href="/signup"
-              className="group inline-flex items-center gap-2 px-8 py-4 bg-brand-600 hover:bg-brand-500 text-foreground font-semibold rounded-2xl transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-brand-500/25"
+              className="group inline-flex justify-center items-center gap-2 px-8 py-4 bg-brand-600 hover:bg-brand-500 text-white font-semibold rounded-2xl transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-brand-500/25 w-56"
             >
               Get Your Card
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
             <Link
               href="/login"
-              className="inline-flex items-center gap-2 px-8 py-4 bg-card text-card-foreground hover:bg-accent text-accent-foreground border border-border text-foreground font-semibold rounded-2xl transition-all duration-200"
+              className="inline-flex justify-center items-center gap-2 px-8 py-4 bg-card text-card-foreground hover:bg-accent text-accent-foreground border border-border font-semibold rounded-2xl transition-all duration-200 w-56"
             >
               Sign In
             </Link>
