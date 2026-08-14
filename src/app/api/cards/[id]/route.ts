@@ -107,7 +107,7 @@ async function handleStatusChange(tx: Transaction, cardId: string, requestedStat
   }
 
   if (updatedCard?.cardUid) {
-    revalidateTag(`card-${updatedCard.cardUid}`);
+    revalidateTag(`card-${updatedCard.cardUid}`, { expire: 0 });
   }
 
   return NextResponse.json({ success: true, card: updatedCard });
@@ -177,7 +177,7 @@ async function handleProfileSwitch(tx: Transaction, cardId: string, profileId: s
   }
 
   if (updatedCard?.cardUid) {
-    revalidateTag(`card-${updatedCard.cardUid}`);
+    revalidateTag(`card-${updatedCard.cardUid}`, { expire: 0 });
   }
 
   return NextResponse.json({ success: true, card: updatedCard });
