@@ -14,6 +14,7 @@
  *    - Writes an audit event to card_status_events.
  */
 import { NextResponse } from 'next/server';
+import { revalidateTag } from 'next/cache';
 import { db } from '@/lib/db';
 import { withRlsUser, Transaction } from '@/lib/db/auth-wrapper';
 import { cards, cardStatusEvents, profiles } from '@/lib/db/schema';
@@ -105,6 +106,10 @@ async function handleStatusChange(tx: Transaction, cardId: string, requestedStat
     console.error('Failed to write audit log:', error);
   }
 
+  if (updatedCard?.cardUid) {
+    revalidateTag(`card-${updatedCard.cardUid}`);
+  }
+
   return NextResponse.json({ success: true, card: updatedCard });
 }
 
@@ -169,6 +174,10 @@ async function handleProfileSwitch(tx: Transaction, cardId: string, profileId: s
     });
   } catch (error) {
     console.error('Failed to write audit log:', error);
+  }
+
+  if (updatedCard?.cardUid) {
+    revalidateTag(`card-${updatedCard.cardUid}`);
   }
 
   return NextResponse.json({ success: true, card: updatedCard });
