@@ -2,6 +2,8 @@
 
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useTransition } from 'react';
+import { Loader2 } from 'lucide-react';
 
 interface Profile {
   id: string;
@@ -18,6 +20,7 @@ interface ProfileFilterProps {
 export function ProfileFilter({ profiles, selectedProfileId }: ProfileFilterProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [isPending, startTransition] = useTransition();
 
   const handleValueChange = (value: string | null) => {
     if (!value) return;
@@ -28,7 +31,9 @@ export function ProfileFilter({ profiles, selectedProfileId }: ProfileFilterProp
       params.set('profile', value);
     }
     
-    router.push(`?${params.toString()}`);
+    startTransition(() => {
+      router.push(`?${params.toString()}`);
+    });
   };
 
   return (
@@ -37,9 +42,15 @@ export function ProfileFilter({ profiles, selectedProfileId }: ProfileFilterProp
       <Select
         value={selectedProfileId || 'all'}
         onValueChange={handleValueChange}
+        disabled={isPending}
       >
-        <SelectTrigger className="w-[200px] h-9">
+        <SelectTrigger className="w-[200px] h-9 relative">
           <SelectValue placeholder="Select a profile" />
+          {isPending && (
+            <div className="absolute right-8 top-1/2 -translate-y-1/2">
+              <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+            </div>
+          )}
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">All Profiles</SelectItem>

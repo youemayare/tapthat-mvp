@@ -54,7 +54,10 @@ export default async function AnalyticsPage(
     const profileTapsCondition = cardIds.length > 0
       ? or(
           inArray(tapEvents.profileId, profileIds),
-          inArray(tapEvents.cardId, cardIds)
+          and(
+            inArray(tapEvents.cardId, cardIds),
+            isNull(tapEvents.profileId)
+          )
         )
       : inArray(tapEvents.profileId, profileIds);
 

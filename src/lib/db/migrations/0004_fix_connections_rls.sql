@@ -1,0 +1,1 @@
+CREATE POLICY "Users can view how many times their profile was saved" ON "connections" FOR SELECT TO authenticated USING (profile_id IN (SELECT id FROM profiles WHERE user_id = auth.uid()));
