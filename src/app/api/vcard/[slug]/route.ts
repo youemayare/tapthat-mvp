@@ -38,15 +38,12 @@ export async function GET(
   const requestId = generateRequestId();
   const { slug } = await params;
 
-  // Reject anything that looks like a UUID — internal ID based access is not supported.
   // UUIDs are 8-4-4-4-12 hex characters with hyphens.
   const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-  if (UUID_RE.test(slug)) {
-    return NextResponse.json({ error: 'Not found' }, { status: 404 });
-  }
+  const isUUID = UUID_RE.test(slug);
 
-  // Basic slug format validation (slug must be non-empty printable ASCII, max 100 chars)
-  if (!slug || slug.length > 100 || !/^[a-zA-Z0-9_-]+$/.test(slug)) {
+  // Basic slug format validation
+  if (!isUUID && (!slug || slug.length > 100 || !/^[a-zA-Z0-9_-]+$/.test(slug))) {
     return NextResponse.json({ error: 'Not found' }, { status: 404 });
   }
 
@@ -71,7 +68,7 @@ export async function GET(
       .from(profiles)
       .where(
         and(
-          eq(profiles.slug, slug),
+          isUUID ? eq(profiles.id, slug) : eq(profiles.slug, slug),
           eq(profiles.isPublished, true)
         )
       )

@@ -75,9 +75,10 @@ export function ProfileView({ profile, cardUid }: Props) {
   }, [cardUid]);
 
   function handleSaveContact() {
-    if (!profile.slug) return;
+    const identifier = profile.slug || profile.id;
+    if (!identifier) return;
     // eslint-disable-next-line @next/next/no-location-assign-relative-destination
-    window.location.assign(`/api/vcard/${profile.slug}`);
+    window.location.assign(`/api/vcard/${identifier}`);
   }
 
   async function handleToggleSave() {
@@ -133,7 +134,7 @@ export function ProfileView({ profile, cardUid }: Props) {
               style={{ backgroundImage: `url(${profile.companyLogoUrl})` }}
             />
           ) : (
-            <div className="w-full h-32 bg-gradient-to-r from-brand-500/10 to-brand-400/10" />
+            <div className="w-full h-32 bg-background" />
           )}
 
           <div className="px-6 pb-6 pt-0">
@@ -220,17 +221,15 @@ export function ProfileView({ profile, cardUid }: Props) {
           </Link>
         )}
 
-        {/* ── Save Contact CTA (only when profile has a public slug) ── */}
-        {profile.slug && (
-          <button
-            onClick={handleSaveContact}
-            id="save-contact-btn"
-            className="w-full flex items-center justify-center gap-3 py-4 px-6 bg-brand-600 hover:bg-brand-500 active:scale-95 text-white font-bold text-lg rounded-2xl transition-all duration-200 shadow-lg shadow-brand-500/25"
-          >
-            <Contact className="w-5 h-5" />
-            Save Contact
-          </button>
-        )}
+        {/* ── Save Contact CTA (always visible) ── */}
+        <button
+          onClick={handleSaveContact}
+          id="save-contact-btn"
+          className="w-full flex items-center justify-center gap-3 py-4 px-6 bg-brand-600 hover:bg-brand-500 active:scale-95 text-white font-bold text-lg rounded-2xl transition-all duration-200 shadow-lg shadow-brand-500/25"
+        >
+          <Contact className="w-5 h-5" />
+          Save Contact
+        </button>
 
         {/* ── Contact Actions ── */}
         <div className="space-y-3">
