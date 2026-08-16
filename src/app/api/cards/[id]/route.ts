@@ -15,6 +15,7 @@
  */
 import { NextResponse } from 'next/server';
 import { revalidateTag } from 'next/cache';
+import { db } from '@/lib/db';
 import { withRlsUser, Transaction } from '@/lib/db/auth-wrapper';
 import { cards, cardStatusEvents, profiles } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
