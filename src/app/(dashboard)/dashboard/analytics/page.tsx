@@ -162,7 +162,7 @@ export default async function AnalyticsPage(
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-foreground">Analytics</h1>
-          <p className="text-muted-foreground mt-2">Track every tap — see who&apos;s visiting your profile, from where, and on what device.</p>
+          <p className="text-muted-foreground mt-2">Track your profile reach and audience engagement.</p>
         </div>
         <ProfileFilter 
           profiles={userProfiles.map((p: { id: string; label: string | null; firstName: string | null; lastName: string | null; companyName: string | null; }) => ({ 
@@ -175,35 +175,25 @@ export default async function AnalyticsPage(
         />
       </div>
 
-      <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-5">
+      <div className="grid gap-6 grid-cols-1 sm:grid-cols-3">
         <Card className="border-border bg-card">
           <CardHeader className="flex flex-row items-start justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Taps</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Profile Views</CardTitle>
             <Activity className="h-4 w-4 text-brand-500" />
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold text-foreground">{totalTaps}</div>
-            <p className="text-xs text-muted-foreground mt-1">All time interactions</p>
+            <p className="text-xs text-muted-foreground mt-1">Every time your profile was opened.</p>
           </CardContent>
         </Card>
         <Card className="border-border bg-card">
           <CardHeader className="flex flex-row items-start justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Unique Visitors</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Estimated Unique Visitors</CardTitle>
             <Users className="h-4 w-4 text-violet-500" />
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold text-foreground">{uniqueTaps}</div>
-            <p className="text-xs text-muted-foreground mt-1">Distinct devices</p>
-          </CardContent>
-        </Card>
-        <Card className="border-border bg-card">
-          <CardHeader className="flex flex-row items-start justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Returning Visitors</CardTitle>
-            <MousePointerClick className="h-4 w-4 text-pink-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-foreground">{returningTaps}</div>
-            <p className="text-xs text-muted-foreground mt-1">Multiple taps, same device</p>
+            <p className="text-xs text-muted-foreground mt-1">An estimate of distinct visitors based on anonymous browser sessions.</p>
           </CardContent>
         </Card>
         <Card className="border-border bg-card">
@@ -213,17 +203,7 @@ export default async function AnalyticsPage(
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold text-foreground">{totalSaves}</div>
-            <p className="text-xs text-muted-foreground mt-1">Saved to Anoya accounts</p>
-          </CardContent>
-        </Card>
-        <Card className="border-border bg-card">
-          <CardHeader className="flex flex-row items-start justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Connections Saved</CardTitle>
-            <UserCheck className="h-4 w-4 text-amber-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-foreground">{connectionsSaved}</div>
-            <p className="text-xs text-muted-foreground mt-1">Profiles you&apos;ve saved</p>
+            <p className="text-xs text-muted-foreground mt-1">Times your profile was saved to another Anoya user’s Connections.</p>
           </CardContent>
         </Card>
       </div>
@@ -231,9 +211,6 @@ export default async function AnalyticsPage(
       {(totalTaps > 0) ? (
         <AnalyticsCharts 
           dailyStats={dailyStats} 
-          deviceStats={deviceStats} 
-          browserStats={browserStats} 
-          locationStats={locationStats}
         />
       ) : (
         <div className="bg-card border border-border rounded-3xl p-12 text-center shadow-sm">
