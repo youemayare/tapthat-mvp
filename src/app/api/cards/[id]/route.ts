@@ -103,24 +103,24 @@ async function handleStatusChange(tx: Transaction, cardId: string, requestedStat
       activatedAt: cards.activatedAt,
     });
 
-  // Audit log — uses the RLS-scoped transaction (tx) so the INSERT runs under
-  // the authenticated user's Postgres role. Requires the INSERT policy from:
-  //   scripts/add-card-status-events-rls-policy.sql
-  // Non-critical: a failed audit write does not roll back the card status change.
-  try {
-    await tx.insert(cardStatusEvents).values({
-      cardId: updatedCard.id,
-      userId,
-      previousStatus: currentCard.status,
-      newStatus: updatedCard.status,
-      reason: 'User triggered via dashboard',
-    });
-  } catch (auditError) {
-    logError({ operation: 'cards.PATCH.audit', error: auditError });
-  }
+  // Audit log — non-critical, written OUTSIDE the RLS transaction so a failure
+  // here can never abort the card status change that already committed above.
+  setImmediate(async () => {
+    try {
+      await db.insert(cardStatusEvents).values({
+        cardId: updatedCard.id,
+        userId,
+        previousStatus: currentCard.status,
+        newStatus: updatedCard.status,
+        reason: 'User triggered via dashboard',
+      });
+    } catch (auditError) {
+      logError({ operation: 'cards.PATCH.audit', error: auditError });
+    }
+  });
 
   if (updatedCard?.cardUid) {
-    revalidateTag(`card-${updatedCard.cardUid}`, { expire: 0 });
+    revalidateTag(`card-${updatedCard.cardUid}`, 'max');
   }
 
   return NextResponse.json({ success: true, card: updatedCard });
@@ -173,24 +173,26 @@ async function handleProfileSwitch(tx: Transaction, cardId: string, profileId: s
     .where(and(eq(cards.id, cardId), eq(cards.userId, userId)))
     .returning();
 
-  // Audit log — RLS-scoped via tx (S-12 fix). Non-critical: failure does not
-  // roll back the profile switch, but is logged server-side.
-  try {
-    await tx.insert(cardStatusEvents).values({
-      cardId: updatedCard.id,
-      userId,
-      previousStatus: currentCard.status,
-      newStatus: currentCard.status, // Status itself doesn't change
-      reason: 'Profile switched via dashboard',
-      previousProfileId: currentCard.profileId,
-      newProfileId: profileId,
-    });
-  } catch (auditError) {
-    logError({ operation: 'cards.PATCH.audit', error: auditError });
-  }
+  // Audit log — non-critical, written OUTSIDE the RLS transaction so a failure
+  // here can never abort the profile switch that already committed above.
+  setImmediate(async () => {
+    try {
+      await db.insert(cardStatusEvents).values({
+        cardId: updatedCard.id,
+        userId,
+        previousStatus: currentCard.status,
+        newStatus: currentCard.status,
+        reason: 'Profile switched via dashboard',
+        previousProfileId: currentCard.profileId,
+        newProfileId: profileId,
+      });
+    } catch (auditError) {
+      logError({ operation: 'cards.PATCH.audit', error: auditError });
+    }
+  });
 
   if (updatedCard?.cardUid) {
-    revalidateTag(`card-${updatedCard.cardUid}`, { expire: 0 });
+    revalidateTag(`card-${updatedCard.cardUid}`, 'max');
   }
 
   return NextResponse.json({ success: true, card: updatedCard });
