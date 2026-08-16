@@ -7,6 +7,8 @@ import { and, eq } from 'drizzle-orm';
 import { createClient } from '@/lib/supabase/server';
 import { isMultiProfileEnabled } from '@/lib/feature-flags';
 import { z } from 'zod';
+import { mutationRatelimit } from '@/lib/ratelimit';
+import { logError, generateRequestId } from '@/lib/security';
 
 
 const profileSchema = z.object({
@@ -30,12 +32,22 @@ const profileSchema = z.object({
 });
 
 export async function PUT(req: Request) {
+  const requestId = generateRequestId();
   try {
     const supabase = await createClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
 
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Per-user rate limit (S-7)
+    const { success: allowed, reset } = await mutationRatelimit.limit(user.id);
+    if (!allowed) {
+      return NextResponse.json(
+        { error: 'Too many requests' },
+        { status: 429, headers: { 'Retry-After': String(Math.ceil((reset - Date.now()) / 1000)) } }
+      );
     }
 
     const body = await req.json();
@@ -131,7 +143,7 @@ export async function PUT(req: Request) {
     if (error instanceof Error && error.message === 'Profile not found or does not belong to you') {
       return NextResponse.json({ error: error.message }, { status: 404 });
     }
-    console.error('Profile update error:', error);
+    logError({ operation: 'profile.PUT', requestId, error });
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
@@ -141,11 +153,21 @@ export async function DELETE(req: Request) {
     return NextResponse.json({ error: 'Deletion is not enabled in single-profile mode' }, { status: 403 });
   }
 
+  const requestId = generateRequestId();
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  // Per-user rate limit (S-7)
+  const { success: allowed, reset } = await mutationRatelimit.limit(user.id);
+  if (!allowed) {
+    return NextResponse.json(
+      { error: 'Too many requests' },
+      { status: 429, headers: { 'Retry-After': String(Math.ceil((reset - Date.now()) / 1000)) } }
+    );
   }
 
   try {
@@ -181,7 +203,7 @@ export async function DELETE(req: Request) {
   } catch (error: unknown) {
     if (error instanceof Error && error.message === 'Profile not found') return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
     if (error instanceof Error && error.message === 'Cannot delete default profile') return NextResponse.json({ error: 'Cannot delete your default profile. Please set another profile as default first.' }, { status: 400 });
-    console.error('Profile deletion error:', error);
+    logError({ operation: 'profile.DELETE', requestId, error });
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

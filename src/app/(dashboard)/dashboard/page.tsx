@@ -16,20 +16,30 @@ export default async function DashboardPage() {
   const name = user?.user_metadata?.full_name?.split(' ')[0] ?? 'there';
 
   // Quick stats
-  let totalTaps = 0;
-  let totalCards = 0;
-  let userProfilesCount = 0;
-  let googleWalletUrl: string | null = null;
-  let activeCardUid: string | null = null;
+  let statsData = {
+    totalTaps: 0,
+    totalCards: 0,
+    userProfilesCount: 0,
+    googleWalletUrl: null as string | null,
+    activeCardUid: null as string | null,
+  };
 
   try {
-    await withRlsUser(user, async (tx) => {
-      const userProfiles = await tx.select().from(profiles).where(eq(profiles.userId, user!.id));
-      const cardRows = await tx.select().from(cards).where(eq(cards.userId, user!.id));
-      const profile = userProfiles[0] || null;
-      userProfilesCount = userProfiles.length;
+    const result = await withRlsUser(user, async (tx) => {
+      // Fetch profiles and cards in parallel — eliminates sequential DB waterfall (P-4)
+      const [userProfiles, cardRows] = await Promise.all([
+        tx.select().from(profiles).where(eq(profiles.userId, user!.id)),
+        tx.select().from(cards).where(eq(cards.userId, user!.id)),
+      ]);
 
-      totalCards = cardRows.length;
+      const profile = userProfiles[0] || null;
+      const userProfilesCount = userProfiles.length;
+      const totalCards = cardRows.length;
+      
+      let totalTaps = 0;
+      let googleWalletUrl = null;
+      let activeCardUid = null;
+
       const activeCard = cardRows.find(c => c.status === 'active');
 
       if (activeCard) {
@@ -59,15 +69,21 @@ export default async function DashboardPage() {
           });
         }
       }
+
+      return { totalTaps, totalCards, userProfilesCount, googleWalletUrl, activeCardUid };
     });
+
+    if (result) {
+      statsData = result;
+    }
   } catch {
     // DB not yet connected during initial setup
   }
 
   const stats = [
-    { label: 'Total Taps', value: totalTaps, icon: Eye, color: 'brand' },
-    { label: 'Cards Registered', value: totalCards, icon: CreditCard, color: 'violet' },
-    { label: 'Active Profiles', value: userProfilesCount, icon: Users, color: 'emerald' },
+    { label: 'Total Taps', value: statsData.totalTaps, icon: Eye, color: 'brand' },
+    { label: 'Cards Registered', value: statsData.totalCards, icon: CreditCard, color: 'violet' },
+    { label: 'Active Profiles', value: statsData.userProfilesCount, icon: Users, color: 'emerald' },
   ];
 
   return (
@@ -128,13 +144,13 @@ export default async function DashboardPage() {
           </a>
 
           {/* QR Share Modal Component */}
-          {activeCardUid && (
-            <QrShareCard cardUid={activeCardUid} />
+          {statsData.activeCardUid && (
+            <QrShareCard cardUid={statsData.activeCardUid} />
           )}
 
-          {googleWalletUrl && (
+          {statsData.googleWalletUrl && (
             <a
-              href={googleWalletUrl}
+              href={statsData.googleWalletUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="group bg-card text-card-foreground border border-border rounded-2xl p-5 hover:bg-primary/8 hover:border-brand-500/30 transition-all"

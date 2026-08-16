@@ -1,19 +1,21 @@
 import { Resend } from 'resend';
+import { escapeHtml } from '@/lib/security';
 
 export const resend = new Resend(process.env.RESEND_API_KEY!);
 
-const FROM = process.env.RESEND_FROM_EMAIL ?? 'noreply@tapthat.vercel.app';
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://tapthat.vercel.app';
+const FROM    = process.env.RESEND_FROM_EMAIL ?? 'noreply@anoya.app';
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://anoya.app';
 
 /** Send welcome email after signup */
 export async function sendWelcomeEmail(to: string, name: string) {
+  const safeName = escapeHtml(name);
   return resend.emails.send({
     from: FROM,
     to,
     subject: 'Welcome to Anoya 👋',
     html: `
       <div style="font-family: system-ui, sans-serif; max-width: 600px; margin: 0 auto; padding: 32px;">
-        <h1 style="color: #0f172a; font-size: 24px; margin-bottom: 8px;">Welcome, ${name}! 🎉</h1>
+        <h1 style="color: #0f172a; font-size: 24px; margin-bottom: 8px;">Welcome, ${safeName}! 🎉</h1>
         <p style="color: #475569; font-size: 16px; line-height: 1.6;">
           Your Anoya account is ready. Set up your profile and start sharing your professional identity with one tap.
         </p>
@@ -28,11 +30,14 @@ export async function sendWelcomeEmail(to: string, name: string) {
         </p>
       </div>
     `,
+    text: `Welcome, ${name}!\n\nYour Anoya account is ready. Visit ${APP_URL}/dashboard/profile to set up your profile.\n\nAnoya — Professional Identity, One Tap Away`,
   });
 }
 
 /** Send card registration confirmation */
 export async function sendCardRegisteredEmail(to: string, name: string, cardUid: string) {
+  const safeName    = escapeHtml(name);
+  const safeCardUid = escapeHtml(cardUid);
   return resend.emails.send({
     from: FROM,
     to,
@@ -41,7 +46,7 @@ export async function sendCardRegisteredEmail(to: string, name: string, cardUid:
       <div style="font-family: system-ui, sans-serif; max-width: 600px; margin: 0 auto; padding: 32px;">
         <h1 style="color: #0f172a; font-size: 24px; margin-bottom: 8px;">Card Activated! ✅</h1>
         <p style="color: #475569; font-size: 16px; line-height: 1.6;">
-          Hey ${name}, your Anoya card (<code style="background: #f1f5f9; padding: 2px 6px; border-radius: 4px;">${cardUid}</code>) 
+          Hey ${safeName}, your Anoya card (<code style="background: #f1f5f9; padding: 2px 6px; border-radius: 4px;">${safeCardUid}</code>)
           is now linked to your profile and ready to use.
         </p>
         <a href="${APP_URL}/dashboard"
@@ -52,5 +57,6 @@ export async function sendCardRegisteredEmail(to: string, name: string, cardUid:
         </a>
       </div>
     `,
+    text: `Hey ${name},\n\nYour Anoya card (${cardUid}) is now linked to your profile and ready to use.\n\nVisit ${APP_URL}/dashboard to manage it.`,
   });
 }

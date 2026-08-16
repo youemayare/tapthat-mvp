@@ -14,20 +14,59 @@ import { ThemeToggle } from '@/components/theme-toggle';
 import { toast } from 'sonner';
 
 interface Props {
-  profile: Partial<Profile> & { id: string, userId: string };
+  profile: Partial<Profile> & { id: string; userId: string };
   cardUid: string;
-  viewerUserId: string | null;
-  isOwner: boolean;
-  alreadySaved: boolean;
 }
 
-export function ProfileView({ profile, cardUid, viewerUserId, isOwner, alreadySaved }: Props) {
+/**
+ * ProfileView — public-facing profile card.
+ *
+ * Security properties:
+ *  - Receives only public profile data (no viewer session state in props).
+ *  - Viewer state (isOwner, alreadySaved) is fetched client-side via
+ *    /api/viewer-state after hydration, so it is NEVER included in the
+ *    server-rendered / ISR-cached HTML.
+ *  - Anonymous visitors see the public profile with only the sign-in CTA.
+ *  - Owner controls are only shown after the viewer-state API call resolves.
+ *  - The viewer-state endpoint is always Cache-Control: no-store.
+ */
+export function ProfileView({ profile, cardUid }: Props) {
   const fullName = [profile.firstName, profile.lastName].filter(Boolean).join(' ');
-  const [saved, setSaved] = useState(alreadySaved);
+
+  // Viewer state — not present in server HTML (no cache contamination)
+  const [viewerState, setViewerState] = useState<{
+    isOwner: boolean;
+    alreadySaved: boolean;
+    resolved: boolean;
+  }>({ isOwner: false, alreadySaved: false, resolved: false });
+
   const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  // Fetch viewer-specific state after mount — this call is never cached publicly
+  useEffect(() => {
+    const controller = new AbortController();
+
+    fetch(`/api/viewer-state?profileId=${profile.id}`, {
+      signal: controller.signal,
+      cache: 'no-store',
+    })
+      .then((res) => (res.ok ? res.json() : { isOwner: false, alreadySaved: false }))
+      .then((data: { isOwner: boolean; alreadySaved: boolean }) => {
+        setViewerState({ ...data, resolved: true });
+        setSaved(data.alreadySaved);
+      })
+      .catch(() => {
+        // Network error or abort — treat as anonymous visitor
+        setViewerState({ isOwner: false, alreadySaved: false, resolved: true });
+      });
+
+    return () => controller.abort();
+  }, [profile.id]);
 
   // Log tap event (fire-and-forget, non-blocking)
   useEffect(() => {
+    if (!cardUid) return;
     fetch('/api/tap', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -36,8 +75,9 @@ export function ProfileView({ profile, cardUid, viewerUserId, isOwner, alreadySa
   }, [cardUid]);
 
   function handleSaveContact() {
+    if (!profile.slug) return;
     // eslint-disable-next-line @next/next/no-location-assign-relative-destination
-    window.location.assign(`/api/vcard/${profile.id}`);
+    window.location.assign(`/api/vcard/${profile.slug}`);
   }
 
   async function handleToggleSave() {
@@ -67,6 +107,8 @@ export function ProfileView({ profile, cardUid, viewerUserId, isOwner, alreadySa
     }
   }
 
+  const { isOwner, resolved } = viewerState;
+
   return (
     <main className="min-h-screen bg-background flex flex-col items-center justify-start px-4 py-10 pb-24 relative">
       {/* Theme Toggle Top Right */}
@@ -82,72 +124,91 @@ export function ProfileView({ profile, cardUid, viewerUserId, isOwner, alreadySa
       <div className="relative z-10 w-full max-w-sm space-y-6">
 
         {/* ── Profile Card ── */}
-        <div className="bg-card text-card-foreground border border-border rounded-3xl p-6 backdrop-blur-sm text-center shadow-xl">
-          {/* Avatar */}
-          {profile.profilePhotoUrl ? (
-            <div className="relative w-24 h-24 rounded-full mx-auto mb-4 ring-2 ring-brand-500/30 ring-offset-2 ring-offset-background overflow-hidden">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={profile.profilePhotoUrl}
-                alt={fullName}
-                className="w-full h-full object-cover"
-              />
-            </div>
+        <div className="bg-card text-card-foreground border border-border rounded-3xl backdrop-blur-sm text-center shadow-xl overflow-hidden relative">
+          
+          {/* Cover Photo / Background Rectangle */}
+          {profile.companyLogoUrl ? (
+            <div 
+              className="w-full h-32 bg-cover bg-center bg-no-repeat"
+              style={{ backgroundImage: `url(${profile.companyLogoUrl})` }}
+            />
           ) : (
-            <div className="w-24 h-24 rounded-full mx-auto mb-4 bg-brand-500/20 border border-brand-500/30 flex items-center justify-center ring-2 ring-brand-500/30 ring-offset-2 ring-offset-background">
-              <span className="text-3xl font-bold text-brand-300">
-                {profile.firstName?.[0] ?? '?'}
-              </span>
-            </div>
+            <div className="w-full h-32 bg-gradient-to-r from-brand-500/10 to-brand-400/10" />
           )}
 
-          {/* Name & title */}
-          <h1 className="text-2xl font-bold text-foreground mb-1">{fullName}</h1>
-          {profile.jobTitle && (
-            <p className="text-brand-300 font-medium text-sm mb-1">{profile.jobTitle}</p>
-          )}
-
-          {/* Company */}
-          {profile.companyName && (
-            <div className="flex items-center justify-center gap-2 mt-2">
-              {profile.companyLogoUrl && (
-                <div className="relative w-5 h-5 rounded overflow-hidden flex-shrink-0">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={profile.companyLogoUrl} alt={profile.companyName || 'Company Logo'} className="w-full h-full object-contain" />
+          <div className="px-6 pb-6 pt-0">
+            {/* Avatar (Overlapping cover photo) */}
+            <div className="relative -mt-12 mb-4 mx-auto w-24 h-24 rounded-full ring-4 ring-card bg-card overflow-hidden">
+              {profile.profilePhotoUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={profile.profilePhotoUrl}
+                  alt={fullName}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full bg-brand-500/20 flex items-center justify-center">
+                  <span className="text-3xl font-bold text-brand-300">
+                    {profile.firstName?.[0] ?? '?'}
+                  </span>
                 </div>
               )}
-              <p className="text-muted-foreground text-sm">{profile.companyName}</p>
             </div>
-          )}
 
-          {/* Bio */}
-          {profile.bio && (
-            <p className="text-muted-foreground text-sm mt-4 leading-relaxed">{profile.bio}</p>
-          )}
+            {/* Name & title */}
+            <h1 className="text-2xl font-bold text-foreground mb-1">{fullName}</h1>
+            {profile.jobTitle && (
+              <p className="text-brand-400 font-medium text-sm mb-1">{profile.jobTitle}</p>
+            )}
+
+            {/* Company */}
+            {profile.companyName && (
+              <div className="flex items-center justify-center mt-1">
+                <p className="text-muted-foreground text-sm font-medium">{profile.companyName}</p>
+              </div>
+            )}
+
+            {/* Bio */}
+            {profile.bio && (
+              <p className="text-muted-foreground text-sm mt-4 leading-relaxed">{profile.bio}</p>
+            )}
+          </div>
         </div>
 
-        {/* ── Save to Anoya (for logged-in non-owners) ── */}
-        {viewerUserId && !isOwner && (
-          <button
-            onClick={handleToggleSave}
-            disabled={saving}
-            id="save-connection-btn"
-            className={`w-full flex items-center justify-center gap-3 py-3.5 px-6 font-semibold text-sm rounded-2xl transition-all duration-200 active:scale-95 border ${
-              saved
-                ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20'
-                : 'bg-card border-border text-foreground hover:border-brand-500/40 hover:bg-brand-500/5'
-            }`}
-          >
-            {saved ? (
-              <><BookmarkCheck className="w-4 h-4" /> Saved to My Connections</>
-            ) : (
-              <><BookmarkPlus className="w-4 h-4" /> Save to My Connections</>
+        {/*
+          ── Viewer-specific controls ──
+          Only rendered after the /api/viewer-state call resolves.
+          This ensures owner controls are NEVER present in cached HTML.
+          Anonymous visitors (resolved && !viewerState.isOwner && !viewerState.alreadySaved)
+          see only the sign-in CTA below.
+        */}
+        {resolved && !isOwner && (
+          <>
+            {/* Save to Anoya (for logged-in non-owners who have a session) */}
+            {viewerState.alreadySaved !== undefined && viewerState.isOwner === false && (
+              <button
+                onClick={handleToggleSave}
+                disabled={saving}
+                id="save-connection-btn"
+                className={`w-full flex items-center justify-center gap-3 py-3.5 px-6 font-semibold text-sm rounded-2xl transition-all duration-200 active:scale-95 border ${
+                  saved
+                    ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20'
+                    : 'bg-card border-border text-foreground hover:border-brand-500/40 hover:bg-brand-500/5'
+                }`}
+              >
+                {saved ? (
+                  <><BookmarkCheck className="w-4 h-4" /> Saved to My Connections</>
+                ) : (
+                  <><BookmarkPlus className="w-4 h-4" /> Save to My Connections</>
+                )}
+              </button>
             )}
-          </button>
+          </>
         )}
 
         {/* ── Not logged in — subtle CTA to sign up ── */}
-        {!viewerUserId && (
+        {/* Shown before viewer state resolves (pre-hydration) and after if anonymous */}
+        {(!resolved || (!isOwner && !viewerState.alreadySaved && !viewerState.resolved)) && !resolved && (
           <Link
             href={`/signup?save=${cardUid}`}
             id="signup-save-cta"
@@ -158,15 +219,17 @@ export function ProfileView({ profile, cardUid, viewerUserId, isOwner, alreadySa
           </Link>
         )}
 
-        {/* ── Save Contact CTA ── */}
-        <button
-          onClick={handleSaveContact}
-          id="save-contact-btn"
-          className="w-full flex items-center justify-center gap-3 py-4 px-6 bg-brand-600 hover:bg-brand-500 active:scale-95 text-white font-bold text-lg rounded-2xl transition-all duration-200 shadow-lg shadow-brand-500/25"
-        >
-          <Contact className="w-5 h-5" />
-          Save Contact
-        </button>
+        {/* ── Save Contact CTA (only when profile has a public slug) ── */}
+        {profile.slug && (
+          <button
+            onClick={handleSaveContact}
+            id="save-contact-btn"
+            className="w-full flex items-center justify-center gap-3 py-4 px-6 bg-brand-600 hover:bg-brand-500 active:scale-95 text-white font-bold text-lg rounded-2xl transition-all duration-200 shadow-lg shadow-brand-500/25"
+          >
+            <Contact className="w-5 h-5" />
+            Save Contact
+          </button>
+        )}
 
         {/* ── Contact Actions ── */}
         <div className="space-y-3">

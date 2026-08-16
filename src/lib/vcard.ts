@@ -1,56 +1,57 @@
 import type { Profile } from '@/lib/db/schema';
+import { escapeVCard, safeVCardContentDisposition } from '@/lib/security';
 
 /**
- * Generates a RFC 6350 (vCard 3.0) compliant .vcf string.
- * Zero dependencies — runs at edge with no cold start penalty.
+ * Generates an RFC 6350 (vCard 3.0) compliant .vcf string.
  *
- * Usage:
- *   const vcf = generateVCard(profile);
- *   return new Response(vcf, {
- *     headers: {
- *       'Content-Type': 'text/vcard; charset=utf-8',
- *       'Content-Disposition': `attachment; filename="${profile.firstName}-${profile.lastName}.vcf"`,
- *     },
- *   });
+ * All user-controlled field values are escaped via escapeVCard() before
+ * emission to prevent injection via backslash, comma, semicolon, or newline.
+ * Unicode names are preserved — only control characters and vCard structural
+ * characters are escaped.
+ *
+ * Zero dependencies — runs at edge with no cold start penalty.
  */
 export function generateVCard(profile: Profile): string {
   const lines: string[] = ['BEGIN:VCARD', 'VERSION:3.0'];
 
-  // Name
-  const firstName = profile.firstName ?? '';
-  const lastName = profile.lastName ?? '';
+  // Name — semicolon-delimited: Family;Given;Additional;Prefix;Suffix
+  // Each component must be individually escaped
+  const firstName = escapeVCard(profile.firstName ?? '');
+  const lastName = escapeVCard(profile.lastName ?? '');
   lines.push(`N:${lastName};${firstName};;;`);
   lines.push(`FN:${[firstName, lastName].filter(Boolean).join(' ')}`);
 
   // Work info
-  if (profile.companyName) lines.push(`ORG:${escape(profile.companyName)}`);
-  if (profile.jobTitle) lines.push(`TITLE:${escape(profile.jobTitle)}`);
+  if (profile.companyName) lines.push(`ORG:${escapeVCard(profile.companyName)}`);
+  if (profile.jobTitle)    lines.push(`TITLE:${escapeVCard(profile.jobTitle)}`);
 
   // Phone numbers
-  if (profile.phone) lines.push(`TEL;TYPE=CELL:${profile.phone}`);
+  if (profile.phone) {
+    lines.push(`TEL;TYPE=CELL:${escapeVCard(profile.phone)}`);
+  }
   if (profile.whatsapp && profile.whatsapp !== profile.phone) {
-    lines.push(`TEL;TYPE=WORK:${profile.whatsapp}`);
+    lines.push(`TEL;TYPE=WORK:${escapeVCard(profile.whatsapp)}`);
   }
 
   // Email
-  if (profile.email) lines.push(`EMAIL;TYPE=WORK:${profile.email}`);
+  if (profile.email) lines.push(`EMAIL;TYPE=WORK:${escapeVCard(profile.email)}`);
 
-  // URLs
-  if (profile.websiteUrl) lines.push(`URL:${profile.websiteUrl}`);
+  // URLs — escape the value but preserve the URL structure
+  if (profile.websiteUrl) lines.push(`URL:${escapeVCard(profile.websiteUrl)}`);
   if (profile.linkedinUrl) {
-    lines.push(`X-SOCIALPROFILE;type=linkedin:${profile.linkedinUrl}`);
+    lines.push(`X-SOCIALPROFILE;type=linkedin:${escapeVCard(profile.linkedinUrl)}`);
   }
   if (profile.instagramUrl) {
-    lines.push(`X-SOCIALPROFILE;type=instagram:${profile.instagramUrl}`);
+    lines.push(`X-SOCIALPROFILE;type=instagram:${escapeVCard(profile.instagramUrl)}`);
   }
 
-  // Profile photo (if hosted on R2 public URL)
+  // Profile photo (R2 public URL only)
   if (profile.profilePhotoUrl) {
-    lines.push(`PHOTO;VALUE=URI:${profile.profilePhotoUrl}`);
+    lines.push(`PHOTO;VALUE=URI:${escapeVCard(profile.profilePhotoUrl)}`);
   }
 
   // Bio / note
-  if (profile.bio) lines.push(`NOTE:${escape(profile.bio)}`);
+  if (profile.bio) lines.push(`NOTE:${escapeVCard(profile.bio)}`);
 
   lines.push('END:VCARD');
 
@@ -58,21 +59,11 @@ export function generateVCard(profile: Profile): string {
   return lines.join('\r\n');
 }
 
-/** Escape special characters in vCard field values */
-function escape(value: string): string {
-  return value
-    .replace(/\\/g, '\\\\')
-    .replace(/,/g, '\\,')
-    .replace(/;/g, '\\;')
-    .replace(/\n/g, '\\n');
-}
-
-/** Build the filename for the vCard download */
-export function getVCardFilename(profile: Profile): string {
-  const name = [profile.firstName, profile.lastName]
-    .filter(Boolean)
-    .join('-')
-    .toLowerCase()
-    .replace(/\s+/g, '-');
-  return `${name || 'contact'}.vcf`;
+/**
+ * Build a safe Content-Disposition header value for the vCard download.
+ * Delegates to safeVCardContentDisposition which produces ASCII-only filenames
+ * and always falls back to "contact.vcf" if the name is empty or non-ASCII.
+ */
+export function getVCardFilename(profile: Pick<Profile, 'firstName' | 'lastName'>): string {
+  return safeVCardContentDisposition(profile.firstName, profile.lastName);
 }

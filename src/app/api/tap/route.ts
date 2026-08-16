@@ -81,6 +81,7 @@ export async function POST(request: NextRequest) {
       response.cookies.set('_tap_sid', crypto.randomUUID(), {
         httpOnly: true,
         sameSite: 'lax',
+        secure: process.env.NODE_ENV === 'production',
         maxAge: 60 * 60 * 24, // 24 hours
         path: '/',
       });

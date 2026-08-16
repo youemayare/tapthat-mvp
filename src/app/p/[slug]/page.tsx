@@ -1,11 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { db } from '@/lib/db';
-import { connections } from '@/lib/db/schema';
-import { eq, and } from 'drizzle-orm';
 import { ProfileView } from '@/app/n/[uid]/profile-view';
 import { isMultiProfileEnabled } from '@/lib/feature-flags';
-import { createClient } from '@/lib/supabase/server';
 import { getCachedProfileBySlug } from '@/lib/queries';
 
 interface Props {
@@ -38,14 +34,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
  * GET /p/[slug]
  *
  * Persistent profile URL. Always resolves to the same profile regardless of
- * which profile is currently active on any physical card. This is the URL
- * that gets stored in connections and shared by visitors.
+ * which profile is currently active on any physical card.
  *
  * Rules:
  * - Only accessible when MULTI_PROFILE_ENABLED=true
  * - Profile must be published (isPublished=true)
  * - Archived profiles show a neutral unavailable page (not 404, not redirected)
  * - Never redirects to the card's current active profile
+ *
+ * Caching: ISR (revalidate=60). Viewer state (isOwner, alreadySaved) is NOT
+ * included in server-rendered HTML — ProfileView fetches it client-side via
+ * /api/viewer-state after hydration, so it never contaminates the public cache.
  */
 export default async function PersistentProfilePage({ params }: Props) {
   if (!isMultiProfileEnabled()) {
@@ -53,16 +52,6 @@ export default async function PersistentProfilePage({ params }: Props) {
   }
 
   const { slug } = await params;
-
-  // Resolve viewer session server-side
-  let viewerUserId: string | null = null;
-  try {
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    viewerUserId = user?.id ?? null;
-  } catch {
-    // No session - public visitor
-  }
 
   const profile = await getCachedProfileBySlug(slug);
 
@@ -98,36 +87,14 @@ export default async function PersistentProfilePage({ params }: Props) {
     );
   }
 
-  // Check if viewer already saved this profile
-  const isOwner = viewerUserId === profile.userId;
-  let alreadySaved = false;
-
-  if (viewerUserId && !isOwner) {
-    try {
-      const existing = await db.query.connections.findFirst({
-        where: and(
-          eq(connections.viewerUserId, viewerUserId),
-          eq(connections.profileId, profile.id)
-        ),
-      });
-      alreadySaved = !!existing;
-    } catch {
-      // Non-critical - default to false
-    }
-  }
-
-  // Persistent profile view — no cardUid needed since this isn't tied to a physical tap
-  // We pass a synthetic card "uid" based on slug so the tap endpoint has something to work with
-  // But we don't log taps from direct /p/ visits (no cardUid → /api/tap won't match a card)
+  // Persistent profile view — viewer state fetched client-side, not in cached HTML
   return (
     <ProfileView
       profile={profile}
       cardUid=""
-      viewerUserId={viewerUserId}
-      isOwner={isOwner}
-      alreadySaved={alreadySaved}
     />
   );
 }
 
-export const dynamic = 'force-dynamic';
+// ISR: revalidate every 60 seconds. Profile edits invalidate via revalidateTag.
+export const revalidate = 60;

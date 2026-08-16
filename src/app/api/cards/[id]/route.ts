@@ -15,17 +15,19 @@
  */
 import { NextResponse } from 'next/server';
 import { revalidateTag } from 'next/cache';
-import { db } from '@/lib/db';
 import { withRlsUser, Transaction } from '@/lib/db/auth-wrapper';
 import { cards, cardStatusEvents, profiles } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
 import { createClient } from '@/lib/supabase/server';
 import { isMultiProfileEnabled } from '@/lib/feature-flags';
+import { mutationRatelimit } from '@/lib/ratelimit';
+import { logError, generateRequestId } from '@/lib/security';
 
 export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const requestId = generateRequestId();
   try {
     const { id: cardId } = await params;
     const supabase = await createClient();
@@ -33,6 +35,15 @@ export async function PATCH(
 
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Per-user rate limit (keyed by user ID to avoid NAT false positives)
+    const { success: allowed, reset } = await mutationRatelimit.limit(user.id);
+    if (!allowed) {
+      return NextResponse.json(
+        { error: 'Too many requests' },
+        { status: 429, headers: { 'Retry-After': String(Math.ceil((reset - Date.now()) / 1000)) } }
+      );
     }
 
     const body = await req.json();
@@ -48,7 +59,7 @@ export async function PATCH(
     // ── Branch: Status change (existing behavior, unchanged) ──────────────────
     return await withRlsUser(user, (tx) => handleStatusChange(tx, cardId, body.status, user.id));
   } catch (error: unknown) {
-    console.error('Error updating card:', error);
+    logError({ operation: 'cards.PATCH', requestId, error });
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -92,18 +103,20 @@ async function handleStatusChange(tx: Transaction, cardId: string, requestedStat
       activatedAt: cards.activatedAt,
     });
 
-  // Use db.insert instead of tx.insert to bypass RLS for audit logging
-  // (Production DB is missing the INSERT policy for card_status_events)
+  // Audit log — uses the RLS-scoped transaction (tx) so the INSERT runs under
+  // the authenticated user's Postgres role. Requires the INSERT policy from:
+  //   scripts/add-card-status-events-rls-policy.sql
+  // Non-critical: a failed audit write does not roll back the card status change.
   try {
-    await db.insert(cardStatusEvents).values({
+    await tx.insert(cardStatusEvents).values({
       cardId: updatedCard.id,
       userId,
       previousStatus: currentCard.status,
       newStatus: updatedCard.status,
       reason: 'User triggered via dashboard',
     });
-  } catch (error) {
-    console.error('Failed to write audit log:', error);
+  } catch (auditError) {
+    logError({ operation: 'cards.PATCH.audit', error: auditError });
   }
 
   if (updatedCard?.cardUid) {
@@ -160,10 +173,10 @@ async function handleProfileSwitch(tx: Transaction, cardId: string, profileId: s
     .where(and(eq(cards.id, cardId), eq(cards.userId, userId)))
     .returning();
 
-  // Use db.insert instead of tx.insert to bypass RLS for audit logging
-  // (Production DB is missing the INSERT policy for card_status_events)
+  // Audit log — RLS-scoped via tx (S-12 fix). Non-critical: failure does not
+  // roll back the profile switch, but is logged server-side.
   try {
-    await db.insert(cardStatusEvents).values({
+    await tx.insert(cardStatusEvents).values({
       cardId: updatedCard.id,
       userId,
       previousStatus: currentCard.status,
@@ -172,8 +185,8 @@ async function handleProfileSwitch(tx: Transaction, cardId: string, profileId: s
       previousProfileId: currentCard.profileId,
       newProfileId: profileId,
     });
-  } catch (error) {
-    console.error('Failed to write audit log:', error);
+  } catch (auditError) {
+    logError({ operation: 'cards.PATCH.audit', error: auditError });
   }
 
   if (updatedCard?.cardUid) {

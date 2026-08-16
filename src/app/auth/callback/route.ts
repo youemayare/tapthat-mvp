@@ -35,8 +35,9 @@ export async function GET(request: NextRequest) {
     let user = null;
     if (code === 'email-login-save') {
       // The client already logged in and set the cookie
-      const { data } = await supabase.auth.getUser();
-      user = data.user;
+      const { data, error: userError } = await supabase.auth.getUser();
+      // Explicit null check — getUser() can return null without an error
+      user = (!userError && data.user) ? data.user : null;
     } else {
       // Standard OAuth / Magic Link flow
       const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);

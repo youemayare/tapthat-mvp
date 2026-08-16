@@ -360,9 +360,6 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
                     updatedAt: new Date(),
                   } as Profile} 
                   cardUid="PREVIEW-MODE"
-                  viewerUserId={initialData?.userId || null}
-                  isOwner={true}
-                  alreadySaved={false}
                 />
               </div>
             </SheetContent>

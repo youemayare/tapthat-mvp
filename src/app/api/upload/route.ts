@@ -1,3 +1,28 @@
+/**
+ * POST /api/upload
+ *
+ * Server-buffered upload route (interim implementation; P-1 partially addressed).
+ *
+ * Pipeline:
+ *  1. Authenticate the request
+ *  2. Per-IP rate limit (fail-closed without Redis)
+ *  3. Size check BEFORE buffering (rejects oversized payloads early)
+ *  4. Buffer the file into memory
+ *  5. Magic-byte validation (file-type library)
+ *  6. Image resizing / WebP conversion via sharp (images only)
+ *  7. PDF validation path (CVs only)
+ *  8. Random object key generation (server-controlled, not user-supplied)
+ *  9. Upload to R2 (or local fallback in dev)
+ * 10. Return only the public URL — never expose bucket, key structure, or credentials
+ *
+ * Error responses are generic ("Upload failed") — detailed diagnostics are
+ * logged server-side with a correlation ID, never returned to the client (S-1).
+ *
+ * Follow-up: migrate to presigned direct-to-R2 uploads for P-1 full fix.
+ * This eliminates server-side buffering entirely; the current approach still
+ * routes the file through the API server.
+ */
+
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
@@ -6,9 +31,21 @@ import { writeFileSync, mkdirSync } from 'fs';
 import { dirname, resolve } from 'path';
 import { fileTypeFromBuffer } from 'file-type';
 import crypto from 'crypto';
+import sharp from 'sharp';
+import { logError, generateRequestId } from '@/lib/security';
+
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024;   // 5 MB
+const MAX_PDF_SIZE   = 10 * 1024 * 1024;  // 10 MB for CVs
+const MAX_IMAGE_DIMENSION = 1200;          // px — max width/height after resize
+
+const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'] as const;
+const ALLOWED_PDF_TYPE    = 'application/pdf';
 
 export async function POST(req: Request) {
+  const requestId = generateRequestId();
+
   try {
+    // ── 1. Authentication ──────────────────────────────────────────────────────
     const supabase = await createClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
 
@@ -16,73 +53,109 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    // ── 2. Rate limit (per IP; fail-closed without Redis) ──────────────────────
+    const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? '0.0.0.0';
+    const { uploadRatelimit } = await import('@/lib/ratelimit');
+    const { success: allowed, reset } = await uploadRatelimit.limit(ip);
+    if (!allowed) {
+      return NextResponse.json(
+        { error: 'Too many requests' },
+        {
+          status: 429,
+          headers: { 'Retry-After': String(Math.ceil((reset - Date.now()) / 1000)) },
+        }
+      );
+    }
+
+    // ── 3. Parse and validate form data ───────────────────────────────────────
     const formData = await req.formData();
     const file = formData.get('file') as File | null;
-    const type = formData.get('type') as 'avatar' | 'logo' | 'cv';
+    const type = formData.get('type') as string | null;
 
     if (!file || !type) {
       return NextResponse.json({ error: 'Missing file or type' }, { status: 400 });
     }
 
-    // 1. Rate Limit
-    const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? '0.0.0.0';
-    const { uploadRatelimit } = await import('@/lib/ratelimit');
-    const { success: allowed } = await uploadRatelimit.limit(ip);
-    if (!allowed) {
-      return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 });
+    const isImage = type === 'avatar' || type === 'logo';
+    const isPdf   = type === 'cv';
+
+    if (!isImage && !isPdf) {
+      return NextResponse.json({ error: 'Invalid upload type' }, { status: 400 });
     }
 
-    // 2. Size Limit (5MB) - Check size BEFORE reading into buffer
-    const MAX_FILE_SIZE = 5 * 1024 * 1024;
-    if (file.size > MAX_FILE_SIZE) {
-      return NextResponse.json({ error: 'File size exceeds 5MB limit' }, { status: 400 });
+    // ── 4. Size limit BEFORE buffering ────────────────────────────────────────
+    const maxSize = isPdf ? MAX_PDF_SIZE : MAX_IMAGE_SIZE;
+    if (file.size > maxSize) {
+      return NextResponse.json(
+        { error: `File exceeds ${isPdf ? '10' : '5'} MB limit` },
+        { status: 400 }
+      );
     }
 
-    const buffer = Buffer.from(await file.arrayBuffer());
+    const rawBuffer = Buffer.from(await file.arrayBuffer());
 
-    // 3. Magic Bytes Validation
-    const fileTypeResult = await fileTypeFromBuffer(buffer);
+    // ── 5. Magic-byte validation ───────────────────────────────────────────────
+    const fileTypeResult = await fileTypeFromBuffer(rawBuffer);
     if (!fileTypeResult) {
       return NextResponse.json({ error: 'Could not determine file type' }, { status: 400 });
     }
 
-    const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/webp'];
-    // Only allow PDF if it's a CV
-    if (type === 'cv') {
-      allowedMimeTypes.push('application/pdf');
+    if (isPdf && fileTypeResult.mime !== ALLOWED_PDF_TYPE) {
+      return NextResponse.json({ error: 'Only PDF files are allowed for CVs' }, { status: 400 });
     }
 
-    if (!allowedMimeTypes.includes(fileTypeResult.mime)) {
-      return NextResponse.json({ error: 'Invalid file type.' }, { status: 400 });
+    if (isImage && !(ALLOWED_IMAGE_TYPES as readonly string[]).includes(fileTypeResult.mime)) {
+      return NextResponse.json({ error: 'Invalid image type' }, { status: 400 });
     }
 
-    // We do NOT trust file.name. We use a randomly generated name and the validated extension.
-    const safeFilename = `${crypto.randomBytes(16).toString('hex')}.${fileTypeResult.ext}`;
-    const key = buildStorageKey(user.id, type, safeFilename);
+    // ── 6. Image processing (resize + WebP conversion) ─────────────────────────
+    // CVs skip this step entirely and are stored as-is.
+    let processedBuffer: Buffer = rawBuffer;
+    let finalMime: string = fileTypeResult.mime;
+    let finalExt: string = fileTypeResult.ext;
 
-    // Local fallback for development if R2 is not configured
+    if (isImage) {
+      processedBuffer = await sharp(rawBuffer)
+        .resize(MAX_IMAGE_DIMENSION, MAX_IMAGE_DIMENSION, {
+          fit: 'inside',        // never upscale; never crop; preserve aspect ratio
+          withoutEnlargement: true,
+        })
+        .webp({ quality: 85 }) // consistent WebP output regardless of input format
+        .toBuffer();
+      finalMime = 'image/webp';
+      finalExt  = 'webp';
+    }
+
+    // ── 7. Server-generated object key ────────────────────────────────────────
+    // The client never supplies or influences the key.
+    const safeFilename = `${crypto.randomBytes(16).toString('hex')}.${finalExt}`;
+    const key = buildStorageKey(user.id, type as 'avatar' | 'logo' | 'cv', safeFilename);
+
+    // ── 8. Local development fallback ─────────────────────────────────────────
     if (!process.env.R2_ACCESS_KEY_ID || process.env.R2_ACCESS_KEY_ID.includes('your-r2')) {
       if (process.env.NODE_ENV === 'production') {
-        return NextResponse.json({ error: 'Local file uploads are not supported in production.' }, { status: 501 });
+        return NextResponse.json(
+          { error: 'Local uploads not supported in production' },
+          { status: 501 }
+        );
       }
 
-      const uploadDir = resolve(process.cwd(), 'public', 'uploads');
+      const uploadDir    = resolve(process.cwd(), 'public', 'uploads');
       const resolvedPath = resolve(uploadDir, key);
-      
-      // Ensure path traversal did not happen despite our safe filename (defense-in-depth)
+
+      // Defense-in-depth: ensure path traversal didn't happen despite randomized key
       const { sep } = await import('path');
       if (resolvedPath !== uploadDir && !resolvedPath.startsWith(`${uploadDir}${sep}`)) {
-         return NextResponse.json({ error: 'Invalid path' }, { status: 400 });
+        return NextResponse.json({ error: 'Invalid path' }, { status: 400 });
       }
 
       mkdirSync(dirname(resolvedPath), { recursive: true });
-      writeFileSync(resolvedPath, buffer);
-      
-      const publicUrl = `/uploads/${key}`;
-      return NextResponse.json({ publicUrl, key });
+      writeFileSync(resolvedPath, processedBuffer);
+
+      return NextResponse.json({ publicUrl: `/uploads/${key}`, key });
     }
 
-    // Server-side direct upload to R2
+    // ── 9. Upload to R2 ────────────────────────────────────────────────────────
     const R2_ENDPOINT = `https://${process.env.CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com`;
     const s3Client = new S3Client({
       region: 'auto',
@@ -96,16 +169,18 @@ export async function POST(req: Request) {
     await s3Client.send(new PutObjectCommand({
       Bucket: process.env.R2_BUCKET_NAME!,
       Key: key,
-      ContentType: fileTypeResult.mime,
-      Body: buffer,
+      ContentType: finalMime,
+      Body: processedBuffer,
     }));
-    
-    // Generate the final public URL
+
     const publicUrl = getPublicUrl(key);
 
     return NextResponse.json({ publicUrl, key });
+
   } catch (error: unknown) {
-    console.error('Direct upload error:', error);
-    return NextResponse.json({ error: error instanceof Error ? error.message : 'Failed to upload' }, { status: 500 });
+    // Never expose internal error messages to the client (S-1).
+    // Detailed diagnostics logged server-side with requestId for correlation.
+    logError({ operation: 'upload.POST', requestId, error });
+    return NextResponse.json({ error: 'Upload failed' }, { status: 500 });
   }
 }

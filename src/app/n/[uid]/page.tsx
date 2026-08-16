@@ -1,11 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { db } from '@/lib/db';
-import { cards, profiles, connections } from '@/lib/db/schema';
-import { eq, and } from 'drizzle-orm';
 import { ClaimCard } from './claim-card';
 import { ProfileView } from './profile-view';
-import { createClient } from '@/lib/supabase/server';
 import { getCachedCardAndProfile } from '@/lib/queries';
 
 interface Props {
@@ -72,17 +68,7 @@ export default async function NfcTapPage({ params }: Props) {
     notFound();
   }
 
-  // Resolve viewer session server-side
-  let viewerUserId: string | null = null;
-  try {
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    viewerUserId = user?.id ?? null;
-  } catch {
-    // No session — public visitor
-  }
-
-  // Look up the card
+  // Look up the card via ISR-cached query
   let card = null;
   let profile = null;
 
@@ -138,35 +124,18 @@ export default async function NfcTapPage({ params }: Props) {
     );
   }
 
-  // ── Check if viewer already saved this profile ──
-  const isOwner = viewerUserId === profile.userId;
-  let alreadySaved = false;
-
-  if (viewerUserId && !isOwner) {
-    try {
-      const existing = await db.query.connections.findFirst({
-        where: and(
-          eq(connections.viewerUserId, viewerUserId),
-          eq(connections.profileId, profile.id)
-        ),
-      });
-      alreadySaved = !!existing;
-    } catch {
-      // Non-critical — default to false
-    }
-  }
-
   // ── Active card with published profile → show it ──
+  // Viewer state (isOwner, alreadySaved) is NOT passed here.
+  // It is fetched client-side by ProfileView via /api/viewer-state,
+  // ensuring it is never present in ISR-cached HTML.
   return (
     <ProfileView
       profile={profile}
       cardUid={sanitizedUid}
-      viewerUserId={viewerUserId}
-      isOwner={isOwner}
-      alreadySaved={alreadySaved}
     />
   );
 }
 
-// Always render fresh so viewer session / isOwner is accurate per request
-export const dynamic = 'force-dynamic';
+// ISR: revalidate every 60 seconds. Individual cards are revalidated immediately
+// on profile switch or status change via revalidateTag('card-{uid}').
+export const revalidate = 60;
