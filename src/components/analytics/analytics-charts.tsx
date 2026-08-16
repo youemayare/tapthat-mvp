@@ -70,12 +70,12 @@ export function AnalyticsCharts({ dailyStats }: AnalyticsChartsProps) {
                 />
                 <Legend 
                   iconType="circle" 
-                  wrapperStyle={{ paddingTop: '24px' }}
+                  wrapperStyle={{ paddingTop: '24px', fontSize: '12px' }}
                 />
                 <Area 
                   type="monotone" 
                   dataKey="total" 
-                  name="Profile Views"
+                  name="Views"
                   stroke="#0071e3" 
                   strokeWidth={2}
                   fillOpacity={1} 
@@ -84,7 +84,7 @@ export function AnalyticsCharts({ dailyStats }: AnalyticsChartsProps) {
                 <Area 
                   type="monotone" 
                   dataKey="unique" 
-                  name="Estimated Unique Visitors"
+                  name="Unique Visitors"
                   stroke="#8b5cf6" 
                   strokeWidth={2}
                   fillOpacity={1} 
