@@ -70,7 +70,7 @@ export function AnalyticsCharts({ dailyStats }: AnalyticsChartsProps) {
                 />
                 <Legend 
                   iconType="circle" 
-                  wrapperStyle={{ paddingTop: '24px', fontSize: '12px' }}
+                  wrapperStyle={{ paddingTop: '24px', fontSize: '12px', paddingLeft: '20px' }}
                 />
                 <Area 
                   type="monotone" 
