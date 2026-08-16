@@ -207,8 +207,9 @@ export function ProfileView({ profile, cardUid }: Props) {
         )}
 
         {/* ── Not logged in — subtle CTA to sign up ── */}
-        {/* Shown before viewer state resolves (pre-hydration) and after if anonymous */}
-        {(!resolved || (!isOwner && !viewerState.alreadySaved && !viewerState.resolved)) && !resolved && (
+        {/* Only shown AFTER viewer-state resolves AND only for truly anonymous visitors.
+            Never flashes for owners. Hidden during the loading period. */}
+        {resolved && !isOwner && !viewerState.alreadySaved && (
           <Link
             href={`/signup?save=${cardUid}`}
             id="signup-save-cta"

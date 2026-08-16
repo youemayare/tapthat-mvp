@@ -122,14 +122,18 @@ export async function PUT(req: Request) {
       }
     });
 
-    // Invalidate the cache for this specific profile
+    // Invalidate the ISR cache for this profile so image/text changes show immediately.
     const { revalidateTag } = await import('next/cache');
     if (result) {
-      if (result.id) revalidateTag(`profile-${result.id}`, { expire: 0 });
-      if (result.slug) revalidateTag(`profile-${result.slug}`, { expire: 0 });
+      // These tags must match the ones used in getCachedProfileBySlug / getCachedProfileByUid
+      if (result.id) revalidateTag(`profile-${result.id}`);
+      if (result.slug) revalidateTag(`profile-${result.slug}`);
     }
 
+    // Also revalidate the dashboard profile editor and both public profile routes
     revalidatePath('/dashboard/profile');
+    revalidatePath(`/n/[uid]`, 'page');
+    revalidatePath(`/p/[slug]`, 'page');
     return NextResponse.json(result);
 
   } catch (error: unknown) {
