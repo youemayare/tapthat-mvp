@@ -175,7 +175,7 @@ export default async function AnalyticsPage(
         />
       </div>
 
-      <div className="grid gap-6 grid-cols-1 sm:grid-cols-3">
+      <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         <Card className="border-border bg-card">
           <CardHeader className="flex flex-row items-start justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Profile Views</CardTitle>
@@ -194,6 +194,16 @@ export default async function AnalyticsPage(
           <CardContent>
             <div className="text-3xl font-bold text-foreground">{uniqueTaps}</div>
             <p className="text-xs text-muted-foreground mt-1">An estimate of distinct visitors based on anonymous browser sessions.</p>
+          </CardContent>
+        </Card>
+        <Card className="border-border bg-card">
+          <CardHeader className="flex flex-row items-start justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Repeat Views</CardTitle>
+            <MousePointerClick className="h-4 w-4 text-pink-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-foreground">{returningTaps}</div>
+            <p className="text-xs text-muted-foreground mt-1">Repeat views are additional visits from previously seen anonymous browser sessions. This is an estimate and may not represent confirmed individual visitors.</p>
           </CardContent>
         </Card>
         <Card className="border-border bg-card">

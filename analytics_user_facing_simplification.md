@@ -11,12 +11,11 @@
   - Subtitle updated from "Distinct devices" to "An estimate of distinct visitors based on anonymous browser sessions."
 - **Profile Saves** (Retained)
   - Subtitle updated from "Saved to Anoya accounts" to "Times your profile was saved to another Anoya user’s Connections."
-- **Daily Tap Activity** chart ➔ **Profile Views Over Time**
-  - Time series data keys renamed to "Profile Views" and "Estimated Unique Visitors".
+- **Returning Visitors** ➔ **Repeat Views**
+  - Subtitle updated to "Repeat views are additional visits from previously seen anonymous browser sessions. This is an estimate and may not represent confirmed individual visitors."
 
 ## Metrics Removed from the User-Facing Dashboard
 The following metrics were removed from the user-facing analytics UI:
-- **Returning Visitors** (top-level stat card removed)
 - **Connections Saved** (top-level stat card removed)
 - **Top Locations** (bar chart removed)
 - **Devices Breakdown** (donut chart removed)
