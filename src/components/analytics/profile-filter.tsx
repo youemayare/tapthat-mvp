@@ -47,8 +47,8 @@ export function ProfileFilter({ profiles, selectedProfileId }: ProfileFilterProp
         <SelectTrigger className="w-[200px] h-9 relative">
           <SelectValue placeholder="Select a profile" />
           {isPending && (
-            <div className="absolute right-8 top-1/2 -translate-y-1/2">
-              <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+            <div className="absolute right-7 top-1/2 -translate-y-1/2">
+              <Loader2 className="h-4 w-4 animate-spin text-[#0071e3]" />
             </div>
           )}
         </SelectTrigger>
