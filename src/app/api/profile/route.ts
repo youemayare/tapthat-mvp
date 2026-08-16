@@ -126,8 +126,8 @@ export async function PUT(req: Request) {
     const { revalidateTag } = await import('next/cache');
     if (result) {
       // These tags must match the ones used in getCachedProfileBySlug / getCachedProfileByUid
-      if (result.id) revalidateTag(`profile-${result.id}`);
-      if (result.slug) revalidateTag(`profile-${result.slug}`);
+      if (result.id) revalidateTag(`profile-${result.id}`, 'default');
+      if (result.slug) revalidateTag(`profile-${result.slug}`, 'default');
     }
 
     // Also revalidate the dashboard profile editor and both public profile routes
