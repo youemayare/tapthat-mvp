@@ -66,7 +66,6 @@ export async function POST(request: NextRequest) {
       profileId: card.profileId,
       ipHash: tapData.ipHash,
       country: tapData.country,
-      city: tapData.city,
       deviceType: tapData.deviceType,
       os: tapData.os,
       browser: tapData.browser,

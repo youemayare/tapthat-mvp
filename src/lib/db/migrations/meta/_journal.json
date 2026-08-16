@@ -15,6 +15,20 @@
       "when": 1786354663311,
       "tag": "0001_enable_rls",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1786898292765,
+      "tag": "0002_slimy_wind_dancer",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1786900163609,
+      "tag": "0003_huge_korath",
+      "breakpoints": true
     }
   ]
 }

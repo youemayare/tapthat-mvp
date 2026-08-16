@@ -1,0 +1,1 @@
+ALTER TABLE "tap_events" DROP COLUMN "city";

@@ -2,12 +2,12 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { db } from '@/lib/db';
 import { withRlsUser } from '@/lib/db/auth-wrapper';
-import { tapEvents, profiles, connections, cards } from '@/lib/db/schema';
+import { tapEvents, profiles, connections, cards, contactSaves } from '@/lib/db/schema';
 import { eq, and, gt, sql, inArray, or, isNull } from 'drizzle-orm';
 import { createClient } from '@/lib/supabase/server';
 import { AnalyticsCharts } from '@/components/analytics/analytics-charts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Users, MousePointerClick, Activity, Bookmark, UserCheck } from 'lucide-react';
+import { Users, MousePointerClick, Activity, Bookmark, UserCheck, Download } from 'lucide-react';
 
 import { ProfileFilter } from '@/components/analytics/profile-filter';
 
@@ -90,7 +90,8 @@ export default async function AnalyticsPage(
     dailyStatsRaw,
     deviceStatsRaw,
     browserStatsRaw,
-    locationStatsRaw
+    locationStatsRaw,
+    contactSavesResult
   ] = await Promise.all([
     withRlsUser(user, async (tx) => tx.select({ count: sql<number>`count(*)` }).from(connections).where(inArray(connections.profileId, profileIds))),
     withRlsUser(user, async (tx) => tx.select({ count: sql<number>`count(*)` }).from(connections).where(eq(connections.viewerUserId, user.id))),
@@ -100,7 +101,8 @@ export default async function AnalyticsPage(
       .from(tapEvents).where(and(profileTapsCondition!, gt(tapEvents.tappedAt, thirtyDaysAgo))).groupBy(sql`DATE(tapped_at)`).orderBy(sql`DATE(tapped_at)`)),
     withRlsUser(user, async (tx) => tx.select({ deviceType: tapEvents.deviceType, count: sql<number>`count(*)` }).from(tapEvents).where(profileTapsCondition!).groupBy(tapEvents.deviceType)),
     withRlsUser(user, async (tx) => tx.select({ browser: tapEvents.browser, count: sql<number>`count(*)` }).from(tapEvents).where(profileTapsCondition!).groupBy(tapEvents.browser)),
-    withRlsUser(user, async (tx) => tx.select({ country: tapEvents.country, count: sql<number>`count(*)` }).from(tapEvents).where(profileTapsCondition!).groupBy(tapEvents.country).orderBy(sql`count(*) DESC`).limit(10))
+    withRlsUser(user, async (tx) => tx.select({ country: tapEvents.country, count: sql<number>`count(*)` }).from(tapEvents).where(profileTapsCondition!).groupBy(tapEvents.country).orderBy(sql`count(*) DESC`).limit(10)),
+    withRlsUser(user, async (tx) => tx.select({ count: sql<number>`count(*)` }).from(contactSaves).where(inArray(contactSaves.profileId, profileIds)))
   ]);
 
   const totalTaps = Number(totalTapsResult[0]?.count || 0);
@@ -108,6 +110,7 @@ export default async function AnalyticsPage(
   const returningTaps = totalTaps - uniqueTaps;
   const totalSaves = Number(savesResult[0]?.count || 0);
   const connectionsSaved = Number(connectionsSavedResult[0]?.count || 0);
+  const totalContactSaves = Number(contactSavesResult[0]?.count || 0);
 
   // Fill in missing days
   const dailyStatsMap = new Map(dailyStatsRaw.map(d => [d.date, d]));
@@ -162,7 +165,7 @@ export default async function AnalyticsPage(
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-foreground">Analytics</h1>
-          <p className="text-muted-foreground mt-2">Track your profile reach and audience engagement.</p>
+          <p className="text-muted-foreground mt-2">Track your profile reach and audience engagement</p>
         </div>
         <ProfileFilter 
           profiles={userProfiles.map((p: { id: string; label: string | null; firstName: string | null; lastName: string | null; companyName: string | null; }) => ({ 
@@ -175,7 +178,7 @@ export default async function AnalyticsPage(
         />
       </div>
 
-      <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         <Card className="border-border bg-card">
           <CardHeader className="flex flex-row items-start justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Profile Views</CardTitle>
@@ -183,7 +186,7 @@ export default async function AnalyticsPage(
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold text-foreground">{totalTaps}</div>
-            <p className="text-xs text-muted-foreground mt-1">Every time your profile was opened.</p>
+            <p className="text-xs text-muted-foreground mt-1">Every time your profile was opened</p>
           </CardContent>
         </Card>
         <Card className="border-border bg-card">
@@ -193,17 +196,17 @@ export default async function AnalyticsPage(
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold text-foreground">{uniqueTaps}</div>
-            <p className="text-xs text-muted-foreground mt-1">An estimate of distinct visitors based on anonymous browser sessions.</p>
+            <p className="text-xs text-muted-foreground mt-1">Estimated number of different people who visited your profile</p>
           </CardContent>
         </Card>
         <Card className="border-border bg-card">
           <CardHeader className="flex flex-row items-start justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Repeat Views</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Estimated Repeat Visitors</CardTitle>
             <MousePointerClick className="h-4 w-4 text-pink-500" />
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold text-foreground">{returningTaps}</div>
-            <p className="text-xs text-muted-foreground mt-1">Repeat views are additional visits from previously seen anonymous browser sessions. This is an estimate and may not represent confirmed individual visitors.</p>
+            <p className="text-xs text-muted-foreground mt-1">Estimated repeat visits from people who have viewed your profile before</p>
           </CardContent>
         </Card>
         <Card className="border-border bg-card">
@@ -213,7 +216,27 @@ export default async function AnalyticsPage(
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold text-foreground">{totalSaves}</div>
-            <p className="text-xs text-muted-foreground mt-1">Times your profile was saved to another Anoya user’s Connections.</p>
+            <p className="text-xs text-muted-foreground mt-1">Times your profile was saved to another Anoya user’s Connections</p>
+          </CardContent>
+        </Card>
+        <Card className="border-border bg-card">
+          <CardHeader className="flex flex-row items-start justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Contact Saves</CardTitle>
+            <Download className="h-4 w-4 text-sky-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-foreground">{totalContactSaves}</div>
+            <p className="text-xs text-muted-foreground mt-1">Times visitors clicked Save Contact</p>
+          </CardContent>
+        </Card>
+        <Card className="border-border bg-card">
+          <CardHeader className="flex flex-row items-start justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Connections Saved</CardTitle>
+            <UserCheck className="h-4 w-4 text-amber-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-foreground">{connectionsSaved}</div>
+            <p className="text-xs text-muted-foreground mt-1">Profiles you&apos;ve saved to your Anoya connections</p>
           </CardContent>
         </Card>
       </div>

@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { profiles } from '@/lib/db/schema';
+import { profiles, contactSaves } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
 import { generateVCard, getVCardFilename } from '@/lib/vcard';
 import { vcardRatelimit } from '@/lib/ratelimit';
@@ -87,6 +87,14 @@ export async function GET(
 
     const vcf = generateVCard(profile as Parameters<typeof generateVCard>[0]);
     const contentDisposition = getVCardFilename(profile);
+
+    // Record the contact save (vCard download) securely and reliably.
+    // We await this to ensure it completes before serverless execution halts.
+    try {
+      await db.insert(contactSaves).values({ profileId: profile.id });
+    } catch (err) {
+      logError({ operation: 'contact_saves.insert', error: err });
+    }
 
     return new NextResponse(vcf, {
       status: 200,

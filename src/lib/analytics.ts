@@ -6,7 +6,6 @@ export interface TapEventData {
   profileId: string;
   ipHash: string;
   country: string | null;
-  city: string | null;
   deviceType: 'mobile' | 'tablet' | 'desktop';
   os: string;
   browser: string;
@@ -32,7 +31,6 @@ export function extractTapData(request: NextRequest, cardId: string, profileId: 
   // Vercel edge geolocation headers (trusted by platform)
   const rawCountryCode = request.headers.get('x-vercel-ip-country');
   const country = rawCountryCode ? normalizeCountry(rawCountryCode) : 'Unknown';
-  const city = request.headers.get('x-vercel-ip-city') ?? 'Unknown';
 
   const { deviceType, os, browser } = parseUserAgent(ua);
 
@@ -42,7 +40,7 @@ export function extractTapData(request: NextRequest, cardId: string, profileId: 
   const sessionId = request.cookies.get('_tap_sid')?.value ?? null;
   const isUnique = !sessionId; // First visit if no cookie
 
-  return { cardId, profileId, ipHash, country, city, deviceType, os, browser, referrer, sessionId, isUnique };
+  return { cardId, profileId, ipHash, country, deviceType, os, browser, referrer, sessionId, isUnique };
 }
 
 /** Lightweight UA parser — no external library, runs at edge */

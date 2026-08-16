@@ -120,7 +120,6 @@ export const tapEvents = pgTable('tap_events', {
 
   // Geolocation (from Vercel edge headers)
   country: text('country'),
-  city: text('city'),
 
   // Device info (parsed from User-Agent)
   deviceType: text('device_type'), // "mobile" | "tablet" | "desktop"
@@ -140,6 +139,17 @@ export const tapEvents = pgTable('tap_events', {
   // Breakdown aggregations
   index('idx_tap_events_country').on(t.profileId, t.country),
   index('idx_tap_events_device').on(t.profileId, t.deviceType),
+]);
+
+// ─── Contact Saves ───────────────────────────────────────────────────────────
+// Tracks when a visitor successfully generates/downloads a profile's vCard.
+export const contactSaves = pgTable('contact_saves', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  profileId: uuid('profile_id').notNull().references(() => profiles.id, { onDelete: 'cascade' }),
+  savedAt: timestamp('saved_at', { withTimezone: true }).defaultNow().notNull(),
+}, (t) => [
+  index('idx_contact_saves_profile').on(t.profileId),
+  index('idx_contact_saves_profile_time').on(t.profileId, t.savedAt, sql`DESC`),
 ]);
 
 // ─── Connections ─────────────────────────────────────────────────────────────
@@ -168,3 +178,5 @@ export type TapEvent = typeof tapEvents.$inferSelect;
 export type NewTapEvent = typeof tapEvents.$inferInsert;
 export type Connection = typeof connections.$inferSelect;
 export type NewConnection = typeof connections.$inferInsert;
+export type ContactSave = typeof contactSaves.$inferSelect;
+export type NewContactSave = typeof contactSaves.$inferInsert;
