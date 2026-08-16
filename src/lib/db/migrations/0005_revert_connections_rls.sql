@@ -1,0 +1,1 @@
+DROP POLICY IF EXISTS "Users can view how many times their profile was saved" ON "connections";

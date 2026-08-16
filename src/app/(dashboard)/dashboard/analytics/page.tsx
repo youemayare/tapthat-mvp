@@ -96,7 +96,8 @@ export default async function AnalyticsPage(
     locationStatsRaw,
     contactSavesResult
   ] = await Promise.all([
-    withRlsUser(user, async (tx) => tx.select({ count: sql<number>`count(*)` }).from(connections).where(inArray(connections.profileId, profileIds))),
+    // Profile Saves uses admin db connection directly to count connections without exposing row-level data
+    db.select({ count: sql<number>`count(*)` }).from(connections).where(inArray(connections.profileId, profileIds)),
     withRlsUser(user, async (tx) => tx.select({ count: sql<number>`count(*)` }).from(connections).where(eq(connections.viewerUserId, user.id))),
     withRlsUser(user, async (tx) => tx.select({ count: sql<number>`count(*)` }).from(tapEvents).where(profileTapsCondition!)),
     withRlsUser(user, async (tx) => tx.select({ count: sql<number>`count(*)` }).from(tapEvents).where(and(profileTapsCondition!, eq(tapEvents.isUnique, true)))),
