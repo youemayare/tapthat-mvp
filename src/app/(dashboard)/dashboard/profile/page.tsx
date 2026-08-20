@@ -42,23 +42,7 @@ export default async function ProfilePage({
 
       return (
         <div className="space-y-6">
-          <div className="flex items-center gap-3">
-            <a
-              href="/dashboard/profile"
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-            >
-              ← All profiles
-            </a>
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">
-              {specificProfile.label ?? 'Edit Profile'}
-            </h1>
-            <p className="text-muted-foreground mt-1">
-              This is what people see when they tap a card assigned to this profile.
-            </p>
-          </div>
-          <ProfileForm initialData={specificProfile} />
+          <ProfileForm initialData={specificProfile} isMultiProfile={true} />
         </div>
       );
     }
@@ -109,11 +93,7 @@ export default async function ProfilePage({
 
     return (
       <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">My Profile</h1>
-          <p className="text-muted-foreground mt-1">Manage your professional profile — this is what people see when they tap your card.</p>
-        </div>
-        <ProfileForm initialData={initialData} />
+        <ProfileForm initialData={initialData} isMultiProfile={false} />
       </div>
     );
   });

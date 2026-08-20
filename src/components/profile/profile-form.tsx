@@ -65,12 +65,14 @@ type ProfileFormValues = z.infer<typeof profileSchema>;
 
 interface ProfileFormProps {
   initialData: Partial<Profile> | null;
+  isMultiProfile?: boolean;
 }
 
-export function ProfileForm({ initialData }: ProfileFormProps) {
+export function ProfileForm({ initialData, isMultiProfile }: ProfileFormProps) {
   const router = useRouter();
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [activeTab, setActiveTab] = useState<'profile' | 'wallet'>('profile');
 
   const {
     register,
@@ -174,7 +176,56 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
   return (
     <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="space-y-8 max-w-2xl">
       
-      {/* ── Media ── */}
+      {/* Header & Tabs */}
+      <div className="space-y-4">
+        {isMultiProfile && (
+          <div className="flex items-center justify-between">
+            <a
+              href="/dashboard/profile"
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              ← All profiles
+            </a>
+            
+            <div className="flex items-center p-1 bg-muted rounded-lg">
+              <button
+                type="button"
+                onClick={() => setActiveTab('profile')}
+                className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all ${
+                  activeTab === 'profile' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                Profile
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab('wallet')}
+                className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all ${
+                  activeTab === 'wallet' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                Google Wallet
+              </button>
+            </div>
+          </div>
+        )}
+
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">
+            {isMultiProfile 
+              ? (initialData?.label ?? 'Edit Profile') 
+              : 'My Profile'}
+          </h1>
+          <p className="text-muted-foreground mt-1">
+            {isMultiProfile 
+              ? 'This is what people see when they tap a card assigned to this profile.'
+              : 'Manage your professional profile — this is what people see when they tap your card.'}
+          </p>
+        </div>
+      </div>
+
+      <div className={activeTab === 'profile' ? 'space-y-8' : 'hidden'}>
+        {/* ── Media ── */}
       <div className="bg-card text-card-foreground border border-border shadow-sm rounded-2xl p-6 space-y-6">
         <h2 className="text-xl font-semibold text-foreground">Profile Media</h2>
         <div className="flex flex-col sm:flex-row gap-8">
@@ -286,6 +337,53 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
         </div>
       </div>
 
+      {/* ── Profile Settings ── */}
+        <div className="bg-card text-card-foreground border border-border shadow-sm rounded-2xl p-6 space-y-6">
+          <h2 className="text-xl font-semibold text-foreground">Profile Settings</h2>
+          
+          <div className="space-y-2">
+            <Label htmlFor="label">Internal Profile Name</Label>
+            <Input 
+              id="label" 
+              {...register('label')} 
+              placeholder="e.g. Business, Student, Creator" 
+            />
+            <p className="text-xs text-muted-foreground">This is just for you to identify this profile in your dashboard.</p>
+            {errors.label && <p className="text-sm text-red-500">{errors.label.message}</p>}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="slug">Custom Profile URL (Username)</Label>
+            <div className="flex items-center">
+              <span className="bg-accent text-accent-foreground border border-r-0 border-border px-3 py-2 rounded-l-md text-muted-foreground text-sm">
+                anoya.ae/p/
+              </span>
+              <Input 
+                id="slug" 
+                {...register('slug')} 
+                placeholder="umar-khan" 
+                className="rounded-l-none"
+              />
+            </div>
+            {errors.slug && <p className="text-sm text-red-500">{errors.slug.message}</p>}
+          </div>
+
+          <div className="flex items-center justify-between border-t border-border pt-6">
+            <div className="space-y-0.5">
+              <Label className="text-base">Publish Profile</Label>
+              <p className="text-sm text-muted-foreground">
+                Make your profile visible when someone taps your card.
+              </p>
+            </div>
+            <Switch 
+              checked={isPublished} 
+              onCheckedChange={(checked) => setValue('isPublished', checked)} 
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className={activeTab === 'wallet' ? 'space-y-8' : 'hidden'}>
       {/* ── Google Wallet Appearance ── */}
       <div className="bg-card text-card-foreground border border-border shadow-sm rounded-2xl p-6 space-y-6">
         <div>
@@ -342,50 +440,6 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
           </div>
         </div>
       </div>
-
-      {/* ── Profile Settings ── */}
-      <div className="bg-card text-card-foreground border border-border shadow-sm rounded-2xl p-6 space-y-6">
-        <h2 className="text-xl font-semibold text-foreground">Profile Settings</h2>
-        
-        <div className="space-y-2">
-          <Label htmlFor="label">Internal Profile Name</Label>
-          <Input 
-            id="label" 
-            {...register('label')} 
-            placeholder="e.g. Business, Student, Creator" 
-          />
-          <p className="text-xs text-muted-foreground">This is just for you to identify this profile in your dashboard.</p>
-          {errors.label && <p className="text-sm text-red-500">{errors.label.message}</p>}
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="slug">Custom Profile URL (Username)</Label>
-          <div className="flex items-center">
-            <span className="bg-accent text-accent-foreground border border-r-0 border-border px-3 py-2 rounded-l-md text-muted-foreground text-sm">
-              anoya.ae/p/
-            </span>
-            <Input 
-              id="slug" 
-              {...register('slug')} 
-              placeholder="umar-khan" 
-              className="rounded-l-none"
-            />
-          </div>
-          {errors.slug && <p className="text-sm text-red-500">{errors.slug.message}</p>}
-        </div>
-
-        <div className="flex items-center justify-between border-t border-border pt-6">
-          <div className="space-y-0.5">
-            <Label className="text-base">Publish Profile</Label>
-            <p className="text-sm text-muted-foreground">
-              Make your profile visible when someone taps your card.
-            </p>
-          </div>
-          <Switch 
-            checked={isPublished} 
-            onCheckedChange={(checked) => setValue('isPublished', checked)} 
-          />
-        </div>
       </div>
 
       <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pb-12">
