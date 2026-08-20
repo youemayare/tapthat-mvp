@@ -11,6 +11,11 @@ export interface WalletProfileData {
   companyLogoUrl?: string | null;
   walletThemeColor?: string | null;
   walletHeroImageUrl?: string | null;
+  phone?: string | null;
+  email?: string | null;
+  websiteUrl?: string | null;
+  linkedinUrl?: string | null;
+  whatsapp?: string | null;
   updatedAt?: Date | null;
 }
 
@@ -58,6 +63,25 @@ function buildWalletObjectPayload(
     displayLogo = profile.profilePhotoUrl;
   }
 
+  const textModulesData = [];
+  if (profile.phone) {
+    textModulesData.push({ id: 'phone', header: 'Phone', body: profile.phone });
+  }
+  if (profile.email) {
+    textModulesData.push({ id: 'email', header: 'Email', body: profile.email });
+  }
+
+  const linksModuleData = { uris: [] as Array<{ uri: string; description: string }> };
+  if (profile.websiteUrl) {
+    linksModuleData.uris.push({ uri: profile.websiteUrl, description: 'Website' });
+  }
+  if (profile.linkedinUrl) {
+    linksModuleData.uris.push({ uri: profile.linkedinUrl, description: 'LinkedIn' });
+  }
+  if (profile.whatsapp) {
+    linksModuleData.uris.push({ uri: `https://wa.me/${profile.whatsapp.replace(/\D/g, '')}`, description: 'WhatsApp' });
+  }
+
   const walletObject: Record<string, unknown> = {
     id: objectId,
     classId,
@@ -73,6 +97,14 @@ function buildWalletObjectPayload(
     },
     barcode: { type: 'QR_CODE', value: profileUrl, alternateText: 'Scan to connect' },
   };
+
+  if (textModulesData.length > 0) {
+    walletObject.textModulesData = textModulesData;
+  }
+  
+  if (linksModuleData.uris.length > 0) {
+    walletObject.linksModuleData = linksModuleData;
+  }
 
   if (profile.walletThemeColor && /^#[0-9A-Fa-f]{6}$/.test(profile.walletThemeColor)) {
     walletObject.hexBackgroundColor = profile.walletThemeColor;

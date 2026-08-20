@@ -73,6 +73,11 @@ export default async function DashboardPage() {
             companyLogoUrl: profile.companyLogoUrl,
             walletThemeColor: profile.walletThemeColor,
             walletHeroImageUrl: profile.walletHeroImageUrl,
+            phone: profile.phone,
+            email: profile.email,
+            websiteUrl: profile.websiteUrl,
+            linkedinUrl: profile.linkedinUrl,
+            whatsapp: profile.whatsapp,
             updatedAt: profile.updatedAt,
           });
         }

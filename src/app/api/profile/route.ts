@@ -164,6 +164,11 @@ export async function PUT(req: Request) {
         companyLogoUrl: result.companyLogoUrl,
         walletThemeColor: result.walletThemeColor,
         walletHeroImageUrl: result.walletHeroImageUrl,
+        phone: result.phone,
+        email: result.email,
+        websiteUrl: result.websiteUrl,
+        linkedinUrl: result.linkedinUrl,
+        whatsapp: result.whatsapp,
         updatedAt: result.updatedAt,
       }).catch((err) => console.error('[Profile API] Background wallet PATCH failed:', err));
     }
