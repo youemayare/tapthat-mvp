@@ -12,8 +12,8 @@ interface ProfileData {
 export function getGoogleWalletSaveUrl(profile: ProfileData): string {
   const issuerId = process.env.GOOGLE_WALLET_ISSUER_ID;
   const clientEmail = process.env.GOOGLE_WALLET_CLIENT_EMAIL;
-  // Handle escaped newlines in env variables for private keys
-  const privateKey = process.env.GOOGLE_WALLET_PRIVATE_KEY?.replace(/\\n/g, '\n');
+  // Handle escaped newlines in env variables for private keys and strip accidental quotes
+  const privateKey = process.env.GOOGLE_WALLET_PRIVATE_KEY?.replace(/\\n/g, '\n').replace(/(^"|"$)/g, '');
 
   if (!issuerId || !clientEmail || !privateKey) {
     console.warn('[Wallet] Google Wallet credentials missing. Using local mock mode.');
@@ -98,7 +98,11 @@ export function getGoogleWalletSaveUrl(profile: ProfileData): string {
     }
   };
 
-  const token = jwt.sign(claims, privateKey, { algorithm: 'RS256' });
-
-  return `https://pay.google.com/gp/v/save/${token}`;
+  try {
+    const token = jwt.sign(claims, privateKey, { algorithm: 'RS256' });
+    return `https://pay.google.com/gp/v/save/${token}`;
+  } catch (error) {
+    console.error('[Wallet] Error signing JWT for Google Wallet:', error);
+    return '#mock-google-wallet-link'; // Fallback so we don't break the UI
+  }
 }
