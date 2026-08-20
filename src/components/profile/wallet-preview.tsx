@@ -16,6 +16,20 @@ function isValidWalletImage(url?: string | null): url is string {
   return lower.includes('.png') || lower.includes('.jpg') || lower.includes('.jpeg');
 }
 
+function getTextColor(hexColor: string) {
+  // Remove hash if present
+  const hex = hexColor.replace('#', '');
+  if (hex.length !== 6) return 'text-black';
+  
+  const r = parseInt(hex.substring(0, 2), 16);
+  const g = parseInt(hex.substring(2, 4), 16);
+  const b = parseInt(hex.substring(4, 6), 16);
+  
+  // Calculate relative luminance
+  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+  return luminance > 0.6 ? 'text-black' : 'text-white';
+}
+
 export function WalletPreview({
   name,
   jobTitle,
@@ -30,6 +44,8 @@ export function WalletPreview({
       ? walletThemeColor
       : '#0f0f19';
 
+  const textColorClass = getTextColor(bgColor);
+
   const logoUrl = isValidWalletImage(companyLogoUrl)
     ? companyLogoUrl
     : isValidWalletImage(profilePhotoUrl)
@@ -42,37 +58,40 @@ export function WalletPreview({
   return (
     <div className="space-y-2">
       {/* Google Wallet pass approximation (Matches ACTUAL Google Wallet layout) */}
-      <div className="rounded-2xl overflow-hidden shadow-xl w-full max-w-xs mx-auto select-none border border-border/20 bg-white">
+      <div 
+        className="rounded-2xl overflow-hidden shadow-xl w-full max-w-xs mx-auto select-none border border-border/20"
+        style={{ backgroundColor: bgColor }}
+      >
         
         {/* ── Top header bar: logo + cardTitle ─────────────────────────────── */}
-        <div className="px-4 py-3 flex items-center gap-2.5">
+        <div className={`px-4 py-3 flex items-center gap-2.5 ${textColorClass}`}>
           {logoUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={logoUrl} alt="Logo" className="w-8 h-8 rounded-full object-cover flex-shrink-0" />
+            <img src={logoUrl} alt="Logo" className="w-8 h-8 rounded-full object-cover flex-shrink-0 bg-white" />
           ) : (
-            <div className="w-8 h-8 rounded-full bg-gray-200 flex-shrink-0" />
+            <div className="w-8 h-8 rounded-full bg-white/20 flex-shrink-0" />
           )}
-          <span className="text-xs font-medium text-gray-800 leading-tight">
+          <span className="text-xs font-medium leading-tight opacity-90">
             [TEST ONLY] Anoya Digital Business Card
           </span>
         </div>
 
         {/* ── Content: name, title ─────────────────────────────────────── */}
-        <div className="px-4 pt-2 pb-4 space-y-1">
+        <div className={`px-4 pt-2 pb-4 space-y-1 ${textColorClass}`}>
           {/* Subheader (job at company) */}
-          <p className="text-xs leading-tight text-gray-800">
+          <p className="text-xs leading-tight opacity-80">
             {subheader}
           </p>
 
           {/* Header — name (large) */}
-          <p className="text-2xl font-normal leading-tight text-black">
+          <p className="text-2xl font-normal leading-tight">
             {name || 'Your Name'}
           </p>
         </div>
 
         {/* ── QR placeholder ───────────────────────────────────────────── */}
-        <div className="flex justify-center py-2">
-          <div className="rounded-lg p-2 flex items-center justify-center">
+        <div className={`flex justify-center py-2 ${textColorClass}`}>
+          <div className="rounded-lg p-3 flex flex-col items-center justify-center bg-white">
             <svg viewBox="0 0 48 48" className="w-40 h-40 text-black" fill="currentColor">
               <rect x="0" y="0" width="20" height="20" rx="2"/>
               <rect x="28" y="0" width="20" height="20" rx="2"/>
@@ -92,22 +111,18 @@ export function WalletPreview({
             </svg>
           </div>
         </div>
-        <p className="text-sm font-medium text-black text-center pb-6">
+        <p className={`text-sm font-medium text-center pb-6 mt-2 ${textColorClass}`}>
           Scan to connect
         </p>
         
         {/* ── Hero image (At BOTTOM, matching Google Wallet) ─────────────── */}
         {bannerUrl && (
-          <div className="relative w-full" style={{ aspectRatio: '1032/400' }}>
-            <div className="absolute inset-0 bg-neutral-900 flex items-center justify-center text-white/50 text-xs">
-              Loading image...
-            </div>
+          <div className="relative w-full bg-black" style={{ aspectRatio: '1032/400' }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img 
               src={bannerUrl} 
               alt="Banner" 
               className="absolute inset-0 w-full h-full object-cover z-10"
-              style={{ backgroundColor: bgColor }}
               onError={(e) => {
                 e.currentTarget.style.display = 'none';
               }}

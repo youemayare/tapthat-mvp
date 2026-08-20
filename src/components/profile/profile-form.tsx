@@ -217,9 +217,11 @@ export function ProfileForm({ initialData, isMultiProfile }: ProfileFormProps) {
               : 'My Profile'}
           </h1>
           <p className="text-muted-foreground mt-1">
-            {isMultiProfile 
-              ? 'This is what people see when they tap a card assigned to this profile.'
-              : 'Manage your professional profile — this is what people see when they tap your card.'}
+            {activeTab === 'wallet' 
+              ? 'This is what your google wallet anoya digital business card looks like'
+              : (isMultiProfile 
+                  ? 'This is what people see when they tap a card assigned to this profile.'
+                  : 'Manage your professional profile — this is what people see when they tap your card.')}
           </p>
         </div>
       </div>
