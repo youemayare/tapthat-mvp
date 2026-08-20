@@ -15,6 +15,7 @@ import { ImageUpload } from '@/components/profile/image-upload';
 import { FileUpload } from '@/components/profile/file-upload';
 import { WalletHeroUpload } from '@/components/profile/wallet-hero-upload';
 import { WalletPreview } from '@/components/profile/wallet-preview';
+import { WalletColorPicker } from '@/components/profile/wallet-color-picker';
 import { useRouter } from 'next/navigation';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { ProfileView } from '@/app/n/[uid]/profile-view';
@@ -300,34 +301,10 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
             {/* Background Color */}
             <div className="space-y-2">
               <Label htmlFor="walletThemeColor">Background Color</Label>
-              <div className="flex items-center gap-3">
-                <input
-                  type="color"
-                  id="walletThemeColorPicker"
-                  value={walletThemeColor && /^#[0-9A-Fa-f]{6}$/.test(walletThemeColor) ? walletThemeColor : '#1c1c1e'}
-                  onChange={(e) => setValue('walletThemeColor', e.target.value, { shouldDirty: true })}
-                  className="w-10 h-10 rounded-lg border border-border cursor-pointer bg-transparent p-0.5"
-                />
-                <Input
-                  id="walletThemeColor"
-                  {...register('walletThemeColor')}
-                  placeholder="#1c1c1e (optional)"
-                  className="font-mono"
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    setValue('walletThemeColor', val, { shouldDirty: true });
-                  }}
-                />
-                {walletThemeColor && (
-                  <button
-                    type="button"
-                    onClick={() => setValue('walletThemeColor', '', { shouldDirty: true })}
-                    className="text-xs text-muted-foreground hover:text-foreground"
-                  >
-                    Clear
-                  </button>
-                )}
-              </div>
+              <WalletColorPicker
+                value={walletThemeColor || ''}
+                onChange={(hex) => setValue('walletThemeColor', hex, { shouldDirty: true })}
+              />
               <p className="text-xs text-muted-foreground">
                 When not set, Google Wallet uses an automatic dominant-color fallback.
               </p>
