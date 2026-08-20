@@ -1,36 +1,47 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Anoya Smart & Digital Business Card Platform
 
-## Getting Started
+Anoya is a full-stack web application built to manage physical NFC-enabled & digital-only smart business cards. It provides users with a web dashboard to customize their public profiles, configure their Google Wallet passes, and track real-time analytics.
 
-First, run the development server:
+This repository demonstrates modern frontend engineering practices, modular component architecture, and practical API integration.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Tech Stack
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+* Framework: Next.js (App Router)
+* Language: TypeScript
+* Styling: Tailwind CSS
+* Database: PostgreSQL (Drizzle ORM)
+* Authentication: Supabase Auth
+* Infrastructure: Vercel (Hosting), Cloudflare R2 (Asset Storage)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Core Engineering Focus
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Modular Frontend Architecture
+The user interface is built using reusable React components. Interactive elements, such as the cross-platform color picker for Google Wallet customization, are encapsulated into independent modules. State management is handled strictly to ensure UI updates, like the live card preview, reflect changes instantly without unnecessary DOM re-renders.
 
-## Learn More
+### API Integration and Data Flow
+The client-side interfaces connect directly to backend microservices and database endpoints. The frontend consumes RESTful API routes and server actions to handle secure profile updates, image uploads, and analytics tracking. Asynchronous JavaScript operations (Promises, async/await) are used to maintain a non-blocking user experience during data fetching and mutations.
 
-To learn more about Next.js, take a look at the following resources:
+### Responsive Design and Cross-Browser Optimization
+The application is built for responsive performance across all viewports. Both the public-facing profile pages and the internal management dashboard adapt to mobile, tablet, and desktop environments. Layouts were audited for visual precision and cross-browser compatibility to ensure a consistent user experience.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Security and Data Protection
+Data access is restricted using Row Level Security policies at the database layer, ensuring users can only read and modify their own records. Authentication is managed via secure JSON Web Tokens. For the analytics engine, visitor IP addresses are cryptographically hashed to maintain privacy and GDPR compliance while still generating accurate unique visitor metrics.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Web Performance Best Practices
+The platform leverages Next.js server-side rendering and asset caching to maintain fast load times. Database queries are kept efficient, and image assets are served through a CDN to support core web vitals, lazy loading, and SEO-friendly semantic markup.
 
-## Deploy on Vercel
+## Local Setup
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. Clone the repository
+`git clone https://github.com/youemayare/tapthat-mvp.git`
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+2. Install dependencies
+`npm install`
+
+3. Configure environment variables
+Create a `.env.local` file with the required Supabase, PostgreSQL, and Cloudflare R2 credentials.
+
+4. Run the development server
+`npm run dev`
+
+Open `http://localhost:3000` to view the application in the browser.
