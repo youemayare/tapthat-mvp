@@ -5,28 +5,50 @@ interface ProfileData {
   name: string;
   jobTitle?: string | null;
   company?: string | null;
-  cardUid: string; // The public UID for the QR code
+  slug?: string | null;
+  cardUid?: string; // Optional if we still want it
 }
 
-/**
- * Generates a Google Wallet "Save to Wallet" URL containing a signed JWT.
- * If Google Wallet credentials are not configured, returns a mock URL for development.
- */
 export function getGoogleWalletSaveUrl(profile: ProfileData): string {
   const issuerId = process.env.GOOGLE_WALLET_ISSUER_ID;
-  const clientEmail = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
+  const clientEmail = process.env.GOOGLE_WALLET_CLIENT_EMAIL;
   // Handle escaped newlines in env variables for private keys
-  const privateKey = process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY?.replace(/\\n/g, '\n');
+  const privateKey = process.env.GOOGLE_WALLET_PRIVATE_KEY?.replace(/\\n/g, '\n');
 
-  // Local Mock Mode
   if (!issuerId || !clientEmail || !privateKey) {
     console.warn('[Wallet] Google Wallet credentials missing. Using local mock mode.');
     return '#mock-google-wallet-link';
   }
 
-  const classId = `${issuerId}.tapthat_contact`;
+  const classId = `${issuerId}.anoya_business_card_v1`;
   const objectId = `${issuerId}.${profile.id.replace(/-/g, '')}`;
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://tapthat.app';
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://anoya.com';
+  const profileUrl = `${appUrl}/p/${profile.slug || profile.id}`;
+
+  // Generic Class (The Template)
+  const walletClass = {
+    id: classId,
+    classTemplateInfo: {
+      cardTemplateOverride: {
+        cardRowTemplateInfos: [
+          {
+            twoItems: {
+              startItem: {
+                firstValue: {
+                  fields: [{ fieldPath: 'object.header' }]
+                }
+              },
+              endItem: {
+                firstValue: {
+                  fields: [{ fieldPath: 'object.subheader' }]
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  };
 
   // Construct the GenericObject payload
   const walletObject = {
@@ -36,13 +58,13 @@ export function getGoogleWalletSaveUrl(profile: ProfileData): string {
     hexBackgroundColor: '#000000',
     logo: {
       sourceUri: {
-        uri: 'https://cdn-icons-png.flaticon.com/512/1055/1055661.png' // A generic contact icon for now
+        uri: 'https://i.imgur.com/4tGqO5C.png' // Use Anoya logo here
       }
     },
     cardTitle: {
       defaultValue: {
         language: 'en',
-        value: 'Anoya Contact Card'
+        value: 'Anoya Digital Business Card'
       }
     },
     header: {
@@ -54,13 +76,13 @@ export function getGoogleWalletSaveUrl(profile: ProfileData): string {
     subheader: {
       defaultValue: {
         language: 'en',
-        value: [profile.jobTitle, profile.company].filter(Boolean).join(' at ') || 'Anoya Member'
+        value: [profile.jobTitle, profile.company].filter(Boolean).join(' at ') || 'Member'
       }
     },
     barcode: {
       type: 'QR_CODE',
-      value: `${appUrl}/n/${profile.cardUid}`,
-      alternateText: 'Scan to view profile'
+      value: profileUrl,
+      alternateText: 'Scan to connect'
     }
   };
 
@@ -71,11 +93,11 @@ export function getGoogleWalletSaveUrl(profile: ProfileData): string {
     iat: Math.floor(Date.now() / 1000),
     origins: [],
     payload: {
+      genericClasses: [walletClass],
       genericObjects: [walletObject]
     }
   };
 
-  // Sign the JWT
   const token = jwt.sign(claims, privateKey, { algorithm: 'RS256' });
 
   return `https://pay.google.com/gp/v/save/${token}`;

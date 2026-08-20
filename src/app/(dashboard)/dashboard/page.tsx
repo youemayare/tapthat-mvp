@@ -65,6 +65,7 @@ export default async function DashboardPage() {
             name: fullName,
             jobTitle: profile.jobTitle,
             company: profile.companyName,
+            slug: profile.slug,
             cardUid: activeCard.cardUid,
           });
         }
