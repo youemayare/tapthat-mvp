@@ -7,6 +7,8 @@ interface ProfileData {
   company?: string | null;
   slug?: string | null;
   cardUid?: string; // Optional if we still want it
+  profilePhotoUrl?: string | null;
+  companyLogoUrl?: string | null;
 }
 
 export function getGoogleWalletSaveUrl(profile: ProfileData): string {
@@ -28,27 +30,11 @@ export function getGoogleWalletSaveUrl(profile: ProfileData): string {
   // Generic Class (The Template)
   const walletClass = {
     id: classId,
-    classTemplateInfo: {
-      cardTemplateOverride: {
-        cardRowTemplateInfos: [
-          {
-            twoItems: {
-              startItem: {
-                firstValue: {
-                  fields: [{ fieldPath: 'object.header' }]
-                }
-              },
-              endItem: {
-                firstValue: {
-                  fields: [{ fieldPath: 'object.subheader' }]
-                }
-              }
-            }
-          }
-        ]
-      }
-    }
+    // Removed classTemplateOverride so it uses the beautiful default Google Wallet layout
   };
+
+  // Determine which logo to show (prefer company logo, fallback to profile photo, fallback to Anoya icon)
+  const displayLogo = profile.companyLogoUrl || profile.profilePhotoUrl || 'https://i.imgur.com/4tGqO5C.png';
 
   // Construct the GenericObject payload
   const walletObject = {
@@ -58,7 +44,7 @@ export function getGoogleWalletSaveUrl(profile: ProfileData): string {
     hexBackgroundColor: '#000000',
     logo: {
       sourceUri: {
-        uri: 'https://i.imgur.com/4tGqO5C.png' // Use Anoya logo here
+        uri: displayLogo
       }
     },
     cardTitle: {

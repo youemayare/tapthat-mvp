@@ -67,6 +67,8 @@ export default async function DashboardPage() {
             company: profile.companyName,
             slug: profile.slug,
             cardUid: activeCard.cardUid,
+            profilePhotoUrl: profile.profilePhotoUrl,
+            companyLogoUrl: profile.companyLogoUrl,
           });
         }
       }
