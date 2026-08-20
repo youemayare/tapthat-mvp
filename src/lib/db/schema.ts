@@ -60,6 +60,14 @@ export const profiles = pgTable('profiles', {
   // still resolves to an archived-profile page rather than 404/redirect.
   archivedAt: timestamp('archived_at', { withTimezone: true }),
 
+  // ── Google Wallet Appearance ──────────────────────────────────────────────
+  // Optional hex background color for the Wallet pass, e.g. "#1a1a2e".
+  // When null, Google Wallet uses its dominant-color fallback automatically.
+  walletThemeColor: text('wallet_theme_color'),
+  // Optional hero image URL (JPG/PNG, approx 5:4 / 1032×812). Must be HTTPS.
+  // Maps to GenericObject.heroImage in the Google Wallet API.
+  walletHeroImageUrl: text('wallet_hero_image_url'),
+
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 }, (t) => [

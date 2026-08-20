@@ -69,9 +69,11 @@ export default async function DashboardPage() {
             jobTitle: profile.jobTitle,
             company: profile.companyName,
             slug: profile.slug,
-            cardUid: activeCard.cardUid,
             profilePhotoUrl: profile.profilePhotoUrl,
             companyLogoUrl: profile.companyLogoUrl,
+            walletThemeColor: profile.walletThemeColor,
+            walletHeroImageUrl: profile.walletHeroImageUrl,
+            updatedAt: profile.updatedAt,
           });
         }
       }

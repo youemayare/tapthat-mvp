@@ -63,7 +63,7 @@ export function getPublicUrl(key: string): string {
  */
 export function buildStorageKey(
   userId: string,
-  type: 'avatar' | 'logo' | 'cv',
+  type: 'avatar' | 'logo' | 'cv' | 'wallet_hero_image',
   filename: string
 ): string {
   const ext = filename.split('.').pop()?.toLowerCase() ?? 'bin';

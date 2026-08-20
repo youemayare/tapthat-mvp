@@ -28,7 +28,21 @@ const profileSchema = z.object({
   linkedinUrl: z.string().url().optional().nullable().or(z.literal('')),
   instagramUrl: z.string().url().optional().nullable().or(z.literal('')),
   isPublished: z.boolean().default(false),
-  label: z.string().max(50).optional().nullable()
+  label: z.string().max(50).optional().nullable(),
+  // Google Wallet Appearance
+  walletThemeColor: z
+    .string()
+    .regex(/^#[0-9A-Fa-f]{6}$/, 'Must be a valid hex color (#RRGGBB)')
+    .optional()
+    .nullable()
+    .or(z.literal('')),
+  walletHeroImageUrl: z
+    .string()
+    .url('Must be a valid HTTPS URL')
+    .startsWith('https://', 'Wallet image URL must be HTTPS')
+    .optional()
+    .nullable()
+    .or(z.literal('')),
 });
 
 export async function PUT(req: Request) {
@@ -130,10 +144,30 @@ export async function PUT(req: Request) {
       if (result.slug) revalidateTag(`profile-${result.slug}`, 'default');
     }
 
-    // Also revalidate the dashboard profile editor and both public profile routes
+    // Revalidate the dashboard profile editor and both public profile routes
     revalidatePath('/dashboard/profile');
     revalidatePath(`/n/[uid]`, 'page');
     revalidatePath(`/p/[slug]`, 'page');
+
+    // Non-blocking: update the Google Wallet pass object if it exists.
+    // We fire and forget — a failure here must never break the profile save response.
+    if (result) {
+      const { patchGoogleWalletObject } = await import('@/lib/wallet/google');
+      const fullName = [result.firstName, result.lastName].filter(Boolean).join(' ') || 'My Profile';
+      patchGoogleWalletObject({
+        id: result.id,
+        name: fullName,
+        jobTitle: result.jobTitle,
+        company: result.companyName,
+        slug: result.slug,
+        profilePhotoUrl: result.profilePhotoUrl,
+        companyLogoUrl: result.companyLogoUrl,
+        walletThemeColor: result.walletThemeColor,
+        walletHeroImageUrl: result.walletHeroImageUrl,
+        updatedAt: result.updatedAt,
+      }).catch((err) => console.error('[Profile API] Background wallet PATCH failed:', err));
+    }
+
     return NextResponse.json(result);
 
   } catch (error: unknown) {

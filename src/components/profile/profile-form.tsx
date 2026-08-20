@@ -13,6 +13,8 @@ import { toast } from 'sonner';
 import type { Profile } from '@/lib/db/schema';
 import { ImageUpload } from '@/components/profile/image-upload';
 import { FileUpload } from '@/components/profile/file-upload';
+import { WalletHeroUpload } from '@/components/profile/wallet-hero-upload';
+import { WalletPreview } from '@/components/profile/wallet-preview';
 import { useRouter } from 'next/navigation';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { ProfileView } from '@/app/n/[uid]/profile-view';
@@ -47,7 +49,15 @@ const profileSchema = z.object({
   linkedinUrl: z.string().url('Invalid URL').optional().nullable().or(z.literal('')),
   instagramUrl: z.string().url('Invalid URL').optional().nullable().or(z.literal('')),
   isPublished: z.boolean(),
-  label: z.string().max(50, 'Max 50 characters').optional().nullable()
+  label: z.string().max(50, 'Max 50 characters').optional().nullable(),
+  // Google Wallet Appearance
+  walletThemeColor: z
+    .string()
+    .regex(/^#[0-9A-Fa-f]{6}$/, 'Must be a valid hex color, e.g. #1a1a2e')
+    .optional()
+    .nullable()
+    .or(z.literal('')),
+  walletHeroImageUrl: z.string().optional().nullable().or(z.literal('')),
 });
 
 type ProfileFormValues = z.infer<typeof profileSchema>;
@@ -87,6 +97,8 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
       instagramUrl: initialData?.instagramUrl || '',
       isPublished: initialData?.isPublished ?? false,
       label: initialData?.label || '',
+      walletThemeColor: initialData?.walletThemeColor || '',
+      walletHeroImageUrl: initialData?.walletHeroImageUrl || '',
     }
   });
 
@@ -94,6 +106,12 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
   const profilePhotoUrl = useWatch({ control, name: 'profilePhotoUrl' });
   const companyLogoUrl = useWatch({ control, name: 'companyLogoUrl' });
   const cvUrl = useWatch({ control, name: 'cvUrl' });
+  const walletThemeColor = useWatch({ control, name: 'walletThemeColor' });
+  const walletHeroImageUrl = useWatch({ control, name: 'walletHeroImageUrl' });
+  const firstName = useWatch({ control, name: 'firstName' });
+  const lastName = useWatch({ control, name: 'lastName' });
+  const jobTitle = useWatch({ control, name: 'jobTitle' });
+  const companyName = useWatch({ control, name: 'companyName' });
 
   const currentValues = useWatch({ control });
 
@@ -263,6 +281,87 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
             <Label htmlFor="instagramUrl">Instagram URL</Label>
             <Input id="instagramUrl" type="url" {...register('instagramUrl')} placeholder="https://instagram.com/anoya" />
             {errors.instagramUrl && <p className="text-sm text-red-500">{errors.instagramUrl.message}</p>}
+          </div>
+        </div>
+      </div>
+
+      {/* ── Google Wallet Appearance ── */}
+      <div className="bg-card text-card-foreground border border-border shadow-sm rounded-2xl p-6 space-y-6">
+        <div>
+          <h2 className="text-xl font-semibold text-foreground">Google Wallet Appearance</h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            Customize how your card looks in Google Wallet. All fields are optional.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Controls */}
+          <div className="space-y-6">
+            {/* Background Color */}
+            <div className="space-y-2">
+              <Label htmlFor="walletThemeColor">Background Color</Label>
+              <div className="flex items-center gap-3">
+                <input
+                  type="color"
+                  id="walletThemeColorPicker"
+                  value={walletThemeColor && /^#[0-9A-Fa-f]{6}$/.test(walletThemeColor) ? walletThemeColor : '#1c1c1e'}
+                  onChange={(e) => setValue('walletThemeColor', e.target.value, { shouldDirty: true })}
+                  className="w-10 h-10 rounded-lg border border-border cursor-pointer bg-transparent p-0.5"
+                />
+                <Input
+                  id="walletThemeColor"
+                  {...register('walletThemeColor')}
+                  placeholder="#1c1c1e (optional)"
+                  className="font-mono"
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setValue('walletThemeColor', val, { shouldDirty: true });
+                  }}
+                />
+                {walletThemeColor && (
+                  <button
+                    type="button"
+                    onClick={() => setValue('walletThemeColor', '', { shouldDirty: true })}
+                    className="text-xs text-muted-foreground hover:text-foreground"
+                  >
+                    Clear
+                  </button>
+                )}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                When not set, Google Wallet uses an automatic dominant-color fallback.
+              </p>
+              {errors.walletThemeColor && (
+                <p className="text-sm text-red-500">{errors.walletThemeColor.message}</p>
+              )}
+            </div>
+
+            {/* Hero Image */}
+            <div className="space-y-2">
+              <Label>Wallet Image</Label>
+              <p className="text-xs text-muted-foreground">
+                Optional. Add an image that appears on your Google Wallet pass. PNG is recommended.
+              </p>
+              <WalletHeroUpload
+                currentUrl={walletHeroImageUrl}
+                onUploadSuccess={(url) => setValue('walletHeroImageUrl', url, { shouldDirty: true })}
+                onRemove={() => setValue('walletHeroImageUrl', '', { shouldDirty: true })}
+              />
+            </div>
+          </div>
+
+          {/* Live preview */}
+          <div>
+            <p className="text-sm font-medium text-foreground mb-3">Live Preview</p>
+            <WalletPreview
+              name={[firstName, lastName].filter(Boolean).join(' ') || initialData?.firstName || 'Your Name'}
+              jobTitle={jobTitle || initialData?.jobTitle}
+              company={companyName || initialData?.companyName}
+              profilePhotoUrl={profilePhotoUrl || initialData?.profilePhotoUrl}
+              companyLogoUrl={companyLogoUrl || initialData?.companyLogoUrl}
+              walletThemeColor={walletThemeColor || undefined}
+              walletHeroImageUrl={walletHeroImageUrl || undefined}
+            />
           </div>
         </div>
       </div>

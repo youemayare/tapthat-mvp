@@ -37,6 +37,8 @@ function makeProfile(overrides: Partial<Profile> = {}): Profile {
     label: null,
     isDefault: true,
     archivedAt: null,
+    walletThemeColor: null,
+    walletHeroImageUrl: null,
     createdAt: new Date(),
     updatedAt: new Date(),
     ...overrides,

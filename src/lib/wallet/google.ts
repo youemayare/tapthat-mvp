@@ -1,85 +1,109 @@
-import jwt from 'jsonwebtoken';
+﻿import jwt from 'jsonwebtoken';
+import { GoogleAuth } from 'google-auth-library';
 
-interface ProfileData {
+export interface WalletProfileData {
   id: string;
   name: string;
   jobTitle?: string | null;
   company?: string | null;
   slug?: string | null;
-  cardUid?: string; // Optional if we still want it
   profilePhotoUrl?: string | null;
   companyLogoUrl?: string | null;
+  walletThemeColor?: string | null;
+  walletHeroImageUrl?: string | null;
+  updatedAt?: Date | null;
 }
 
-export function getGoogleWalletSaveUrl(profile: ProfileData): string {
-  const issuerId = process.env.GOOGLE_WALLET_ISSUER_ID;
+function getCredentials() {
+  const issuerId    = process.env.GOOGLE_WALLET_ISSUER_ID;
   const clientEmail = process.env.GOOGLE_WALLET_CLIENT_EMAIL;
-  // Handle escaped newlines in env variables for private keys and strip accidental quotes
-  const privateKey = process.env.GOOGLE_WALLET_PRIVATE_KEY?.replace(/\\n/g, '\n').replace(/(^"|"$)/g, '');
+  const privateKey  = process.env.GOOGLE_WALLET_PRIVATE_KEY
+    ?.replace(/\\n/g, '\n')
+    .replace(/(^"|"$)/g, '');
+  return { issuerId, clientEmail, privateKey };
+}
 
-  if (!issuerId || !clientEmail || !privateKey) {
+function hasCredentials() {
+  const { issuerId, clientEmail, privateKey } = getCredentials();
+  return Boolean(issuerId && clientEmail && privateKey);
+}
+
+function isValidWalletImage(url?: string | null): url is string {
+  if (!url) return false;
+  const lower = url.toLowerCase();
+  return (
+    url.startsWith('https://') &&
+    (lower.includes('.png') || lower.includes('.jpg') || lower.includes('.jpeg'))
+  );
+}
+
+function withVersion(url: string, updatedAt?: Date | null): string {
+  const ts  = updatedAt ? updatedAt.getTime() : Date.now();
+  const sep = url.includes('?') ? '&' : '?';
+  return `${url}${sep}v=${ts}`;
+}
+
+function buildWalletObjectPayload(
+  profile: WalletProfileData,
+  classId: string,
+  objectId: string
+): Record<string, unknown> {
+  const appUrl     = process.env.NEXT_PUBLIC_APP_URL || 'https://anoya.com';
+  const profileUrl = `${appUrl}/p/${profile.slug || profile.id}`;
+
+  let displayLogo = 'https://i.imgur.com/4tGqO5C.png';
+  if (isValidWalletImage(profile.companyLogoUrl)) {
+    displayLogo = profile.companyLogoUrl;
+  } else if (isValidWalletImage(profile.profilePhotoUrl)) {
+    displayLogo = profile.profilePhotoUrl;
+  }
+
+  const walletObject: Record<string, unknown> = {
+    id: objectId,
+    classId,
+    genericType: 'GENERIC_TYPE_UNSPECIFIED',
+    logo: { sourceUri: { uri: displayLogo } },
+    cardTitle: { defaultValue: { language: 'en', value: 'Anoya Digital Business Card' } },
+    header: { defaultValue: { language: 'en', value: profile.name || 'Anonymous' } },
+    subheader: {
+      defaultValue: {
+        language: 'en',
+        value: [profile.jobTitle, profile.company].filter(Boolean).join(' at ') || 'Member',
+      },
+    },
+    barcode: { type: 'QR_CODE', value: profileUrl, alternateText: 'Scan to connect' },
+  };
+
+  if (profile.walletThemeColor && /^#[0-9A-Fa-f]{6}$/.test(profile.walletThemeColor)) {
+    walletObject.hexBackgroundColor = profile.walletThemeColor;
+  }
+
+  if (isValidWalletImage(profile.walletHeroImageUrl)) {
+    walletObject.heroImage = {
+      sourceUri: { uri: withVersion(profile.walletHeroImageUrl, profile.updatedAt) },
+    };
+  }
+
+  return walletObject;
+}
+
+function getIds(issuerId: string, profileId: string) {
+  const classId  = `${issuerId}.anoya_business_card_v2`;
+  const objectId = `${issuerId}.${profileId.replace(/-/g, '')}_v2`;
+  return { classId, objectId };
+}
+
+export function getGoogleWalletSaveUrl(profile: WalletProfileData): string {
+  if (!hasCredentials()) {
     console.warn('[Wallet] Google Wallet credentials missing. Using local mock mode.');
     return '#mock-google-wallet-link';
   }
 
-  const classId = `${issuerId}.anoya_business_card_v2`;
-  // We use a v2 suffix on the object to bust Google's aggressive caching of the old pass object
-  const objectId = `${issuerId}.${profile.id.replace(/-/g, '')}_v2`;
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://anoya.com';
-  const profileUrl = `${appUrl}/p/${profile.slug || profile.id}`;
+  const { issuerId, clientEmail, privateKey } = getCredentials();
+  const { classId, objectId } = getIds(issuerId!, profile.id);
 
-  // Generic Class (The Template)
-  const walletClass = {
-    id: classId,
-    // Removed classTemplateOverride so it uses the beautiful default Google Wallet layout
-  };
-
-  // Google Wallet does NOT support WebP. Only JPG/PNG/GIF.
-  const isValidFormat = (url?: string | null) => url && !url.toLowerCase().endsWith('.webp');
-
-  // Determine which logo to show (prefer company logo, fallback to profile photo, fallback to Anoya icon)
-  let displayLogo = 'https://i.imgur.com/4tGqO5C.png';
-  if (isValidFormat(profile.companyLogoUrl)) {
-    displayLogo = profile.companyLogoUrl!;
-  } else if (isValidFormat(profile.profilePhotoUrl)) {
-    displayLogo = profile.profilePhotoUrl!;
-  }
-
-  // Construct the GenericObject payload
-  const walletObject = {
-    id: objectId,
-    classId: classId,
-    genericType: 'GENERIC_TYPE_UNSPECIFIED',
-    hexBackgroundColor: '#000000',
-    logo: {
-      sourceUri: {
-        uri: displayLogo
-      }
-    },
-    cardTitle: {
-      defaultValue: {
-        language: 'en',
-        value: 'Anoya Digital Business Card'
-      }
-    },
-    header: {
-      defaultValue: {
-        language: 'en',
-        value: profile.name || 'Anonymous'
-      }
-    },
-    subheader: {
-      defaultValue: {
-        language: 'en',
-        value: [profile.jobTitle, profile.company].filter(Boolean).join(' at ') || 'Member'
-      }
-    },
-    barcode: {
-      type: 'QR_CODE',
-      value: profileUrl,
-      alternateText: 'Scan to connect'
-    }
-  };
+  const walletClass  = { id: classId };
+  const walletObject = buildWalletObjectPayload(profile, classId, objectId);
 
   const claims = {
     iss: clientEmail,
@@ -87,17 +111,58 @@ export function getGoogleWalletSaveUrl(profile: ProfileData): string {
     typ: 'savetowallet',
     iat: Math.floor(Date.now() / 1000),
     origins: [],
-    payload: {
-      genericClasses: [walletClass],
-      genericObjects: [walletObject]
-    }
+    payload: { genericClasses: [walletClass], genericObjects: [walletObject] },
   };
 
   try {
-    const token = jwt.sign(claims, privateKey, { algorithm: 'RS256' });
+    const token = jwt.sign(claims, privateKey!, { algorithm: 'RS256' });
     return `https://pay.google.com/gp/v/save/${token}`;
   } catch (error) {
-    console.error('[Wallet] Error signing JWT for Google Wallet:', error);
-    return '#mock-google-wallet-link'; // Fallback so we don't break the UI
+    console.error('[Wallet] Error signing JWT:', error);
+    return '#mock-google-wallet-link';
+  }
+}
+
+export async function patchGoogleWalletObject(profile: WalletProfileData): Promise<void> {
+  if (!hasCredentials()) {
+    console.warn('[Wallet] Skipping Wallet PATCH — credentials not configured.');
+    return;
+  }
+
+  const { issuerId, clientEmail, privateKey } = getCredentials();
+  const { classId, objectId } = getIds(issuerId!, profile.id);
+
+  try {
+    const auth = new GoogleAuth({
+      credentials: { client_email: clientEmail, private_key: privateKey },
+      scopes: ['https://www.googleapis.com/auth/wallet_object.issuer'],
+    });
+
+    const client      = await auth.getClient();
+    const tokenResult = await client.getAccessToken();
+    const accessToken = typeof tokenResult === 'string' ? tokenResult : tokenResult?.token;
+    if (!accessToken) throw new Error('Could not obtain access token');
+
+    const patchBody = buildWalletObjectPayload(profile, classId, objectId);
+    const url = `https://walletobjects.googleapis.com/walletobjects/v1/genericObject/${encodeURIComponent(objectId)}`;
+
+    const res = await fetch(url, {
+      method: 'PATCH',
+      headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(patchBody),
+    });
+
+    if (!res.ok) {
+      if (res.status === 404) {
+        console.info('[Wallet] Pass not yet saved by user — PATCH skipped (404).');
+        return;
+      }
+      const errText = await res.text();
+      throw new Error(`Google Wallet PATCH failed (${res.status}): ${errText}`);
+    }
+
+    console.info(`[Wallet] GenericObject ${objectId} patched successfully.`);
+  } catch (error) {
+    console.error('[Wallet] PATCH error (non-fatal):', error);
   }
 }

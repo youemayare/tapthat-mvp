@@ -77,17 +77,18 @@ export async function POST(req: Request) {
     }
 
     const isImage = type === 'avatar' || type === 'logo';
+    const isWalletHero = type === 'wallet_hero_image';
     const isPdf   = type === 'cv';
 
-    if (!isImage && !isPdf) {
+    if (!isImage && !isWalletHero && !isPdf) {
       return NextResponse.json({ error: 'Invalid upload type' }, { status: 400 });
     }
 
     // ── 4. Size limit BEFORE buffering ────────────────────────────────────────
-    const maxSize = isPdf ? MAX_PDF_SIZE : MAX_IMAGE_SIZE;
+    const maxSize = isPdf ? MAX_PDF_SIZE : isWalletHero ? 2 * 1024 * 1024 : MAX_IMAGE_SIZE;
     if (file.size > maxSize) {
       return NextResponse.json(
-        { error: `File exceeds ${isPdf ? '10' : '5'} MB limit` },
+        { error: `File exceeds ${isPdf ? '10' : isWalletHero ? '2' : '5'} MB limit` },
         { status: 400 }
       );
     }
@@ -104,17 +105,32 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Only PDF files are allowed for CVs' }, { status: 400 });
     }
 
+    // Wallet hero images: only PNG or JPEG allowed (Google Wallet rejects WebP/GIF)
+    if (isWalletHero && !['image/png', 'image/jpeg'].includes(fileTypeResult.mime)) {
+      return NextResponse.json({ error: 'Wallet images must be PNG or JPEG' }, { status: 400 });
+    }
+
     if (isImage && !(ALLOWED_IMAGE_TYPES as readonly string[]).includes(fileTypeResult.mime)) {
       return NextResponse.json({ error: 'Invalid image type' }, { status: 400 });
     }
 
     // ── 6. Image processing (resize + WebP conversion) ─────────────────────────
     // CVs skip this step entirely and are stored as-is.
+    // Wallet hero images: resize to 1032×812 max, preserve PNG (no WebP conversion).
     let processedBuffer: Buffer = rawBuffer;
     let finalMime: string = fileTypeResult.mime;
     let finalExt: string = fileTypeResult.ext;
 
-    if (isImage) {
+    if (isWalletHero) {
+      // Resize to max 1032×812 (5:4), keep native format (PNG preferred, JPEG allowed)
+      const isPng = fileTypeResult.mime === 'image/png';
+      processedBuffer = await sharp(rawBuffer)
+        .resize(1032, 812, { fit: 'inside', withoutEnlargement: true })
+        .toFormat(isPng ? 'png' : 'jpeg', isPng ? { compressionLevel: 8 } : { quality: 88 })
+        .toBuffer();
+      finalMime = fileTypeResult.mime; // unchanged
+      finalExt  = isPng ? 'png' : 'jpg';
+    } else if (isImage) {
       processedBuffer = await sharp(rawBuffer)
         .resize(MAX_IMAGE_DIMENSION, MAX_IMAGE_DIMENSION, {
           fit: 'inside',        // never upscale; never crop; preserve aspect ratio
@@ -129,7 +145,7 @@ export async function POST(req: Request) {
     // ── 7. Server-generated object key ────────────────────────────────────────
     // The client never supplies or influences the key.
     const safeFilename = `${crypto.randomBytes(16).toString('hex')}.${finalExt}`;
-    const key = buildStorageKey(user.id, type as 'avatar' | 'logo' | 'cv', safeFilename);
+    const key = buildStorageKey(user.id, type as 'avatar' | 'logo' | 'cv' | 'wallet_hero_image', safeFilename);
 
     // ── 8. Local development fallback ─────────────────────────────────────────
     if (!process.env.R2_ACCESS_KEY_ID || process.env.R2_ACCESS_KEY_ID.includes('your-r2')) {
