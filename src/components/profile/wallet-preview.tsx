@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 interface WalletPreviewProps {
   name: string;
@@ -10,7 +10,6 @@ interface WalletPreviewProps {
   walletHeroImageUrl?: string | null;
 }
 
-/** Determines if a URL points to a Google Wallet-compatible image (not WebP). */
 function isValidWalletImage(url?: string | null): url is string {
   if (!url) return false;
   const lower = url.toLowerCase();
@@ -26,9 +25,10 @@ export function WalletPreview({
   walletThemeColor,
   walletHeroImageUrl,
 }: WalletPreviewProps) {
-  const bgColor = walletThemeColor && /^#[0-9A-Fa-f]{6}$/.test(walletThemeColor)
-    ? walletThemeColor
-    : '#1c1c1e';
+  const bgColor =
+    walletThemeColor && /^#[0-9A-Fa-f]{6}$/.test(walletThemeColor)
+      ? walletThemeColor
+      : '#0f0f19';
 
   const logoUrl = isValidWalletImage(companyLogoUrl)
     ? companyLogoUrl
@@ -37,74 +37,112 @@ export function WalletPreview({
     : null;
 
   const subheader = [jobTitle, company].filter(Boolean).join(' at ') || 'Member';
+  const bannerUrl = isValidWalletImage(walletHeroImageUrl) ? walletHeroImageUrl : null;
+  const pfpUrl = isValidWalletImage(profilePhotoUrl) ? profilePhotoUrl : null;
+
+  // Show the composite hero (banner + PFP) only when there is something to show
+  const showHero = bannerUrl || pfpUrl;
 
   return (
     <div className="space-y-2">
-      {/* The preview card */}
-      <div
-        className="rounded-2xl overflow-hidden shadow-2xl w-full max-w-xs mx-auto select-none"
-        style={{ backgroundColor: bgColor }}
-      >
-        {/* Hero image */}
-        {isValidWalletImage(walletHeroImageUrl) && (
-          <div className="w-full" style={{ aspectRatio: '1032/812' }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={walletHeroImageUrl}
-              alt="Wallet hero"
-              className="w-full h-full object-cover"
-            />
+      {/* Google Wallet pass approximation */}
+      <div className="rounded-2xl overflow-hidden shadow-xl w-full max-w-xs mx-auto select-none border border-border/20">
+        
+        {/* ── Top header bar: logo + cardTitle ─────────────────────────────── */}
+        <div className="bg-white dark:bg-neutral-900 px-4 py-3 flex items-center gap-2.5 border-b border-border/10">
+          {logoUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={logoUrl} alt="Logo" className="w-8 h-8 rounded-full object-cover flex-shrink-0" />
+          ) : (
+            <div className="w-8 h-8 rounded-full bg-gray-200 flex-shrink-0" />
+          )}
+          <span className="text-xs font-medium text-gray-500 leading-tight">
+            Anoya Digital Business Card
+          </span>
+        </div>
+
+        {/* ── Hero composite: banner + overlapping circular PFP ─────────────── */}
+        {showHero && (
+          <div className="relative">
+            {/* Banner */}
+            <div
+              className="w-full"
+              style={{ backgroundColor: bgColor, aspectRatio: '1032/400' }}
+            >
+              {bannerUrl && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={bannerUrl} alt="Banner" className="w-full h-full object-cover" />
+              )}
+            </div>
+
+            {/* Circular PFP overlapping the banner */}
+            {pfpUrl && (
+              <div
+                className="absolute left-1/2 -translate-x-1/2 bottom-0 translate-y-1/2"
+                style={{ zIndex: 10 }}
+              >
+                <div className="rounded-full border-4 border-white dark:border-neutral-900 overflow-hidden shadow-lg"
+                  style={{ width: 64, height: 64 }}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={pfpUrl} alt="Profile" className="w-full h-full object-cover" />
+                </div>
+              </div>
+            )}
           </div>
         )}
 
-        {/* Card body */}
-        <div className="p-4 space-y-3">
-          {/* Header row: logo + card title */}
-          <div className="flex items-center gap-3">
-            {logoUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={logoUrl}
-                alt="Logo"
-                className="w-10 h-10 rounded-full object-cover flex-shrink-0 bg-white"
-              />
-            ) : (
-              <div className="w-10 h-10 rounded-full bg-white/20 flex-shrink-0" />
-            )}
-            <span className="text-white/60 text-xs font-medium leading-tight">
-              Anoya Digital Business Card
-            </span>
-          </div>
+        {/* ── Content: name, title, QR ─────────────────────────────────────── */}
+        <div
+          className="px-4 pt-10 pb-4 space-y-1 text-center"
+          style={{ backgroundColor: showHero ? '#ffffff' : bgColor }}
+        >
+          {/* Subheader (job at company) */}
+          <p
+            className="text-xs leading-tight"
+            style={{ color: showHero ? '#6b7280' : 'rgba(255,255,255,0.6)' }}
+          >
+            {subheader}
+          </p>
 
-          {/* Name + subheader */}
-          <div>
-            <p className="text-white/60 text-xs">{subheader}</p>
-            <p className="text-white font-semibold text-lg leading-tight">{name || 'Your Name'}</p>
-          </div>
+          {/* Header — name (large) */}
+          <p
+            className="text-lg font-bold leading-tight"
+            style={{ color: showHero ? '#111827' : '#ffffff' }}
+          >
+            {name || 'Your Name'}
+          </p>
 
           {/* QR placeholder */}
-          <div className="flex items-center justify-center bg-white rounded-xl p-3 mt-2">
-            <div className="w-20 h-20 bg-gray-200 rounded flex items-center justify-center">
-              <svg viewBox="0 0 64 64" className="w-16 h-16 text-gray-400" fill="currentColor">
-                <rect x="0" y="0" width="26" height="26" rx="2"/>
-                <rect x="38" y="0" width="26" height="26" rx="2"/>
-                <rect x="0" y="38" width="26" height="26" rx="2"/>
-                <rect x="5" y="5" width="16" height="16" rx="1" fill="white"/>
-                <rect x="43" y="5" width="16" height="16" rx="1" fill="white"/>
-                <rect x="5" y="43" width="16" height="16" rx="1" fill="white"/>
-                <rect x="8" y="8" width="10" height="10" rx="1"/>
-                <rect x="46" y="8" width="10" height="10" rx="1"/>
-                <rect x="8" y="46" width="10" height="10" rx="1"/>
-                <rect x="38" y="38" width="6" height="6"/>
-                <rect x="46" y="38" width="6" height="6"/>
-                <rect x="38" y="46" width="6" height="6"/>
-                <rect x="58" y="38" width="6" height="6"/>
-                <rect x="46" y="50" width="6" height="6"/>
-                <rect x="54" y="46" width="10" height="4"/>
+          <div className="flex justify-center py-3">
+            <div
+              className="rounded-lg p-2 flex items-center justify-center"
+              style={{ backgroundColor: showHero ? '#f9fafb' : 'rgba(255,255,255,0.1)' }}
+            >
+              <svg viewBox="0 0 48 48" className="w-14 h-14" style={{ color: showHero ? '#1f2937' : 'rgba(255,255,255,0.7)' }} fill="currentColor">
+                <rect x="0" y="0" width="20" height="20" rx="2"/>
+                <rect x="28" y="0" width="20" height="20" rx="2"/>
+                <rect x="0" y="28" width="20" height="20" rx="2"/>
+                <rect x="4" y="4" width="12" height="12" rx="1" fill="white"/>
+                <rect x="32" y="4" width="12" height="12" rx="1" fill="white"/>
+                <rect x="4" y="32" width="12" height="12" rx="1" fill="white"/>
+                <rect x="7" y="7" width="6" height="6" rx="0.5"/>
+                <rect x="35" y="7" width="6" height="6" rx="0.5"/>
+                <rect x="7" y="35" width="6" height="6" rx="0.5"/>
+                <rect x="28" y="28" width="5" height="5"/>
+                <rect x="34" y="28" width="5" height="5"/>
+                <rect x="28" y="34" width="5" height="5"/>
+                <rect x="43" y="28" width="5" height="5"/>
+                <rect x="34" y="37" width="5" height="5"/>
+                <rect x="40" y="34" width="8" height="4"/>
               </svg>
             </div>
           </div>
-          <p className="text-white/50 text-xs text-center">Scan to connect</p>
+          <p
+            className="text-xs"
+            style={{ color: showHero ? '#9ca3af' : 'rgba(255,255,255,0.4)' }}
+          >
+            Scan to connect
+          </p>
         </div>
       </div>
 

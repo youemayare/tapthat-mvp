@@ -1,4 +1,4 @@
-﻿import jwt from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 import { GoogleAuth } from 'google-auth-library';
 
 export interface WalletProfileData {
@@ -78,9 +78,16 @@ function buildWalletObjectPayload(
     walletObject.hexBackgroundColor = profile.walletThemeColor;
   }
 
-  if (isValidWalletImage(profile.walletHeroImageUrl)) {
+  // Use the composite hero image endpoint which dynamically composites the banner +
+  // a circular profile photo (matching the profile card visual). This endpoint is
+  // public and versioned so Google Wallet refreshes it when the profile changes.
+  // It fires even when only a profilePhotoUrl exists (renders PFP on brand background).
+  const hasAnyVisual = profile.walletHeroImageUrl || profile.profilePhotoUrl;
+  if (hasAnyVisual) {
+    const ts = profile.updatedAt ? profile.updatedAt.getTime() : Date.now();
+    const compositeUrl = `${appUrl}/api/wallet/hero-image/${profile.id}?v=${ts}`;
     walletObject.heroImage = {
-      sourceUri: { uri: withVersion(profile.walletHeroImageUrl, profile.updatedAt) },
+      sourceUri: { uri: compositeUrl },
     };
   }
 
