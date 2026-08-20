@@ -22,7 +22,8 @@ export function getGoogleWalletSaveUrl(profile: ProfileData): string {
     return '#mock-google-wallet-link';
   }
 
-  const classId = `${issuerId}.anoya_business_card_v1`;
+  // 2. We use a v2 suffix to bust Google's aggressive caching of the old layout
+  const classId = `${issuerId}.anoya_business_card_v2`;
   const objectId = `${issuerId}.${profile.id.replace(/-/g, '')}`;
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://anoya.com';
   const profileUrl = `${appUrl}/p/${profile.slug || profile.id}`;
