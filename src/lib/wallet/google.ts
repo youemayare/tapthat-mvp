@@ -63,25 +63,6 @@ function buildWalletObjectPayload(
     displayLogo = profile.profilePhotoUrl;
   }
 
-  const textModulesData = [];
-  if (profile.phone) {
-    textModulesData.push({ id: 'phone', header: 'Phone', body: profile.phone });
-  }
-  if (profile.email) {
-    textModulesData.push({ id: 'email', header: 'Email', body: profile.email });
-  }
-
-  const linksModuleData = { uris: [] as Array<{ uri: string; description: string }> };
-  if (profile.websiteUrl) {
-    linksModuleData.uris.push({ uri: profile.websiteUrl, description: 'Website' });
-  }
-  if (profile.linkedinUrl) {
-    linksModuleData.uris.push({ uri: profile.linkedinUrl, description: 'LinkedIn' });
-  }
-  if (profile.whatsapp) {
-    linksModuleData.uris.push({ uri: `https://wa.me/${profile.whatsapp.replace(/\D/g, '')}`, description: 'WhatsApp' });
-  }
-
   const walletObject: Record<string, unknown> = {
     id: objectId,
     classId,
@@ -98,28 +79,15 @@ function buildWalletObjectPayload(
     barcode: { type: 'QR_CODE', value: profileUrl, alternateText: 'Scan to connect' },
   };
 
-  if (textModulesData.length > 0) {
-    walletObject.textModulesData = textModulesData;
-  }
-  
-  if (linksModuleData.uris.length > 0) {
-    walletObject.linksModuleData = linksModuleData;
-  }
-
   if (profile.walletThemeColor && /^#[0-9A-Fa-f]{6}$/.test(profile.walletThemeColor)) {
     walletObject.hexBackgroundColor = profile.walletThemeColor;
   }
 
-  // Use the composite hero image endpoint which dynamically composites the banner +
-  // a circular profile photo (matching the profile card visual). This endpoint is
-  // public and versioned so Google Wallet refreshes it when the profile changes.
-  // It fires even when only a profilePhotoUrl exists (renders PFP on brand background).
-  const hasAnyVisual = profile.walletHeroImageUrl || profile.profilePhotoUrl;
-  if (hasAnyVisual) {
-    const ts = profile.updatedAt ? profile.updatedAt.getTime() : Date.now();
-    const compositeUrl = `${appUrl}/api/wallet/hero-image/${profile.id}?v=${ts}`;
+  // Use the raw wallet hero image URL directly as requested by the user,
+  // bypassing the composite circular PFP logic.
+  if (isValidWalletImage(profile.walletHeroImageUrl)) {
     walletObject.heroImage = {
-      sourceUri: { uri: compositeUrl },
+      sourceUri: { uri: withVersion(profile.walletHeroImageUrl, profile.updatedAt) },
     };
   }
 

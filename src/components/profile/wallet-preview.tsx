@@ -38,13 +38,6 @@ export function WalletPreview({
 
   const subheader = [jobTitle, company].filter(Boolean).join(' at ') || 'Member';
   const bannerUrl = isValidWalletImage(walletHeroImageUrl) ? walletHeroImageUrl : null;
-  const pfpUrl = isValidWalletImage(profilePhotoUrl) ? profilePhotoUrl : null;
-
-  // Show the composite hero (banner + PFP) only when there is something to show
-  const showHero = bannerUrl || pfpUrl;
-  
-  // The composite image URL
-  const compositeUrl = showHero ? `/api/wallet/hero-image/preview?banner=${encodeURIComponent(bannerUrl || '')}&pfp=${encodeURIComponent(pfpUrl || '')}` : null;
 
   return (
     <div className="space-y-2">
@@ -103,17 +96,18 @@ export function WalletPreview({
           Scan to connect
         </p>
         
-        {/* ── Hero composite (At BOTTOM, matching Google Wallet) ─────────────── */}
-        {showHero && (
-          <div className="relative w-full" style={{ aspectRatio: '1032/812' }}>
+        {/* ── Hero image (At BOTTOM, matching Google Wallet) ─────────────── */}
+        {bannerUrl && (
+          <div className="relative w-full" style={{ aspectRatio: '1032/400' }}>
             <div className="absolute inset-0 bg-neutral-900 flex items-center justify-center text-white/50 text-xs">
               Loading image...
             </div>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img 
-              src={compositeUrl || ''} 
-              alt="Hero Composite" 
+              src={bannerUrl} 
+              alt="Banner" 
               className="absolute inset-0 w-full h-full object-cover z-10"
+              style={{ backgroundColor: bgColor }}
               onError={(e) => {
                 e.currentTarget.style.display = 'none';
               }}
@@ -123,7 +117,7 @@ export function WalletPreview({
       </div>
 
       <p className="text-xs text-muted-foreground text-center">
-        Preview approximation. Matches actual Google Wallet rendering engine constraints.
+        Preview approximation. Matches actual Google Wallet rendering constraints.
       </p>
     </div>
   );
