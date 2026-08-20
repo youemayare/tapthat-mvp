@@ -32,15 +32,18 @@ export default async function DashboardPage() {
         tx.select().from(cards).where(eq(cards.userId, user!.id)),
       ]);
 
-      const profile = userProfiles[0] || null;
+      const activeCard = cardRows.find(c => c.status === 'active');
+
+      const profile = activeCard 
+        ? userProfiles.find(p => p.id === activeCard.profileId) || userProfiles[0] || null
+        : userProfiles[0] || null;
+
       const userProfilesCount = userProfiles.length;
       const totalCards = cardRows.length;
       
       let totalTaps = 0;
       let googleWalletUrl = null;
       let activeCardUid = null;
-
-      const activeCard = cardRows.find(c => c.status === 'active');
 
       if (activeCard) {
         activeCardUid = activeCard.cardUid;
