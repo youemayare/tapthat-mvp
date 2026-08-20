@@ -22,9 +22,9 @@ export function getGoogleWalletSaveUrl(profile: ProfileData): string {
     return '#mock-google-wallet-link';
   }
 
-  // 2. We use a v2 suffix to bust Google's aggressive caching of the old layout
   const classId = `${issuerId}.anoya_business_card_v2`;
-  const objectId = `${issuerId}.${profile.id.replace(/-/g, '')}`;
+  // We use a v2 suffix on the object to bust Google's aggressive caching of the old pass object
+  const objectId = `${issuerId}.${profile.id.replace(/-/g, '')}_v2`;
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://anoya.com';
   const profileUrl = `${appUrl}/p/${profile.slug || profile.id}`;
 
@@ -34,8 +34,16 @@ export function getGoogleWalletSaveUrl(profile: ProfileData): string {
     // Removed classTemplateOverride so it uses the beautiful default Google Wallet layout
   };
 
+  // Google Wallet does NOT support WebP. Only JPG/PNG/GIF.
+  const isValidFormat = (url?: string | null) => url && !url.toLowerCase().endsWith('.webp');
+
   // Determine which logo to show (prefer company logo, fallback to profile photo, fallback to Anoya icon)
-  const displayLogo = profile.companyLogoUrl || profile.profilePhotoUrl || 'https://i.imgur.com/4tGqO5C.png';
+  let displayLogo = 'https://i.imgur.com/4tGqO5C.png';
+  if (isValidFormat(profile.companyLogoUrl)) {
+    displayLogo = profile.companyLogoUrl!;
+  } else if (isValidFormat(profile.profilePhotoUrl)) {
+    displayLogo = profile.profilePhotoUrl!;
+  }
 
   // Construct the GenericObject payload
   const walletObject = {
