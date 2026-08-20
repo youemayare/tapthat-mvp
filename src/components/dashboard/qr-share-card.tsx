@@ -64,7 +64,7 @@ export function QrShareCard({ cardUid }: Props) {
       {/* Quick Action Card */}
       <button
         onClick={() => setIsOpen(true)}
-        className="group text-left bg-card text-card-foreground border border-border rounded-2xl p-5 hover:bg-primary/8 hover:border-brand-500/30 transition-all focus:outline-none focus:ring-2 focus:ring-brand-500/50"
+        className="group text-left cursor-pointer bg-card text-card-foreground border border-border rounded-2xl p-5 hover:bg-primary/8 hover:border-brand-500/30 transition-all focus:outline-none focus:ring-2 focus:ring-brand-500/50"
       >
         <QrCode className="w-6 h-6 text-brand-400 mb-3 group-hover:scale-110 transition-transform" />
         <h3 className="text-foreground font-semibold mb-1">Share via QR</h3>
