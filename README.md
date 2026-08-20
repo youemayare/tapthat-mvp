@@ -2,6 +2,8 @@
 
 Anoya is a full-stack web application built to manage physical NFC-enabled & digital-only smart business cards. It provides users with a web dashboard to customize their public profiles, configure their Google Wallet passes, and track real-time analytics.
 
+*(Note: The platform was developed under the working title "TapThat" during the prototyping phase and is now officially named Anoya.)*
+
 This repository demonstrates modern frontend engineering practices, modular component architecture, and practical API integration.
 
 ## Tech Stack
