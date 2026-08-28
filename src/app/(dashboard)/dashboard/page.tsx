@@ -144,7 +144,7 @@ export default async function DashboardPage() {
           >
             <CreditCard className="w-6 h-6 text-brand-400 mb-3 group-hover:scale-110 transition-transform" />
             <h3 className="text-foreground font-semibold mb-1">Register Card</h3>
-            <p className="text-muted-foreground text-sm">Link your NFC card UID to your profile.</p>
+            <p className="text-muted-foreground text-sm">Link your NFC card to your profile.</p>
           </a>
 
           <a
