@@ -50,6 +50,13 @@
       "when": 1787932453960,
       "tag": "0006_chemical_sinister_six",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1787951296857,
+      "tag": "0007_deep_mentor",
+      "breakpoints": true
     }
   ]
 }

@@ -51,7 +51,9 @@ const profileSchema = z.object({
   instagramUrl: z.string().url('Invalid URL').optional().nullable().or(z.literal('')),
   isPublished: z.boolean(),
   label: z.string().max(50, 'Max 50 characters').optional().nullable(),
-    profileLayout: z.enum(['classic', 'identity']).default('classic'),
+    profileLayout: z.enum(['classic', 'identity', 'canvas']).default('classic'),
+    layoutBackgroundColor: z.string().optional().nullable().or(z.literal('')),
+    layoutBackgroundImageUrl: z.string().optional().nullable().or(z.literal('')),
   // Google Wallet Appearance
   walletThemeColor: z
     .string()
@@ -102,6 +104,8 @@ export function ProfileForm({ initialData, isMultiProfile }: ProfileFormProps) {
       instagramUrl: initialData?.instagramUrl || '',
       isPublished: initialData?.isPublished ?? false,
       profileLayout: initialData?.profileLayout || 'classic',
+        layoutBackgroundColor: initialData?.layoutBackgroundColor || '',
+        layoutBackgroundImageUrl: initialData?.layoutBackgroundImageUrl || '',
       label: initialData?.label || '',
       walletThemeColor: initialData?.walletThemeColor || '',
       walletHeroImageUrl: initialData?.walletHeroImageUrl || '',
@@ -112,6 +116,9 @@ export function ProfileForm({ initialData, isMultiProfile }: ProfileFormProps) {
   const profilePhotoUrl = useWatch({ control, name: 'profilePhotoUrl' });
   const companyLogoUrl = useWatch({ control, name: 'companyLogoUrl' });
   const cvUrl = useWatch({ control, name: 'cvUrl' });
+    const profileLayout = useWatch({ control, name: 'profileLayout' });
+    const layoutBackgroundColor = useWatch({ control, name: 'layoutBackgroundColor' });
+    const layoutBackgroundImageUrl = useWatch({ control, name: 'layoutBackgroundImageUrl' });
   const walletThemeColor = useWatch({ control, name: 'walletThemeColor' });
   const walletHeroImageUrl = useWatch({ control, name: 'walletHeroImageUrl' });
   const firstName = useWatch({ control, name: 'firstName' });
@@ -233,22 +240,59 @@ export function ProfileForm({ initialData, isMultiProfile }: ProfileFormProps) {
         <div className="bg-card text-card-foreground border border-border shadow-sm rounded-2xl p-6 space-y-6">
           <h2 className="text-xl font-semibold text-foreground">Profile Style</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <label className={`relative flex cursor-pointer rounded-xl border-2 p-4 transition-all ` + (watch('profileLayout') === 'classic' ? 'border-brand-500 bg-brand-500/5' : 'border-border hover:border-brand-500/50')}>
+            <label className={`relative flex cursor-pointer rounded-xl border-2 p-4 transition-all ` + (profileLayout === 'classic' ? 'border-brand-500 bg-brand-500/5' : 'border-border hover:border-brand-500/50')}>
               <input type="radio" value="classic" {...register('profileLayout')} className="sr-only" />
               <div className="flex flex-col gap-1">
                 <span className="font-semibold text-foreground">Classic</span>
                 <span className="text-sm text-muted-foreground">Clean and information-first</span>
               </div>
             </label>
-            <label className={`relative flex cursor-pointer rounded-xl border-2 p-4 transition-all ` + (watch('profileLayout') === 'identity' ? 'border-brand-500 bg-brand-500/5' : 'border-border hover:border-brand-500/50')}>
+            <label className={`relative flex cursor-pointer rounded-xl border-2 p-4 transition-all ` + (profileLayout === 'identity' ? 'border-brand-500 bg-brand-500/5' : 'border-border hover:border-brand-500/50')}>
               <input type="radio" value="identity" {...register('profileLayout')} className="sr-only" />
-              <div className="flex flex-col gap-1">
-                <span className="font-semibold text-foreground">Identity</span>
-                <span className="text-sm text-muted-foreground">Immersive and photo-led</span>
+                <div className="flex flex-col gap-1">
+                  <span className="font-semibold text-foreground">Identity</span>
+                  <span className="text-sm text-muted-foreground">Immersive and photo-led</span>
+                </div>
+              </label>
+              <label className={`relative flex cursor-pointer rounded-xl border-2 p-4 transition-all ` + 
+(profileLayout === 'canvas' ? 'border-brand-500 bg-brand-500/5' : 'border-border hover:border-brand-500/50')}>
+                <input type="radio" value="canvas" {...register('profileLayout')} className="sr-only" />
+                <div className="flex flex-col gap-1">
+                  <span className="font-semibold text-foreground">Canvas</span>
+                  <span className="text-sm text-muted-foreground">Customizable background</span>
+                </div>
+              </label>
+            </div>
+
+            {profileLayout === 'canvas' && (
+              <div className="mt-6 space-y-6 pt-6 border-t border-border">
+                <h3 className="text-lg font-medium text-foreground">Canvas Settings</h3>
+                <div className="space-y-4">
+                  <div>
+                    <Label>Background Image</Label>
+                    <div className="mt-2">
+                      <FileUpload
+                        label="Background Image (Optional)"
+                        type="background"
+                        currentUrl={layoutBackgroundImageUrl}
+                        onUploadSuccess={(url) => setValue('layoutBackgroundImageUrl', url, { shouldDirty: true })}
+                        onRemove={() => setValue('layoutBackgroundImageUrl', '', { shouldDirty: true })}
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <Label>Background Color</Label>
+                    <div className="mt-2">
+                      <WalletColorPicker
+                        value={layoutBackgroundColor || ''}
+                        onChange={(hex) => setValue('layoutBackgroundColor', hex, { shouldDirty: true })}
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
-            </label>
+            )}
           </div>
-        </div>
         {/* ── Media ── */}
       <div className="bg-card text-card-foreground border border-border shadow-sm rounded-2xl p-6 space-y-6">
         <h2 className="text-xl font-semibold text-foreground">Profile Media</h2>
@@ -527,6 +571,7 @@ export function ProfileForm({ initialData, isMultiProfile }: ProfileFormProps) {
     </form>
   );
 }
+
 
 
 

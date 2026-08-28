@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 
 interface FileUploadProps {
   label: string;
-  type: 'cv';
+  type: 'cv' | 'background';
   currentUrl?: string | null;
   onUploadSuccess: (url: string) => void;
   onRemove: () => void;
@@ -103,10 +103,11 @@ export function FileUpload({ label, type, currentUrl, onUploadSuccess, onRemove 
         type="file"
         ref={fileInputRef}
         onChange={handleFileChange}
-        accept="application/pdf"
+        accept={type === 'cv' ? 'application/pdf' : 'image/*'}
         className="hidden"
       />
       <p className="text-xs text-muted-foreground">Max 5MB. PDF only.</p>
     </div>
   );
 }
+

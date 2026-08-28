@@ -25,7 +25,9 @@ export const profiles = pgTable('profiles', {
   jobTitle: text('job_title'),
   companyName: text('company_name'),
   bio: text('bio'),
-  profileLayout: text('profile_layout').$type<'classic' | 'identity'>().notNull().default('classic'),
+  profileLayout: text('profile_layout').$type<'classic' | 'identity' | 'canvas'>().notNull().default('classic'),
+  layoutBackgroundColor: text('layout_background_color'),
+  layoutBackgroundImageUrl: text('layout_background_image_url'),
 
   // Media (stored in Cloudflare R2)
   profilePhotoUrl: text('profile_photo_url'),
@@ -205,4 +207,5 @@ export const connectionNotes = pgTable('connection_notes', {
 
 export type ConnectionNote = typeof connectionNotes.$inferSelect;
 export type NewConnectionNote = typeof connectionNotes.$inferInsert;
+
 
