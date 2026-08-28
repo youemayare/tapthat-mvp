@@ -22,12 +22,12 @@ export function ConnectionCard({ connection, profile, note }: ConnectionCardProp
   const [currentNote, setCurrentNote] = useState(note?.content || null);
 
   const fullName = [profile.firstName, profile.lastName].filter(Boolean).join(' ') || 'Unknown';
-  const href = \/p/\\;
+  const href = `/p/${profile.slug || profile.id}`;
 
   async function handleSaveNote() {
     setIsSaving(true);
     try {
-      const res = await fetch(\/api/connections/\\, {
+      const res = await fetch(`/api/connections/${connection.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ note: noteContent.trim() || null }),
@@ -77,7 +77,7 @@ export function ConnectionCard({ connection, profile, note }: ConnectionCardProp
           
           <button 
             onClick={(e) => { e.preventDefault(); setShowModal(true); }}
-            className={\pointer-events-auto w-9 h-9 rounded-full flex items-center justify-center transition-colors \\}
+            className={`pointer-events-auto w-9 h-9 rounded-full flex items-center justify-center transition-colors ${currentNote ? 'bg-amber-500/20 text-amber-400 hover:bg-amber-500/30' : 'bg-muted text-muted-foreground hover:bg-accent hover:text-foreground'}`}
             title={currentNote ? 'Edit private note' : 'Add private note'}
           >
             <StickyNote className="w-4 h-4" />
@@ -91,7 +91,7 @@ export function ConnectionCard({ connection, profile, note }: ConnectionCardProp
 
         {/* Note Preview */}
         {currentNote && (
-          <div className="relative z-10 mt-1 p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl">
+          <div className="relative z-10 mt-1 p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl pointer-events-none">
              <p className="text-xs text-amber-400 font-medium mb-1">Private Note</p>
              <p className="text-sm text-foreground line-clamp-2">{currentNote}</p>
           </div>

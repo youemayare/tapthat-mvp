@@ -4,7 +4,7 @@ import { withRlsUser } from '@/lib/db/auth-wrapper';
 import { connectionNotes } from '@/lib/db/schema';
 import { and, eq } from 'drizzle-orm';
 
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -15,7 +15,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   return await withRlsUser(user, async (tx) => {
     const body = await req.json();
     const { note } = body;
-    const connectionId = params.id;
+    const { id: connectionId } = await params;
 
     try {
       if (typeof note === 'string') {

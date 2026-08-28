@@ -40,25 +40,25 @@ export async function POST(req: NextRequest) {
     if (profile.userId === user.id) return NextResponse.json({ error: 'Cannot save your own profile' }, { status: 400 });
 
     try {
-      // Find or create connection
       let connectionRecord = await tx.query.connections.findFirst({
         where: and(eq(connections.viewerUserId, user.id), eq(connections.profileId, profileId))
       });
       
       let alreadySaved = !!connectionRecord;
+      let connectionId = connectionRecord?.id;
 
       if (!connectionRecord) {
         const [inserted] = await tx.insert(connections).values({
           viewerUserId: user.id,
           profileId,
         }).returning({ id: connections.id });
-        connectionRecord = inserted;
+        connectionId = inserted.id;
       }
 
-      if (note && typeof note === 'string' && connectionRecord) {
+      if (note && typeof note === 'string' && connectionId) {
         await tx.insert(connectionNotes)
           .values({
-            connectionId: connectionRecord.id,
+            connectionId: connectionId,
             ownerUserId: user.id,
             content: note
           })

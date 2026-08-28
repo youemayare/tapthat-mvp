@@ -9,9 +9,9 @@ import path from 'path';
 
 dotenv.config({ path: path.resolve(process.cwd(), '.env.local') });
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const dbUrl = process.env.DATABASE_URL;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+const dbUrl = process.env.DATABASE_URL!;
 
 const supabase = createClient(supabaseUrl, supabaseKey, {
   auth: { autoRefreshToken: false, persistSession: false },
@@ -31,14 +31,14 @@ async function seed() {
     userId = user.id;
   } else {
     const { data: newUser } = await supabase.auth.admin.createUser({
-      email, password, email_confirm: true, user_metadata: { first_name: 'Anoya', last_name: 'Employer' },
+      email, password, email_confirm: true, user_metadata: { full_name: 'Anoya Employer' },
     });
-    userId = newUser.user.id;
+    userId = newUser.user!.id;
   }
 
   const [publicUser] = await db.select().from(schema.users).where(eq(schema.users.id, userId));
   if (!publicUser) {
-    await db.insert(schema.users).values({ id: userId, email, firstName: 'Anoya', lastName: 'Employer' });
+    await db.insert(schema.users).values({ id: userId, email, fullName: 'Anoya Employer' });
   }
 
   const [existingProfile] = await db.select().from(schema.profiles).where(eq(schema.profiles.userId, userId));
@@ -121,7 +121,7 @@ async function seed() {
   console.log(`Email: employer@anoya.ae`);
   console.log(`Password: AnoyaDemo2026!`);
   console.log(`Profile: https://tapthat.vercel.app/p/anoya-demo`);
-  console.log(`Card Routing URL: https://tapthat.vercel.app/n/${dummyUid}`);
+  console.log(`Card Routing URL: https://tapthat.vercel.app/n/ANOYA-DEMO-001`);
 
   process.exit(0);
 }
