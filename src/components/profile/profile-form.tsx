@@ -220,7 +220,7 @@ export function ProfileForm({ initialData, isMultiProfile }: ProfileFormProps) {
             {activeTab === 'wallet' 
               ? ''
               : (isMultiProfile 
-                  ? 'This is what people see when they tap a card assigned to this profile.'
+                  ? 'This is what people see when you tap your card.'
                   : 'Manage your professional profile — this is what people see when they tap your card.')}
           </p>
         </div>
