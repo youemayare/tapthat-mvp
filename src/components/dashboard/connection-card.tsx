@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { ExternalLink, StickyNote } from 'lucide-react';
+import { StickyNote, UserMinus } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
@@ -20,6 +20,9 @@ export function ConnectionCard({ connection, profile, note }: ConnectionCardProp
   const [noteContent, setNoteContent] = useState(note?.content || '');
   const [isSaving, setIsSaving] = useState(false);
   const [currentNote, setCurrentNote] = useState(note?.content || null);
+  
+  const [isRemoving, setIsRemoving] = useState(false);
+  const [isDeleted, setIsDeleted] = useState(false);
 
   const fullName = [profile.firstName, profile.lastName].filter(Boolean).join(' ') || 'Unknown';
   const href = `/p/${profile.slug || profile.id}`;
@@ -46,13 +49,37 @@ export function ConnectionCard({ connection, profile, note }: ConnectionCardProp
     }
   }
 
+  async function handleRemoveConnection() {
+    if (!confirm(`Are you sure you want to remove ${fullName} from your connections?`)) return;
+    setIsRemoving(true);
+    try {
+      const res = await fetch(`/api/connections`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ profileId: profile.id }),
+      });
+      if (res.ok) {
+        setIsDeleted(true);
+        toast.success('Connection removed.');
+      } else {
+        toast.error('Failed to remove connection.');
+      }
+    } catch {
+      toast.error('Network error.');
+    } finally {
+      setIsRemoving(false);
+    }
+  }
+
+  if (isDeleted) return null;
+
   return (
     <>
-      <div className="relative group bg-card border border-border rounded-2xl p-5 hover:border-brand-500/30 hover:bg-accent/30 transition-all flex flex-col gap-3">
+      <div className={`relative group bg-card border border-border rounded-2xl p-5 hover:border-brand-500/30 hover:bg-accent/30 transition-all flex flex-col gap-3 ${isRemoving ? 'opacity-50 pointer-events-none' : ''}`}>
         <Link href={href} className="absolute inset-0 z-0 rounded-2xl"></Link>
         
         {/* Avatar + name row */}
-        <div className="flex items-center gap-4 relative z-10 pointer-events-none">
+        <div className="flex items-center gap-3 relative z-10 pointer-events-none">
           {profile.profilePhotoUrl ? (
             <img
               src={profile.profilePhotoUrl}
@@ -67,7 +94,7 @@ export function ConnectionCard({ connection, profile, note }: ConnectionCardProp
             </div>
           )}
           <div className="flex-1 min-w-0 pointer-events-auto">
-            <Link href={href} className="font-semibold text-foreground truncate hover:underline block">
+            <Link href={href} className="font-semibold text-foreground truncate hover:underline block pr-2">
               {fullName}
             </Link>
             {profile.jobTitle && (
@@ -75,13 +102,22 @@ export function ConnectionCard({ connection, profile, note }: ConnectionCardProp
             )}
           </div>
           
-          <button 
-            onClick={(e) => { e.preventDefault(); setShowModal(true); }}
-            className={`pointer-events-auto w-9 h-9 rounded-full flex items-center justify-center transition-colors ${currentNote ? 'bg-amber-500/20 text-amber-400 hover:bg-amber-500/30' : 'bg-muted text-muted-foreground hover:bg-accent hover:text-foreground'}`}
-            title={currentNote ? 'Edit private note' : 'Add private note'}
-          >
-            <StickyNote className="w-4 h-4" />
-          </button>
+          <div className="flex items-center gap-2 pointer-events-auto shrink-0">
+            <button 
+              onClick={(e) => { e.preventDefault(); setShowModal(true); }}
+              className={`w-9 h-9 rounded-full flex items-center justify-center transition-colors ${currentNote ? 'bg-amber-500/20 text-amber-400 hover:bg-amber-500/30' : 'bg-muted text-muted-foreground hover:bg-accent hover:text-foreground'}`}
+              title={currentNote ? 'Edit private note' : 'Add private note'}
+            >
+              <StickyNote className="w-4 h-4" />
+            </button>
+            <button 
+              onClick={(e) => { e.preventDefault(); handleRemoveConnection(); }}
+              className="w-9 h-9 rounded-full flex items-center justify-center bg-muted text-muted-foreground hover:bg-red-500/10 hover:text-red-500 transition-colors"
+              title="Remove connection"
+            >
+              <UserMinus className="w-4 h-4" />
+            </button>
+          </div>
         </div>
 
         {/* Company */}
