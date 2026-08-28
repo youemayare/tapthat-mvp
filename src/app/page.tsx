@@ -45,7 +45,7 @@ export default function LandingPage() {
           </h1>
 
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-10 leading-relaxed">
-            Premium NFC cards that open your profile instantly. Edit anytime and let people save your contact in one tap. No app, no friction.
+            Digital and premium NFC cards that open your profile instantly. Manage multiple personas, track analytics, and save connections with private notes. No app required.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
@@ -121,7 +121,7 @@ export default function LandingPage() {
       <section id="pricing" className="py-32 px-6 border-t border-border">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-4xl font-bold mb-4">Simple pricing</h2>
-          <p className="text-muted-foreground mb-12">One card. Lifetime profile. No expiry.</p>
+          <p className="text-muted-foreground mb-12">Pay once. Lifetime digital profile. No subscriptions.</p>
 
           <div className="inline-flex items-center gap-3 px-6 py-4 rounded-2xl border border-brand-500/30 bg-brand-500/10 text-brand-200 text-lg font-medium">
             <Zap className="w-5 h-5" />
@@ -160,8 +160,8 @@ export default function LandingPage() {
 const features = [
   {
     icon: Zap,
-    title: 'One Tap, Instant Profile',
-    description: 'NFC tap opens your profile in under 200ms — no app needed. QR fallback built in.',
+    title: 'Digital & Physical Cards',
+    description: 'Share your profile instantly via Apple/Google Wallet passes, QR codes, or premium NFC cards.',
   },
   {
     icon: Smartphone,
@@ -170,37 +170,38 @@ const features = [
   },
   {
     icon: RefreshCw,
-    title: 'Editable Forever',
-    description: 'Changed job? New number? Update your profile anytime. The card never goes out of date.',
+    title: 'Multiple Profiles',
+    description: 'Create different personas (e.g. Work, Freelance) and switch which one your card links to anytime.',
   },
   {
     icon: BarChart3,
     title: 'Built-in Analytics',
-    description: 'See every tap, unique visitors, countries, device types, and daily trends.',
+    description: 'See every tap, unique visitors, countries, device types, and daily trends on your dashboard.',
   },
   {
     icon: Shield,
-    title: 'GDPR Compliant',
-    description: 'IP addresses are hashed. No personal data stored without consent.',
+    title: 'Personal CRM',
+    description: 'When others connect back, they are saved in your dashboard. Add private notes so you never forget a face.',
   },
   {
     icon: Globe,
     title: 'Works Everywhere',
-    description: 'NTAG213 chip — works with all NFC-enabled iPhones (iOS 13+) and Android devices.',
+    description: 'Links open in any browser. NFC works with all modern iPhones and Android devices.',
   },
 ];
 
 const steps = [
   {
-    title: 'Tap your card',
-    description: 'Hold your Anoya card near any phone. Your profile opens instantly in the browser.',
+    title: 'Share your card',
+    description: 'Hold your NFC card near any phone, or show your digital wallet QR. Your profile opens instantly.',
   },
   {
     title: 'They save your contact',
-    description: 'One tap on "Save Contact" downloads your vCard — no app, no signup required.',
+    description: 'One tap on "Save Contact" downloads your vCard. They can also connect back with you.',
   },
   {
-    title: 'You see the analytics',
-    description: 'Check your dashboard to see who tapped, from where, and on what device.',
+    title: 'Manage connections',
+    description: 'Check your analytics, view saved connections, and add private CRM notes in your dashboard.',
   },
 ];
+
