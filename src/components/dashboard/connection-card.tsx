@@ -17,6 +17,7 @@ interface ConnectionCardProps {
 
 export function ConnectionCard({ connection, profile, note }: ConnectionCardProps) {
   const [showModal, setShowModal] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [noteContent, setNoteContent] = useState(note?.content || '');
   const [isSaving, setIsSaving] = useState(false);
   const [currentNote, setCurrentNote] = useState(note?.content || null);
@@ -50,7 +51,6 @@ export function ConnectionCard({ connection, profile, note }: ConnectionCardProp
   }
 
   async function handleRemoveConnection() {
-    if (!confirm(`Are you sure you want to remove ${fullName} from your connections?`)) return;
     setIsRemoving(true);
     try {
       const res = await fetch(`/api/connections`, {
@@ -61,6 +61,7 @@ export function ConnectionCard({ connection, profile, note }: ConnectionCardProp
       if (res.ok) {
         setIsDeleted(true);
         toast.success('Connection removed.');
+        setShowConfirmModal(false);
       } else {
         toast.error('Failed to remove connection.');
       }
@@ -111,8 +112,8 @@ export function ConnectionCard({ connection, profile, note }: ConnectionCardProp
               <StickyNote className="w-4 h-4" />
             </button>
             <button 
-              onClick={(e) => { e.preventDefault(); handleRemoveConnection(); }}
-              className="w-9 h-9 rounded-full flex items-center justify-center bg-muted text-muted-foreground hover:bg-red-500/10 hover:text-red-500 transition-colors"
+              onClick={(e) => { e.preventDefault(); setShowConfirmModal(true); }}
+              className="w-9 h-9 rounded-full flex items-center justify-center bg-red-500/10 text-red-500 hover:bg-red-500/20 transition-colors"
               title="Remove connection"
             >
               <UserMinus className="w-4 h-4" />
@@ -161,6 +162,25 @@ export function ConnectionCard({ connection, profile, note }: ConnectionCardProp
             </Button>
             <Button type="button" onClick={handleSaveNote} disabled={isSaving} className="rounded-xl bg-brand-600 hover:bg-brand-500 text-white">
               {isSaving ? 'Saving...' : 'Save Note'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showConfirmModal} onOpenChange={setShowConfirmModal}>
+        <DialogContent className="sm:max-w-md bg-background border-border" style={{ borderRadius: '1.5rem' }}>
+          <DialogHeader>
+            <DialogTitle>Remove Connection?</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to remove {fullName} from your connections?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="sm:justify-between flex-row gap-2 mt-4">
+            <Button type="button" variant="ghost" onClick={() => setShowConfirmModal(false)} className="rounded-xl">
+              Cancel
+            </Button>
+            <Button type="button" variant="destructive" onClick={handleRemoveConnection} disabled={isRemoving} className="rounded-xl">
+              {isRemoving ? 'Removing...' : 'Remove'}
             </Button>
           </DialogFooter>
         </DialogContent>

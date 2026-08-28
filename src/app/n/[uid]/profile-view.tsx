@@ -82,19 +82,22 @@ export function ProfileView({ profile, cardUid }: Props) {
   }, [cardUid]);
 
   
-  async function handleSaveNote() {
+  async function handleSaveConnectionAndNote() {
     setSavingNote(true);
     try {
       const res = await fetch('/api/connections', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ profileId: profile.id, note: noteContent }),
+        body: JSON.stringify({ profileId: profile.id, note: noteContent.trim() || null }),
       });
       if (res.ok) {
-        toast.success('Private note saved.');
+        setSaved(true);
+        toast.success('Saved to My Anoya! 🎉', {
+          description: `${fullName} is now in your My Connections list.`,
+        });
         setShowNoteModal(false);
       } else {
-        toast.error('Failed to save note.');
+        toast.error('Failed to save connection.');
       }
     } catch {
       toast.error('Network error.');
@@ -111,27 +114,27 @@ export function ProfileView({ profile, cardUid }: Props) {
   }
 
   async function handleToggleSave() {
+    if (!saved) {
+      setShowNoteModal(true);
+      return;
+    }
+
     if (saving) return;
     setSaving(true);
     try {
-      const method = saved ? 'DELETE' : 'POST';
       const res = await fetch('/api/connections', {
-        method,
+        method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ profileId: profile.id }),
       });
       if (res.ok) {
-        setSaved(!saved);
-        toast.success(saved ? 'Removed from your connections' : 'Saved to My Anoya! 🎉', {
-          description: saved
-            ? undefined
-            : `${fullName} is now in your My Connections list.`,
-        });
+        setSaved(false);
+        toast.success('Removed from your connections');
       } else {
         toast.error('Something went wrong. Please try again.');
       }
     } catch {
-      toast.error('Could not save connection. Check your connection and try again.');
+      toast.error('Could not remove connection. Check your connection and try again.');
     } finally {
       setSaving(false);
     }
@@ -423,9 +426,9 @@ export function ProfileView({ profile, cardUid }: Props) {
           </div>
           <DialogFooter className="sm:justify-between flex-row gap-2">
             <Button type="button" variant="ghost" onClick={() => setShowNoteModal(false)} className="rounded-xl">
-              Skip
+              Cancel
             </Button>
-            <Button type="button" onClick={handleSaveNote} disabled={savingNote || !noteContent.trim()} className="rounded-xl bg-brand-600 hover:bg-brand-500 text-white">
+            <Button type="button" onClick={handleSaveConnectionAndNote} disabled={savingNote} className="rounded-xl bg-brand-600 hover:bg-brand-500 text-white">
               {savingNote ? 'Saving...' : 'Save'}
             </Button>
           </DialogFooter>
