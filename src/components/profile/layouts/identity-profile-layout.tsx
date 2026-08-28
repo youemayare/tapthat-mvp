@@ -93,7 +93,7 @@ export function IdentityProfileLayout({ profile, cardUid }: Props) {
                     <img 
                       src={profile.companyLogoUrl} 
                       alt={profile.companyName || 'Company Logo'}
-                      className="w-5 h-5 rounded-full object-cover bg-white/10 border border-white/20"
+                      className="w-6 h-6 rounded-full object-contain bg-white p-0.5 border border-white/20 shrink-0"
                     />
                   )}
                   <span className="text-base text-zinc-300 font-medium">{profile.companyName}</span>
