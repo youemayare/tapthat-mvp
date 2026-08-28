@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
   const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
   if (!profileId || !UUID_RE.test(profileId)) {
     return NextResponse.json(
-      { isOwner: false, alreadySaved: false },
+      { isOwner: false, alreadySaved: false, isLoggedIn: false },
       { headers: { 'Cache-Control': 'no-store' } }
     );
   }
@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
 
   if (!viewerUserId) {
     return NextResponse.json(
-      { isOwner: false, alreadySaved: false },
+      { isOwner: false, alreadySaved: false, isLoggedIn: false },
       { headers: { 'Cache-Control': 'no-store' } }
     );
   }
@@ -64,7 +64,7 @@ export async function GET(request: NextRequest) {
     profileOwnerId = rows[0]?.userId ?? null;
   } catch {
     return NextResponse.json(
-      { isOwner: false, alreadySaved: false },
+      { isOwner: false, alreadySaved: false, isLoggedIn: false },
       { headers: { 'Cache-Control': 'no-store' } }
     );
   }
@@ -88,7 +88,7 @@ export async function GET(request: NextRequest) {
   }
 
   return NextResponse.json(
-    { isOwner, alreadySaved },
+    { isOwner, alreadySaved, isLoggedIn: !!viewerUserId },
     { headers: { 'Cache-Control': 'no-store' } }
   );
 }

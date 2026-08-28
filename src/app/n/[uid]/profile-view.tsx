@@ -38,10 +38,11 @@ export function ProfileView({ profile, cardUid }: Props) {
 
   // Viewer state — not present in server HTML (no cache contamination)
   const [viewerState, setViewerState] = useState<{
+    isLoggedIn: boolean;
     isOwner: boolean;
     alreadySaved: boolean;
     resolved: boolean;
-  }>({ isOwner: false, alreadySaved: false, resolved: false });
+  }>({ isOwner: false, alreadySaved: false, isLoggedIn: false, resolved: false });
 
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -57,14 +58,14 @@ export function ProfileView({ profile, cardUid }: Props) {
       signal: controller.signal,
       cache: 'no-store',
     })
-      .then((res) => (res.ok ? res.json() : { isOwner: false, alreadySaved: false }))
-      .then((data: { isOwner: boolean; alreadySaved: boolean }) => {
+      .then((res) => (res.ok ? res.json() : { isOwner: false, alreadySaved: false, isLoggedIn: false }))
+      .then((data: { isOwner: boolean; alreadySaved: boolean; isLoggedIn: boolean }) => {
         setViewerState({ ...data, resolved: true });
         setSaved(data.alreadySaved);
       })
       .catch(() => {
         // Network error or abort — treat as anonymous visitor
-        setViewerState({ isOwner: false, alreadySaved: false, resolved: true });
+        setViewerState({ isOwner: false, alreadySaved: false, isLoggedIn: false, resolved: true });
       });
 
     return () => controller.abort();
@@ -238,7 +239,7 @@ export function ProfileView({ profile, cardUid }: Props) {
         {/* ── Not logged in — subtle CTA to sign up ── */}
         {/* Only shown AFTER viewer-state resolves AND only for truly anonymous visitors.
             Never flashes for owners. Hidden during the loading period. */}
-        {resolved && !isOwner && !viewerState.alreadySaved && (
+        {resolved && !isOwner && !viewerState.isLoggedIn && !viewerState.alreadySaved && (
           <Link
             href={`/signup?save=${cardUid}`}
             id="signup-save-cta"
