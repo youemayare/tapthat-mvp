@@ -25,6 +25,7 @@ export const PROFILE_PUBLIC_COLS = {
   websiteUrl: profiles.websiteUrl,
   socialLinks: profiles.socialLinks,
   theme: profiles.theme,
+  profileLayout: profiles.profileLayout,
   isPublished: profiles.isPublished,
   archivedAt: profiles.archivedAt,
 };

@@ -1,0 +1,1 @@
+ALTER TABLE "profiles" ADD COLUMN "profile_layout" text DEFAULT 'classic' NOT NULL;ALTER TABLE "profiles" ADD CONSTRAINT "profiles_profile_layout_check" CHECK (profile_layout IN ('classic', 'identity'));

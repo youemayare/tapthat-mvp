@@ -51,6 +51,7 @@ const profileSchema = z.object({
   instagramUrl: z.string().url('Invalid URL').optional().nullable().or(z.literal('')),
   isPublished: z.boolean(),
   label: z.string().max(50, 'Max 50 characters').optional().nullable(),
+    profileLayout: z.enum(['classic', 'identity']).default('classic'),
   // Google Wallet Appearance
   walletThemeColor: z
     .string()
@@ -79,8 +80,9 @@ export function ProfileForm({ initialData, isMultiProfile }: ProfileFormProps) {
     handleSubmit,
     setValue,
     control,
+    watch,
     formState: { errors },
-  } = useForm<ProfileFormValues>({
+  } = useForm({
     resolver: zodResolver(profileSchema),
     defaultValues: {
       profilePhotoUrl: initialData?.profilePhotoUrl || '',
@@ -99,6 +101,7 @@ export function ProfileForm({ initialData, isMultiProfile }: ProfileFormProps) {
       linkedinUrl: initialData?.linkedinUrl || '',
       instagramUrl: initialData?.instagramUrl || '',
       isPublished: initialData?.isPublished ?? false,
+      profileLayout: initialData?.profileLayout || 'classic',
       label: initialData?.label || '',
       walletThemeColor: initialData?.walletThemeColor || '',
       walletHeroImageUrl: initialData?.walletHeroImageUrl || '',
@@ -227,6 +230,25 @@ export function ProfileForm({ initialData, isMultiProfile }: ProfileFormProps) {
       </div>
 
       <div className={activeTab === 'profile' ? 'space-y-8' : 'hidden'}>
+        <div className="bg-card text-card-foreground border border-border shadow-sm rounded-2xl p-6 space-y-6">
+          <h2 className="text-xl font-semibold text-foreground">Profile Style</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <label className={`relative flex cursor-pointer rounded-xl border-2 p-4 transition-all ` + (watch('profileLayout') === 'classic' ? 'border-brand-500 bg-brand-500/5' : 'border-border hover:border-brand-500/50')}>
+              <input type="radio" value="classic" {...register('profileLayout')} className="sr-only" />
+              <div className="flex flex-col gap-1">
+                <span className="font-semibold text-foreground">Classic</span>
+                <span className="text-sm text-muted-foreground">Clean and information-first</span>
+              </div>
+            </label>
+            <label className={`relative flex cursor-pointer rounded-xl border-2 p-4 transition-all ` + (watch('profileLayout') === 'identity' ? 'border-brand-500 bg-brand-500/5' : 'border-border hover:border-brand-500/50')}>
+              <input type="radio" value="identity" {...register('profileLayout')} className="sr-only" />
+              <div className="flex flex-col gap-1">
+                <span className="font-semibold text-foreground">Identity</span>
+                <span className="text-sm text-muted-foreground">Immersive and photo-led</span>
+              </div>
+            </label>
+          </div>
+        </div>
         {/* ── Media ── */}
       <div className="bg-card text-card-foreground border border-border shadow-sm rounded-2xl p-6 space-y-6">
         <h2 className="text-xl font-semibold text-foreground">Profile Media</h2>
@@ -505,3 +527,7 @@ export function ProfileForm({ initialData, isMultiProfile }: ProfileFormProps) {
     </form>
   );
 }
+
+
+
+

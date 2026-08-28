@@ -43,6 +43,13 @@
       "when": 1787925565647,
       "tag": "0005_big_tattoo",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1787932453960,
+      "tag": "0006_chemical_sinister_six",
+      "breakpoints": true
     }
   ]
 }

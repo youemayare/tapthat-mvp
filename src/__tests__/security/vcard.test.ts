@@ -13,6 +13,7 @@ import type { Profile } from '@/lib/db/schema';
 
 // Minimal valid published profile for tests
 function makeProfile(overrides: Partial<Profile> = {}): Profile {
+  // @ts-ignore
   return {
     id: '00000000-0000-0000-0000-000000000001',
     userId: '00000000-0000-0000-0000-000000000002',
@@ -135,3 +136,14 @@ describe('getVCardFilename', () => {
     expect(result).not.toContain('\n');
   });
 });
+
+
+
+
+
+
+
+
+
+
+

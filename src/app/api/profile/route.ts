@@ -29,6 +29,7 @@ const profileSchema = z.object({
   instagramUrl: z.string().url().optional().nullable().or(z.literal('')),
   isPublished: z.boolean().default(false),
   label: z.string().max(50).optional().nullable(),
+  profileLayout: z.enum(['classic', 'identity']).default('classic').optional(),
   // Google Wallet Appearance
   walletThemeColor: z
     .string()
@@ -250,3 +251,4 @@ export async function DELETE(req: Request) {
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
+
