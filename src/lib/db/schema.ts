@@ -1,4 +1,4 @@
-import { pgTable, uuid, text, boolean, timestamp, jsonb, index } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, text, boolean, timestamp, jsonb, index, unique } from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
 
 // ─── Users ───────────────────────────────────────────────────────────────────
@@ -188,3 +188,19 @@ export type Connection = typeof connections.$inferSelect;
 export type NewConnection = typeof connections.$inferInsert;
 export type ContactSave = typeof contactSaves.$inferSelect;
 export type NewContactSave = typeof contactSaves.$inferInsert;
+
+export const connectionNotes = pgTable('connection_notes', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  connectionId: uuid('connection_id').notNull().references(() => connections.id, { onDelete: 'cascade' }),
+  ownerUserId: uuid('owner_user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  content: text('content').notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+}, (t) => [
+  index('idx_connection_notes_conn').on(t.connectionId),
+  index('idx_connection_notes_owner').on(t.ownerUserId),
+  unique('uq_connection_notes_owner_conn').on(t.connectionId, t.ownerUserId),
+]);
+
+export type ConnectionNote = typeof connectionNotes.$inferSelect;
+export type NewConnectionNote = typeof connectionNotes.$inferInsert;

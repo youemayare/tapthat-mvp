@@ -36,6 +36,13 @@
       "when": 1787224792008,
       "tag": "0004_orange_natasha_romanoff",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1787925565647,
+      "tag": "0005_big_tattoo",
+      "breakpoints": true
     }
   ]
 }

@@ -9,6 +9,9 @@ import {
   MessageCircle, Contact, FileText, ExternalLink,
   BookmarkPlus, BookmarkCheck, UserPlus
 } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button';
 import { FaLinkedin, FaInstagram } from 'react-icons/fa';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { toast } from 'sonner';
@@ -42,6 +45,9 @@ export function ProfileView({ profile, cardUid }: Props) {
 
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [showNoteModal, setShowNoteModal] = useState(false);
+  const [noteContent, setNoteContent] = useState('');
+  const [savingNote, setSavingNote] = useState(false);
 
   // Fetch viewer-specific state after mount — this call is never cached publicly
   useEffect(() => {
@@ -73,6 +79,28 @@ export function ProfileView({ profile, cardUid }: Props) {
       body: JSON.stringify({ uid: cardUid, type: 'tap' }),
     }).catch(() => {});
   }, [cardUid]);
+
+  
+  async function handleSaveNote() {
+    setSavingNote(true);
+    try {
+      const res = await fetch('/api/connections', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ profileId: profile.id, note: noteContent }),
+      });
+      if (res.ok) {
+        toast.success('Private note saved.');
+        setShowNoteModal(false);
+      } else {
+        toast.error('Failed to save note.');
+      }
+    } catch {
+      toast.error('Network error.');
+    } finally {
+      setSavingNote(false);
+    }
+  }
 
   function handleSaveContact() {
     const identifier = profile.slug || profile.id;
@@ -366,6 +394,35 @@ export function ProfileView({ profile, cardUid }: Props) {
           Powered by <Link href="/" className="hover:text-brand-400 transition-colors">Anoya</Link>
         </p>
       </div>
+    
+      {/* Note Modal */}
+      <Dialog open={showNoteModal} onOpenChange={setShowNoteModal}>
+        <DialogContent className="sm:max-w-md bg-background border-border" style={{ borderRadius: '1.5rem' }}>
+          <DialogHeader>
+            <DialogTitle>Add a private note?</DialogTitle>
+            <DialogDescription>
+              Keep track of where you met or what you discussed. This is completely private and only visible to you.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <Textarea 
+              placeholder="e.g., Met at the AI summit, follow up next week about the new project..."
+              value={noteContent}
+              onChange={(e) => setNoteContent(e.target.value)}
+              className="min-h-[100px] resize-none rounded-xl"
+            />
+          </div>
+          <DialogFooter className="sm:justify-between flex-row gap-2">
+            <Button type="button" variant="ghost" onClick={() => setShowNoteModal(false)} className="rounded-xl">
+              Skip
+            </Button>
+            <Button type="button" onClick={handleSaveNote} disabled={savingNote || !noteContent.trim()} className="rounded-xl bg-brand-600 hover:bg-brand-500 text-white">
+              {savingNote ? 'Saving...' : 'Save Note'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </main>
+
   );
 }

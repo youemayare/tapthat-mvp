@@ -1,12 +1,11 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
-import Link from 'next/link';
 import { db } from '@/lib/db';
-import { connections, profiles } from '@/lib/db/schema';
+import { connections, connectionNotes, profiles } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { createClient } from '@/lib/supabase/server';
-import { UserCheck, ExternalLink } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
+import { UserCheck } from 'lucide-react';
+import { ConnectionCard } from '@/components/dashboard/connection-card';
 
 export const metadata: Metadata = { title: 'My Connections' };
 
@@ -16,25 +15,24 @@ export default async function ConnectionsPage() {
 
   if (!user) redirect('/login');
 
-  // Fetch all connections with their linked profiles and card UIDs
   const rows = await db
     .select({
       connection: connections,
       profile: profiles,
+      note: connectionNotes,
     })
     .from(connections)
     .innerJoin(profiles, eq(connections.profileId, profiles.id))
+    .leftJoin(connectionNotes, eq(connections.id, connectionNotes.connectionId))
     .where(eq(connections.viewerUserId, user.id))
     .orderBy(connections.createdAt);
-
-  // No longer need cardUid for viewing connections, we use the persistent /p/[slug-or-id] URL
 
   return (
     <div className="space-y-8 pb-10">
       <div>
         <h1 className="text-3xl font-bold text-foreground">My Connections</h1>
         <p className="text-muted-foreground mt-2">
-          People you&apos;ve saved while exploring Anoya profiles.
+          People you've saved while exploring Anoya profiles.
         </p>
       </div>
 
@@ -45,58 +43,19 @@ export default async function ConnectionsPage() {
           </div>
           <h3 className="text-xl font-bold text-foreground mb-2">No connections yet</h3>
           <p className="text-muted-foreground max-w-sm mx-auto">
-            When you tap someone&apos;s Anoya card and hit &quot;Save to My Connections&quot;, they&apos;ll appear here.
+            When you tap someone's Anoya card and hit "Save to My Connections", they'll appear here.
           </p>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {rows.map(({ connection, profile }) => {
-            const fullName = [profile.firstName, profile.lastName].filter(Boolean).join(' ') || 'Unknown';
-            const href = `/p/${profile.slug || profile.id}`;
-
-            return (
-              <Link
-                key={connection.id}
-                href={href}
-                className="group bg-card border border-border rounded-2xl p-5 hover:border-brand-500/30 hover:bg-accent/30 transition-all flex flex-col gap-3"
-              >
-                {/* Avatar + name row */}
-                <div className="flex items-center gap-4">
-                  {profile.profilePhotoUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={profile.profilePhotoUrl}
-                      alt={fullName}
-                      className="w-12 h-12 rounded-full object-cover ring-2 ring-brand-500/20 flex-shrink-0"
-                    />
-                  ) : (
-                    <div className="w-12 h-12 rounded-full bg-brand-500/20 border border-brand-500/30 flex items-center justify-center flex-shrink-0">
-                      <span className="text-lg font-bold text-brand-300">
-                        {profile.firstName?.[0] ?? '?'}
-                      </span>
-                    </div>
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-foreground truncate">{fullName}</p>
-                    {profile.jobTitle && (
-                      <p className="text-sm text-brand-300 truncate">{profile.jobTitle}</p>
-                    )}
-                  </div>
-                  <ExternalLink className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
-                </div>
-
-                {/* Company */}
-                {profile.companyName && (
-                  <p className="text-sm text-muted-foreground truncate">{profile.companyName}</p>
-                )}
-
-                {/* Date */}
-                <p className="text-xs text-muted-foreground/60 mt-auto pt-2 border-t border-border/50">
-                  Connected {formatDistanceToNow(new Date(connection.createdAt), { addSuffix: true })}
-                </p>
-              </Link>
-            );
-          })}
+          {rows.map(({ connection, profile, note }) => (
+            <ConnectionCard 
+              key={connection.id} 
+              connection={connection} 
+              profile={profile} 
+              note={note} 
+            />
+          ))}
         </div>
       )}
     </div>
