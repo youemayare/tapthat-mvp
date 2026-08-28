@@ -5,7 +5,7 @@ import type { Profile } from '@/lib/db/schema';
 import { buildWhatsAppUrl } from '@/lib/utils';
 import {
   Phone, Mail, Globe, Download,
-  MessageCircle, Contact, FileText, ExternalLink,
+  MessageCircle, FileText,
   BookmarkPlus, BookmarkCheck, UserPlus, Home
 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
@@ -245,3 +245,4 @@ export function IdentityProfileLayout({ profile, cardUid }: Props) {
     </div>
   );
 }
+

@@ -63,7 +63,7 @@ export function useProfileActions(profile: Partial<Profile> & { id: string; user
       } else {
         toast.error('Failed to save connection.');
       }
-    } catch (error) {
+    } catch {
       toast.error('Network error.');
     } finally {
       setSavingNote(false);
@@ -137,3 +137,4 @@ export function useProfileActions(profile: Partial<Profile> & { id: string; user
     handleSaveContact
   };
 }
+

@@ -40,11 +40,11 @@ export async function POST(req: NextRequest) {
     if (profile.userId === user.id) return NextResponse.json({ error: 'Cannot save your own profile' }, { status: 400 });
 
     try {
-      let connectionRecord = await tx.query.connections.findFirst({
+      const connectionRecord = await tx.query.connections.findFirst({
         where: and(eq(connections.viewerUserId, user.id), eq(connections.profileId, profileId))
       });
       
-      let alreadySaved = !!connectionRecord;
+      const alreadySaved = !!connectionRecord;
       let connectionId = connectionRecord?.id;
 
       if (!connectionRecord) {
@@ -93,3 +93,4 @@ export async function DELETE(req: NextRequest) {
     return NextResponse.json({ success: true });
   });
 }
+

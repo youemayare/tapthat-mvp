@@ -1,6 +1,5 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import type { Profile } from '@/lib/db/schema';
 import { buildWhatsAppUrl } from '@/lib/utils';
@@ -14,7 +13,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { FaLinkedin, FaInstagram } from 'react-icons/fa';
 import { ThemeToggle } from '@/components/theme-toggle';
-import { toast } from 'sonner';
 
 interface Props {
   profile: Partial<Profile> & { id: string; userId: string };
@@ -338,4 +336,5 @@ export function ClassicProfileLayout({ profile, cardUid }: Props) {
 
   );
 }
+
 
