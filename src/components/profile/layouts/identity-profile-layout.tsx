@@ -210,6 +210,19 @@ export function IdentityProfileLayout({ profile, cardUid }: Props) {
             <span className="text-sm font-medium">View Resume / CV</span>
           </a>
         )}
+
+        {/* Footer & CTA */}
+        <div className="mt-8 flex flex-col items-center gap-4 relative z-10 w-full">
+          <Link
+            href="/"
+            className="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-white/5 hover:bg-white/10 text-zinc-400 text-xs font-medium rounded-full transition-all duration-200 border border-white/5"
+          >
+            Want your own custom card? <span className="text-white ml-0.5">Get Anoya</span>
+          </Link>
+          <p className="text-xs text-zinc-500 font-medium">
+            Powered by <Link href="/" className="hover:text-white transition-colors">Anoya</Link>
+          </p>
+        </div>
       </div>
 
       {/* Connection Note Modal */}
