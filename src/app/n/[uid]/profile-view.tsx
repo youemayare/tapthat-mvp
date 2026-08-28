@@ -7,7 +7,7 @@ import { buildWhatsAppUrl } from '@/lib/utils';
 import {
   Phone, Mail, Globe, Download,
   MessageCircle, Contact, FileText, ExternalLink,
-  BookmarkPlus, BookmarkCheck, UserPlus
+  BookmarkPlus, BookmarkCheck, UserPlus, Home
 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
@@ -141,6 +141,14 @@ export function ProfileView({ profile, cardUid }: Props) {
 
   return (
     <main className="min-h-screen bg-background flex flex-col items-center justify-start px-4 py-10 pb-24 relative">
+      {/* Home Dashboard link if logged in */}
+      {viewerState.isLoggedIn && !viewerState.isOwner && (
+        <div className="absolute top-4 left-4 z-50">
+          <Link href="/dashboard" className="w-10 h-10 bg-card border border-border rounded-full flex items-center justify-center text-foreground hover:bg-accent transition-colors shadow-sm">
+            <Home className="w-5 h-5" />
+          </Link>
+        </div>
+      )}
       {/* Theme Toggle Top Right */}
       <div className="absolute top-4 right-4 z-50">
         <ThemeToggle />
@@ -418,7 +426,7 @@ export function ProfileView({ profile, cardUid }: Props) {
               Skip
             </Button>
             <Button type="button" onClick={handleSaveNote} disabled={savingNote || !noteContent.trim()} className="rounded-xl bg-brand-600 hover:bg-brand-500 text-white">
-              {savingNote ? 'Saving...' : 'Save Note'}
+              {savingNote ? 'Saving...' : 'Save'}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { db } from '@/lib/db';
 import { connections, connectionNotes, profiles } from '@/lib/db/schema';
-import { eq } from 'drizzle-orm';
+import { eq, desc } from 'drizzle-orm';
 import { createClient } from '@/lib/supabase/server';
 import { UserCheck } from 'lucide-react';
 import { ConnectionCard } from '@/components/dashboard/connection-card';
@@ -25,7 +25,7 @@ export default async function ConnectionsPage() {
     .innerJoin(profiles, eq(connections.profileId, profiles.id))
     .leftJoin(connectionNotes, eq(connections.id, connectionNotes.connectionId))
     .where(eq(connections.viewerUserId, user.id))
-    .orderBy(connections.createdAt);
+    .orderBy(desc(connections.createdAt));
 
   return (
     <div className="space-y-8 pb-10">
