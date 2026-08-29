@@ -8,6 +8,7 @@ import {
   MessageCircle, FileText,
   BookmarkPlus, BookmarkCheck, UserPlus, Home
 } from 'lucide-react';
+import { FaWhatsapp } from 'react-icons/fa';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
@@ -175,7 +176,7 @@ export function IdentityProfileLayout({ profile, cardUid }: Props) {
           )}
           {profile.whatsapp && (
             <a href={buildWhatsAppUrl(profile.whatsapp)} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center justify-center gap-2 p-4 rounded-2xl bg-zinc-900 border border-white/10 hover:bg-zinc-800 transition-colors group text-white">
-              <MessageCircle className="w-6 h-6 text-zinc-400 group-hover:text-white transition-colors" />
+              <FaWhatsapp className="w-6 h-6 text-zinc-400 group-hover:text-white transition-colors" />
               <span className="text-xs font-medium">WhatsApp</span>
             </a>
           )}

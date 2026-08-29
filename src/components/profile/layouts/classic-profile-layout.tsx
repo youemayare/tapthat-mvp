@@ -8,6 +8,7 @@ import {
   MessageCircle, Contact, FileText, ExternalLink,
   BookmarkPlus, BookmarkCheck, UserPlus, Home
 } from 'lucide-react';
+import { FaWhatsapp } from 'react-icons/fa';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
@@ -197,7 +198,7 @@ export function ClassicProfileLayout({ profile, cardUid }: Props) {
               className="flex items-center gap-4 p-4 bg-card text-card-foreground border border-border rounded-2xl hover:bg-accent transition-all group"
             >
               <div className="w-10 h-10 rounded-xl bg-green-500/10 border border-green-500/20 flex items-center justify-center flex-shrink-0">
-                <MessageCircle className="w-4 h-4 text-green-400" />
+                <FaWhatsapp className="w-5 h-5 text-green-500" />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-xs text-muted-foreground mb-0.5">WhatsApp</p>
