@@ -76,7 +76,7 @@ export function IdentityProfileLayout({ profile, cardUid }: Props) {
         )}
 
         {/* Gradient Overlay for Text Contrast */}
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-background from-[2%] via-background/60 via-[25%] to-transparent to-[55%]" />
 
         {/* Identity Block (Bottom of Hero) */}
         <div className="absolute bottom-0 left-0 w-full p-6 pb-8 flex flex-col items-center text-center">
