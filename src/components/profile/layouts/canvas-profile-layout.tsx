@@ -5,13 +5,13 @@ import type { Profile } from '@/lib/db/schema';
 import { buildWhatsAppUrl } from '@/lib/utils';
 import {
   Phone, Mail, Globe, Download,
-  MessageCircle, FileText,
+  FileText,
   UserPlus, UserCheck
 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { FaLinkedin, FaInstagram } from 'react-icons/fa';
+import { FaLinkedin, FaInstagram, FaWhatsapp } from 'react-icons/fa';
 import { useProfileActions } from '@/components/profile/use-profile-actions';
 
 interface Props {
@@ -43,13 +43,26 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
   const socialLinks = [
     profile.linkedinUrl && { icon: <FaLinkedin className="w-5 h-5" />, href: profile.linkedinUrl, label: 'LinkedIn' },
     profile.instagramUrl && { icon: <FaInstagram className="w-5 h-5" />, href: profile.instagramUrl, label: 'Instagram' },
-    profile.whatsapp && { icon: <MessageCircle className="w-5 h-5" />, href: buildWhatsAppUrl(profile.whatsapp), label: 'WhatsApp' },
+    profile.whatsapp && { icon: <FaWhatsapp className="w-5 h-5" />, href: buildWhatsAppUrl(profile.whatsapp), label: 'WhatsApp' },
     profile.websiteUrl && { icon: <Globe className="w-5 h-5" />, href: profile.websiteUrl, label: 'Website' },
     profile.cvUrl && { icon: <FileText className="w-5 h-5" />, href: profile.cvUrl, label: 'Resume' },
   ].flatMap(link => typeof link === 'object' && link !== null ? [link] : []);
 
   const bgColor = profile.layoutBackgroundColor || '#1a1a2e';
   const hasBackgroundImage = !!profile.layoutBackgroundImageUrl;
+
+  // Premium silver gradient border style
+  const silverBorder: React.CSSProperties = {
+    border: '2px solid transparent',
+    backgroundClip: 'padding-box',
+    boxShadow: '0 0 0 2px rgba(192,192,192,0.5), inset 0 0 0 0 transparent',
+    background: `linear-gradient(${bgColor}, ${bgColor}) padding-box, linear-gradient(145deg, #e8e8e8, #a0a0a0, #d4d4d4, #888888, #c0c0c0) border-box`,
+  };
+
+  const silverBorderLight: React.CSSProperties = {
+    border: '1.5px solid transparent',
+    background: `linear-gradient(${hasBackgroundImage ? 'rgba(0,0,0,0.2)' : bgColor}, ${hasBackgroundImage ? 'rgba(0,0,0,0.2)' : bgColor}) padding-box, linear-gradient(145deg, #e8e8e8, #a0a0a0, #d4d4d4, #888888, #c0c0c0) border-box`,
+  };
 
   return (
     <div 
@@ -66,11 +79,11 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
       {/* Dark overlay only when there is a background image to ensure legibility */}
       {hasBackgroundImage && <div className="absolute inset-0 z-0 bg-black/40" />}
 
-      {/* Main content — flex-1 fills screen, spacers push content down ~25% from top */}
+      {/* Main content */}
       <div className="relative z-10 flex-1 flex flex-col items-center w-full max-w-md mx-auto px-6 overflow-hidden">
         
-        {/* Top spacer — controls how far down the content sits */}
-        <div className="flex-[0.3] shrink-0 min-h-0" />
+        {/* Top spacer */}
+        <div className="flex-[0.6] shrink-0 min-h-0" />
 
         {/* Phone & Email */}
         {(profile.phone || profile.email) && (
@@ -78,7 +91,8 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
             {profile.phone && (
               <a 
                 href={'tel:' + profile.phone}
-                className="w-14 h-14 rounded-full border border-white/30 bg-black/30 backdrop-blur-md flex items-center justify-center hover:bg-black/50 transition-colors"
+                className="w-14 h-14 rounded-full bg-black/30 backdrop-blur-md flex items-center justify-center hover:bg-black/50 transition-colors"
+                style={silverBorderLight}
                 aria-label="Call"
               >
                 <Phone className="w-6 h-6 text-white" />
@@ -87,7 +101,8 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
             {profile.email && (
               <a 
                 href={'mailto:' + profile.email}
-                className="w-14 h-14 rounded-full border border-white/30 bg-black/30 backdrop-blur-md flex items-center justify-center hover:bg-black/50 transition-colors"
+                className="w-14 h-14 rounded-full bg-black/30 backdrop-blur-md flex items-center justify-center hover:bg-black/50 transition-colors"
+                style={silverBorderLight}
                 aria-label="Email"
               >
                 <Mail className="w-6 h-6 text-white" />
@@ -97,7 +112,10 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
         )}
 
         {/* Profile Avatar */}
-        <div className="w-32 h-32 rounded-full border-2 border-white/20 overflow-hidden mb-6 bg-black/20 backdrop-blur-md shadow-2xl flex-shrink-0">
+        <div 
+          className="w-32 h-32 rounded-full overflow-hidden mb-6 bg-black/20 backdrop-blur-md shadow-2xl flex-shrink-0"
+          style={silverBorder}
+        >
           {profile.profilePhotoUrl ? (
             <img 
               src={profile.profilePhotoUrl} 
@@ -143,7 +161,8 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={link.label}
-                className="w-12 h-12 rounded-full border border-white/20 bg-black/20 backdrop-blur-sm flex items-center justify-center hover:bg-black/40 transition-colors"
+                className="w-12 h-12 rounded-full bg-black/20 backdrop-blur-sm flex items-center justify-center hover:bg-black/40 transition-colors"
+                style={silverBorderLight}
               >
                 {link.icon}
               </a>
@@ -187,7 +206,10 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
         {/* Company Logo — pinned just above the CTA footer */}
         {profile.companyLogoUrl && (
           <div className="mb-16 flex justify-center">
-            <div className="w-12 h-12 rounded-full border border-white/20 bg-white p-0.5 flex items-center justify-center shadow-lg">
+            <div 
+              className="w-12 h-12 rounded-full bg-white p-0.5 flex items-center justify-center shadow-lg"
+              style={silverBorderLight}
+            >
               <img 
                 src={profile.companyLogoUrl} 
                 alt={profile.companyName || 'Company Logo'}
