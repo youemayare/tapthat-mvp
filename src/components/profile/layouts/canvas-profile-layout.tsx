@@ -53,7 +53,7 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
 
   return (
     <div 
-      className="min-h-[100dvh] w-full flex flex-col relative text-white selection:bg-white/30"
+      className="h-[100dvh] w-full flex flex-col relative text-white selection:bg-white/30 overflow-hidden"
       style={{ backgroundColor: bgColor }}
     >
       {/* Background Image */}
@@ -66,32 +66,38 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
       {/* Dark overlay only when there is a background image to ensure legibility */}
       {hasBackgroundImage && <div className="absolute inset-0 z-0 bg-black/40" />}
 
-      <div className="relative z-10 flex-1 flex flex-col items-center justify-start pt-[20dvh] p-6 pb-24 w-full max-w-md mx-auto">
+      {/* Main content — flex-1 fills screen, spacers push content down ~25% from top */}
+      <div className="relative z-10 flex-1 flex flex-col items-center w-full max-w-md mx-auto px-6 overflow-hidden">
         
-        {/* Top Actions: Phone & Email */}
-        <div className="flex items-center gap-4 mb-8">
-          {profile.phone && (
-            <a 
-              href={'tel:' + profile.phone}
-              className="w-14 h-14 rounded-full border border-white/30 bg-black/30 backdrop-blur-md flex items-center justify-center hover:bg-black/50 transition-colors"
-              aria-label="Call"
-            >
-              <Phone className="w-6 h-6 text-white" />
-            </a>
-          )}
-          {profile.email && (
-            <a 
-              href={'mailto:' + profile.email}
-              className="w-14 h-14 rounded-full border border-white/30 bg-black/30 backdrop-blur-md flex items-center justify-center hover:bg-black/50 transition-colors"
-              aria-label="Email"
-            >
-              <Mail className="w-6 h-6 text-white" />
-            </a>
-          )}
-        </div>
+        {/* Top spacer — controls how far down the content sits */}
+        <div className="flex-[1.2] shrink-0 min-h-0" />
+
+        {/* Phone & Email */}
+        {(profile.phone || profile.email) && (
+          <div className="flex items-center gap-4 mb-5">
+            {profile.phone && (
+              <a 
+                href={'tel:' + profile.phone}
+                className="w-12 h-12 rounded-full border border-white/30 bg-black/30 backdrop-blur-md flex items-center justify-center hover:bg-black/50 transition-colors"
+                aria-label="Call"
+              >
+                <Phone className="w-5 h-5 text-white" />
+              </a>
+            )}
+            {profile.email && (
+              <a 
+                href={'mailto:' + profile.email}
+                className="w-12 h-12 rounded-full border border-white/30 bg-black/30 backdrop-blur-md flex items-center justify-center hover:bg-black/50 transition-colors"
+                aria-label="Email"
+              >
+                <Mail className="w-5 h-5 text-white" />
+              </a>
+            )}
+          </div>
+        )}
 
         {/* Profile Avatar */}
-        <div className="w-32 h-32 md:w-40 md:h-40 rounded-full border-2 border-white/20 overflow-hidden mb-6 bg-black/20 backdrop-blur-md shadow-2xl flex-shrink-0">
+        <div className="w-28 h-28 rounded-full border-2 border-white/20 overflow-hidden mb-4 bg-black/20 backdrop-blur-md shadow-2xl flex-shrink-0">
           {profile.profilePhotoUrl ? (
             <img 
               src={profile.profilePhotoUrl} 
@@ -100,28 +106,28 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
             />
           ) : (
             <div className="w-full h-full bg-gradient-to-br from-zinc-800 to-zinc-950 flex items-center justify-center">
-              <span className="text-4xl font-bold text-white/20">{initials}</span>
+              <span className="text-3xl font-bold text-white/20">{initials}</span>
             </div>
           )}
         </div>
 
-        {/* Identity Text */}
-        <div className="text-center mb-10 w-full">
-          <h1 className="text-3xl font-bold tracking-tight text-white mb-2 drop-shadow-md">
+        {/* Name / Title / Company / Bio */}
+        <div className="text-center mb-5 w-full">
+          <h1 className="text-2xl font-bold tracking-tight text-white mb-1 drop-shadow-md">
             {fullName}
           </h1>
           {profile.jobTitle && (
-            <p className="text-lg text-white/80 font-medium drop-shadow-md mb-1">
+            <p className="text-base text-white/80 font-medium drop-shadow-md mb-0.5">
               {profile.jobTitle}
             </p>
           )}
           {profile.companyName && (
-            <p className="text-base text-white/60 drop-shadow-md max-w-xs mx-auto">
+            <p className="text-sm text-white/60 drop-shadow-md max-w-xs mx-auto">
               {profile.companyName}
             </p>
           )}
           {profile.bio && (
-            <p className="mt-4 text-sm text-white/70 leading-relaxed max-w-xs mx-auto">
+            <p className="mt-2 text-xs text-white/70 leading-relaxed max-w-xs mx-auto line-clamp-3">
               {profile.bio}
             </p>
           )}
@@ -129,7 +135,7 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
 
         {/* Social Links Row */}
         {socialLinks.length > 0 && (
-          <div className="flex flex-wrap items-center justify-center gap-3 w-full mb-4">
+          <div className="flex flex-wrap items-center justify-center gap-2 w-full mb-3">
             {socialLinks.map((link, idx) => (
               <a
                 key={idx}
@@ -137,7 +143,7 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={link.label}
-                className="w-12 h-12 rounded-full border border-white/20 bg-black/20 backdrop-blur-sm flex items-center justify-center hover:bg-black/40 transition-colors"
+                className="w-10 h-10 rounded-full border border-white/20 bg-black/20 backdrop-blur-sm flex items-center justify-center hover:bg-black/40 transition-colors"
               >
                 {link.icon}
               </a>
@@ -145,13 +151,13 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
           </div>
         )}
 
-        {/* Download & Save actions — separate row, hidden for profile owner */}
+        {/* Download & Save — hidden for owner */}
         {resolved && !isOwner && (
-          <div className="flex items-center justify-center gap-4 w-full mb-12">
+          <div className="flex items-center justify-center gap-3 w-full mb-3">
             <button
               onClick={handleSaveContact}
               aria-label="Save Contact"
-              className="flex items-center gap-2 px-5 py-2.5 rounded-full border border-white/30 bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-colors text-white text-sm font-medium"
+              className="flex items-center gap-2 px-4 py-2 rounded-full border border-white/30 bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-colors text-white text-sm font-medium"
             >
               <Download className="w-4 h-4" />
               Save Contact
@@ -160,33 +166,28 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
               onClick={saved ? undefined : () => setShowNoteModal(true)}
               aria-label={saved ? 'Already connected' : 'Save to My Connections'}
               disabled={saved}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-full border text-sm font-medium transition-colors ${
+              className={`flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
                 saved
                   ? 'border-green-400/40 bg-green-400/15 text-green-300 cursor-default'
                   : 'border-white/30 bg-white/10 backdrop-blur-sm hover:bg-white/20 text-white'
               }`}
             >
               {saved ? (
-                <>
-                  <UserCheck className="w-4 h-4" />
-                  Connected
-                </>
+                <><UserCheck className="w-4 h-4" />Connected</>
               ) : (
-                <>
-                  <UserPlus className="w-4 h-4" />
-                  Connect
-                </>
+                <><UserPlus className="w-4 h-4" />Connect</>
               )}
             </button>
           </div>
         )}
-        {/* Spacer when owner (no action row) */}
-        {(!resolved || isOwner) && <div className="mb-12" />}
 
-        {/* Company Logo in Circle */}
+        {/* Bottom spacer */}
+        <div className="flex-1 shrink-0 min-h-0" />
+
+        {/* Company Logo — pinned just above the CTA footer */}
         {profile.companyLogoUrl && (
-          <div className="mt-auto pt-8">
-            <div className="w-14 h-14 rounded-full border border-white/20 bg-white p-1 flex items-center justify-center shadow-lg">
+          <div className="mb-16 flex justify-center">
+            <div className="w-12 h-12 rounded-full border border-white/20 bg-white p-0.5 flex items-center justify-center shadow-lg">
               <img 
                 src={profile.companyLogoUrl} 
                 alt={profile.companyName || 'Company Logo'}
@@ -195,13 +196,14 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
             </div>
           </div>
         )}
+        {!profile.companyLogoUrl && <div className="mb-16" />}
       </div>
 
-      {/* Footer & CTA */}
-      <div className="absolute bottom-6 left-0 w-full flex flex-col items-center gap-3 z-20">
+      {/* Footer CTA */}
+      <div className="absolute bottom-5 left-0 w-full flex justify-center z-20">
         <Link
           href="/"
-          className="inline-flex items-center justify-center gap-1.5 px-4 py-1.5 bg-black/30 backdrop-blur-md hover:bg-black/50 text-white/60 hover:text-white text-xs font-medium rounded-full transition-all duration-200 border border-white/10"
+          className="inline-flex items-center gap-1.5 px-4 py-1.5 bg-black/30 backdrop-blur-md hover:bg-black/50 text-white/60 hover:text-white text-xs font-medium rounded-full transition-all duration-200 border border-white/10"
         >
           Want your own custom card? <span className="text-white ml-0.5 font-semibold">Get Anoya</span>
         </Link>
