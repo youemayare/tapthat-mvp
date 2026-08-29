@@ -26,6 +26,8 @@ export const PROFILE_PUBLIC_COLS = {
   socialLinks: profiles.socialLinks,
   theme: profiles.theme,
   profileLayout: profiles.profileLayout,
+  layoutBackgroundColor: profiles.layoutBackgroundColor,
+  layoutBackgroundImageUrl: profiles.layoutBackgroundImageUrl,
   isPublished: profiles.isPublished,
   archivedAt: profiles.archivedAt,
 };

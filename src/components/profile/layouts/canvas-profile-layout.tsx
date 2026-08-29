@@ -126,40 +126,47 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
           )}
         </div>
 
-        {/* Action Row (Socials + Primary Actions) */}
-        <div className="flex flex-wrap items-center justify-center gap-3 w-full mb-12">
-          {socialLinks.map((link, idx) => (
-            <a
-              key={idx}
-              href={link.href!}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={link.label}
-              className="w-12 h-12 rounded-full border border-white/20 bg-black/20 backdrop-blur-sm flex items-center justify-center hover:bg-black/40 transition-colors"
+        {/* Social Links Row */}
+        {socialLinks.length > 0 && (
+          <div className="flex flex-wrap items-center justify-center gap-3 w-full mb-4">
+            {socialLinks.map((link, idx) => (
+              <a
+                key={idx}
+                href={link.href!}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={link.label}
+                className="w-12 h-12 rounded-full border border-white/20 bg-black/20 backdrop-blur-sm flex items-center justify-center hover:bg-black/40 transition-colors"
+              >
+                {link.icon}
+              </a>
+            ))}
+          </div>
+        )}
+
+        {/* Download & Save actions — separate row, hidden for profile owner */}
+        {resolved && !isOwner && (
+          <div className="flex items-center justify-center gap-4 w-full mb-12">
+            <button
+              onClick={handleSaveContact}
+              aria-label="Save Contact"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-full border border-white/30 bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-colors text-white text-sm font-medium"
             >
-              {link.icon}
-            </a>
-          ))}
-          {/* Download & Save actions — hidden for profile owner */}
-          {resolved && !isOwner && (
-            <>
-              <button
-                onClick={handleSaveContact}
-                aria-label="Save Contact"
-                className="w-12 h-12 rounded-full border border-white/30 bg-white/10 backdrop-blur-sm flex items-center justify-center hover:bg-white/20 transition-colors text-white"
-              >
-                <Download className="w-5 h-5" />
-              </button>
-              <button
-                onClick={() => setShowNoteModal(true)}
-                aria-label="Save to My Connections"
-                className="w-12 h-12 rounded-full border border-white/30 bg-white/10 backdrop-blur-sm flex items-center justify-center hover:bg-white/20 transition-colors text-white"
-              >
-                <UserPlus className="w-5 h-5" />
-              </button>
-            </>
-          )}
-        </div>
+              <Download className="w-4 h-4" />
+              Save Contact
+            </button>
+            <button
+              onClick={() => setShowNoteModal(true)}
+              aria-label="Save to My Connections"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-full border border-white/30 bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-colors text-white text-sm font-medium"
+            >
+              <UserPlus className="w-4 h-4" />
+              Connect
+            </button>
+          </div>
+        )}
+        {/* Spacer when owner (no action row) */}
+        {(!resolved || isOwner) && <div className="mb-12" />}
 
         {/* Company Logo in Circle */}
         {profile.companyLogoUrl && (
