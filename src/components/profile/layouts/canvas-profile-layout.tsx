@@ -51,7 +51,12 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
   const bgColor = profile.layoutBackgroundColor || '#1a1a2e';
   const hasBackgroundImage = !!profile.layoutBackgroundImageUrl;
 
-  const silverGradient = "linear-gradient(145deg, #e8e8e8, #a0a0a0, #d4d4d4, #888888, #c0c0c0)";
+  const silverBorderMask: React.CSSProperties = {
+    background: 'linear-gradient(145deg, #e8e8e8, #a0a0a0, #d4d4d4, #888888, #c0c0c0)',
+    WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+    WebkitMaskComposite: 'xor',
+    maskComposite: 'exclude',
+  };
 
   return (
     <div 
@@ -78,33 +83,32 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
         {(profile.phone || profile.email) && (
           <div className="flex items-center gap-4 mb-8">
             {profile.phone && (
-              <div className="w-14 h-14 rounded-full p-[1.5px]" style={{ background: silverGradient }}>
-                <a 
-                  href={'tel:' + profile.phone}
-                  className="w-full h-full rounded-full bg-black/30 backdrop-blur-md flex items-center justify-center hover:bg-black/50 transition-colors"
-                  aria-label="Call"
-                >
-                  <Phone className="w-6 h-6 text-white" />
-                </a>
-              </div>
+              <a 
+                href={'tel:' + profile.phone}
+                className="relative w-14 h-14 rounded-full bg-black/30 backdrop-blur-md flex items-center justify-center hover:bg-black/50 transition-colors"
+                aria-label="Call"
+              >
+                <div className="absolute inset-0 rounded-full pointer-events-none p-[1.5px]" style={silverBorderMask} />
+                <Phone className="w-6 h-6 text-white relative z-10" />
+              </a>
             )}
             {profile.email && (
-              <div className="w-14 h-14 rounded-full p-[1.5px]" style={{ background: silverGradient }}>
-                <a 
-                  href={'mailto:' + profile.email}
-                  className="w-full h-full rounded-full bg-black/30 backdrop-blur-md flex items-center justify-center hover:bg-black/50 transition-colors"
-                  aria-label="Email"
-                >
-                  <Mail className="w-6 h-6 text-white" />
-                </a>
-              </div>
+              <a 
+                href={'mailto:' + profile.email}
+                className="relative w-14 h-14 rounded-full bg-black/30 backdrop-blur-md flex items-center justify-center hover:bg-black/50 transition-colors"
+                aria-label="Email"
+              >
+                <div className="absolute inset-0 rounded-full pointer-events-none p-[1.5px]" style={silverBorderMask} />
+                <Mail className="w-6 h-6 text-white relative z-10" />
+              </a>
             )}
           </div>
         )}
 
         {/* Profile Avatar */}
-        <div className="w-32 h-32 rounded-full p-[2px] mb-6 flex-shrink-0 shadow-2xl" style={{ background: silverGradient }}>
-          <div className="w-full h-full rounded-full overflow-hidden bg-black/20 backdrop-blur-md">
+        <div className="relative w-32 h-32 rounded-full mb-6 flex-shrink-0 shadow-2xl">
+          <div className="absolute inset-0 rounded-full pointer-events-none p-[2px] z-20" style={silverBorderMask} />
+          <div className="w-full h-full rounded-full overflow-hidden bg-black/20 backdrop-blur-md relative z-10">
             {profile.profilePhotoUrl ? (
               <img 
                 src={profile.profilePhotoUrl} 
@@ -145,17 +149,19 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
         {socialLinks.length > 0 && (
           <div className="flex flex-wrap items-center justify-center gap-3 w-full mb-4">
             {socialLinks.map((link, idx) => (
-              <div key={idx} className="w-12 h-12 rounded-full p-[1.5px]" style={{ background: silverGradient }}>
-                <a
-                  href={link.href!}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={link.label}
-                  className="w-full h-full rounded-full bg-black/20 backdrop-blur-sm flex items-center justify-center hover:bg-black/40 transition-colors"
-                >
+              <a
+                key={idx}
+                href={link.href!}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={link.label}
+                className="relative w-12 h-12 rounded-full bg-black/20 backdrop-blur-sm flex items-center justify-center hover:bg-black/40 transition-colors"
+              >
+                <div className="absolute inset-0 rounded-full pointer-events-none p-[1.5px]" style={silverBorderMask} />
+                <div className="relative z-10 flex items-center justify-center w-full h-full">
                   {link.icon}
-                </a>
-              </div>
+                </div>
+              </a>
             ))}
           </div>
         )}
@@ -193,14 +199,13 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
         {/* Company Logo — sits below social/action links */}
         {profile.companyLogoUrl && (
           <div className="mt-6 flex justify-center">
-            <div className="w-12 h-12 rounded-full p-[1.5px] shadow-lg" style={{ background: silverGradient }}>
-              <div className="w-full h-full rounded-full bg-white p-0.5 flex items-center justify-center overflow-hidden">
-                <img 
-                  src={profile.companyLogoUrl} 
-                  alt={profile.companyName || 'Company Logo'}
-                  className="w-full h-full rounded-full object-contain"
-                />
-              </div>
+            <div className="relative w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-lg p-0.5">
+              <div className="absolute inset-0 rounded-full pointer-events-none p-[1.5px] z-20" style={silverBorderMask} />
+              <img 
+                src={profile.companyLogoUrl} 
+                alt={profile.companyName || 'Company Logo'}
+                className="w-full h-full rounded-full object-contain relative z-10"
+              />
             </div>
           </div>
         )}
