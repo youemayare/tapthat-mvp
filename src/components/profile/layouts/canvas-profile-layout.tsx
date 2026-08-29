@@ -70,34 +70,34 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
       <div className="relative z-10 flex-1 flex flex-col items-center w-full max-w-md mx-auto px-6 overflow-hidden">
         
         {/* Top spacer — controls how far down the content sits */}
-        <div className="flex-[1.2] shrink-0 min-h-0" />
+        <div className="flex-[0.3] shrink-0 min-h-0" />
 
         {/* Phone & Email */}
         {(profile.phone || profile.email) && (
-          <div className="flex items-center gap-4 mb-5">
+          <div className="flex items-center gap-4 mb-8">
             {profile.phone && (
               <a 
                 href={'tel:' + profile.phone}
-                className="w-12 h-12 rounded-full border border-white/30 bg-black/30 backdrop-blur-md flex items-center justify-center hover:bg-black/50 transition-colors"
+                className="w-14 h-14 rounded-full border border-white/30 bg-black/30 backdrop-blur-md flex items-center justify-center hover:bg-black/50 transition-colors"
                 aria-label="Call"
               >
-                <Phone className="w-5 h-5 text-white" />
+                <Phone className="w-6 h-6 text-white" />
               </a>
             )}
             {profile.email && (
               <a 
                 href={'mailto:' + profile.email}
-                className="w-12 h-12 rounded-full border border-white/30 bg-black/30 backdrop-blur-md flex items-center justify-center hover:bg-black/50 transition-colors"
+                className="w-14 h-14 rounded-full border border-white/30 bg-black/30 backdrop-blur-md flex items-center justify-center hover:bg-black/50 transition-colors"
                 aria-label="Email"
               >
-                <Mail className="w-5 h-5 text-white" />
+                <Mail className="w-6 h-6 text-white" />
               </a>
             )}
           </div>
         )}
 
         {/* Profile Avatar */}
-        <div className="w-28 h-28 rounded-full border-2 border-white/20 overflow-hidden mb-4 bg-black/20 backdrop-blur-md shadow-2xl flex-shrink-0">
+        <div className="w-32 h-32 rounded-full border-2 border-white/20 overflow-hidden mb-6 bg-black/20 backdrop-blur-md shadow-2xl flex-shrink-0">
           {profile.profilePhotoUrl ? (
             <img 
               src={profile.profilePhotoUrl} 
@@ -106,28 +106,28 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
             />
           ) : (
             <div className="w-full h-full bg-gradient-to-br from-zinc-800 to-zinc-950 flex items-center justify-center">
-              <span className="text-3xl font-bold text-white/20">{initials}</span>
+              <span className="text-4xl font-bold text-white/20">{initials}</span>
             </div>
           )}
         </div>
 
         {/* Name / Title / Company / Bio */}
-        <div className="text-center mb-5 w-full">
-          <h1 className="text-2xl font-bold tracking-tight text-white mb-1 drop-shadow-md">
+        <div className="text-center mb-10 w-full">
+          <h1 className="text-3xl font-bold tracking-tight text-white mb-2 drop-shadow-md">
             {fullName}
           </h1>
           {profile.jobTitle && (
-            <p className="text-base text-white/80 font-medium drop-shadow-md mb-0.5">
+            <p className="text-lg text-white/80 font-medium drop-shadow-md mb-1">
               {profile.jobTitle}
             </p>
           )}
           {profile.companyName && (
-            <p className="text-sm text-white/60 drop-shadow-md max-w-xs mx-auto">
+            <p className="text-base text-white/60 drop-shadow-md max-w-xs mx-auto">
               {profile.companyName}
             </p>
           )}
           {profile.bio && (
-            <p className="mt-2 text-xs text-white/70 leading-relaxed max-w-xs mx-auto line-clamp-3">
+            <p className="mt-4 text-sm text-white/70 leading-relaxed max-w-xs mx-auto">
               {profile.bio}
             </p>
           )}
@@ -135,7 +135,7 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
 
         {/* Social Links Row */}
         {socialLinks.length > 0 && (
-          <div className="flex flex-wrap items-center justify-center gap-2 w-full mb-3">
+          <div className="flex flex-wrap items-center justify-center gap-3 w-full mb-4">
             {socialLinks.map((link, idx) => (
               <a
                 key={idx}
@@ -143,7 +143,7 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={link.label}
-                className="w-10 h-10 rounded-full border border-white/20 bg-black/20 backdrop-blur-sm flex items-center justify-center hover:bg-black/40 transition-colors"
+                className="w-12 h-12 rounded-full border border-white/20 bg-black/20 backdrop-blur-sm flex items-center justify-center hover:bg-black/40 transition-colors"
               >
                 {link.icon}
               </a>
