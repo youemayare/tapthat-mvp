@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import type { Profile } from '@/lib/db/schema';
-import { buildWhatsAppUrl } from '@/lib/utils';
+import { buildWhatsAppUrl, getFontClass } from '@/lib/utils';
 import {
   Phone, Mail, Globe, Download,
   FileText,
@@ -60,7 +60,7 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
 
   return (
     <div 
-      className="h-[100dvh] w-full flex flex-col relative text-white selection:bg-white/30 overflow-hidden"
+      className={`h-[100dvh] w-full flex flex-col relative text-white selection:bg-white/30 overflow-hidden ${getFontClass(profile.layoutFont)}`}
       style={{ backgroundColor: bgColor }}
     >
       {/* Background Image */}

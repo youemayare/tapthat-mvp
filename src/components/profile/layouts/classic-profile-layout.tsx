@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import type { Profile } from '@/lib/db/schema';
-import { buildWhatsAppUrl } from '@/lib/utils';
+import { buildWhatsAppUrl, getFontClass } from '@/lib/utils';
 import {
   Phone, Mail, Globe, Download,
   MessageCircle, Contact, FileText, ExternalLink,
@@ -42,7 +42,7 @@ export function ClassicProfileLayout({ profile, cardUid }: Props) {
   const { isOwner, resolved } = viewerState;
 
   return (
-    <main className="min-h-screen bg-background flex flex-col items-center justify-start px-4 py-10 pb-24 relative">
+    <main className={`min-h-screen bg-background flex flex-col items-center justify-start px-4 py-10 pb-24 relative ${getFontClass(profile.layoutFont)}`}>
       {/* Home Dashboard link if logged in */}
       {viewerState.isLoggedIn && !viewerState.isOwner && (
         <div className="absolute top-4 left-4 z-50">

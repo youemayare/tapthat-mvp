@@ -28,6 +28,7 @@ export const profiles = pgTable('profiles', {
   profileLayout: text('profile_layout').$type<'classic' | 'identity' | 'canvas'>().notNull().default('classic'),
   layoutBackgroundColor: text('layout_background_color'),
   layoutBackgroundImageUrl: text('layout_background_image_url'),
+  layoutFont: text('layout_font').default('geist'),
 
   // Media (stored in Cloudflare R2)
   profilePhotoUrl: text('profile_photo_url'),

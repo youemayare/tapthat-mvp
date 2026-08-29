@@ -6,6 +6,17 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
+export function getFontClass(font?: string | null) {
+  switch (font) {
+    case 'playfair': return 'font-playfair';
+    case 'orbitron': return 'font-orbitron';
+    case 'courier': return 'font-courier';
+    case 'archivo': return 'font-archivo';
+    case 'geist':
+    default: return 'font-geist';
+  }
+}
+
 /** Build a WhatsApp deep link */
 export function buildWhatsAppUrl(phone: string, message?: string): string {
   const cleaned = phone.replace(/[^\d+]/g, '');

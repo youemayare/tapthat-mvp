@@ -1,4 +1,4 @@
-﻿import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
 
 import { withRlsUser } from '@/lib/db/auth-wrapper';
@@ -32,6 +32,7 @@ const profileSchema = z.object({
   profileLayout: z.enum(['classic', 'identity', 'canvas']).default('classic').optional(),
   layoutBackgroundColor: z.string().optional().nullable().or(z.literal('')),
   layoutBackgroundImageUrl: z.string().optional().nullable().or(z.literal('')),
+  layoutFont: z.string().optional().nullable().or(z.literal('')),
   // Google Wallet Appearance
   walletThemeColor: z
     .string()

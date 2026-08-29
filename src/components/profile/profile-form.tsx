@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 import type { Profile } from '@/lib/db/schema';
 import { ImageUpload } from '@/components/profile/image-upload';
@@ -54,6 +55,7 @@ const profileSchema = z.object({
     profileLayout: z.enum(['classic', 'identity', 'canvas']).default('classic'),
     layoutBackgroundColor: z.string().optional().nullable().or(z.literal('')),
     layoutBackgroundImageUrl: z.string().optional().nullable().or(z.literal('')),
+    layoutFont: z.string().optional().nullable().or(z.literal('')),
   // Google Wallet Appearance
   walletThemeColor: z
     .string()
@@ -106,6 +108,7 @@ export function ProfileForm({ initialData, isMultiProfile }: ProfileFormProps) {
       profileLayout: initialData?.profileLayout || 'classic',
         layoutBackgroundColor: initialData?.layoutBackgroundColor || '',
         layoutBackgroundImageUrl: initialData?.layoutBackgroundImageUrl || '',
+        layoutFont: initialData?.layoutFont || 'geist',
       label: initialData?.label || '',
       walletThemeColor: initialData?.walletThemeColor || '',
       walletHeroImageUrl: initialData?.walletHeroImageUrl || '',
@@ -119,6 +122,7 @@ export function ProfileForm({ initialData, isMultiProfile }: ProfileFormProps) {
     const profileLayout = useWatch({ control, name: 'profileLayout' });
     const layoutBackgroundColor = useWatch({ control, name: 'layoutBackgroundColor' });
     const layoutBackgroundImageUrl = useWatch({ control, name: 'layoutBackgroundImageUrl' });
+    const layoutFont = useWatch({ control, name: 'layoutFont' });
   const walletThemeColor = useWatch({ control, name: 'walletThemeColor' });
   const walletHeroImageUrl = useWatch({ control, name: 'walletHeroImageUrl' });
   const firstName = useWatch({ control, name: 'firstName' });
@@ -226,12 +230,12 @@ export function ProfileForm({ initialData, isMultiProfile }: ProfileFormProps) {
               ? (initialData?.label ?? 'Edit Profile') 
               : 'My Profile'}
           </h1>
-          <p className="text-muted-foreground mt-1">
+          <p className="text-muted-foreground mt-1 text-sm max-w-xl leading-relaxed">
             {activeTab === 'wallet' 
               ? ''
               : (isMultiProfile 
-                  ? 'This is what people see when you tap your card.'
-                  : 'Manage your professional profile â€” this is what people see when they tap your card.')}
+                  ? 'This is what people see when you tap your card. You can preview what your profile looks like using the preview button at the bottom.'
+                  : 'Manage your professional profile — this is what people see when they tap your card. You can preview what your profile looks like using the preview button at the bottom.')}
           </p>
         </div>
       </div>
@@ -262,7 +266,30 @@ export function ProfileForm({ initialData, isMultiProfile }: ProfileFormProps) {
                   <span className="text-sm text-muted-foreground">Customizable background</span>
                 </div>
               </label>
-            </div>
+              </div>
+
+              <div className="mt-8 space-y-4">
+                <h3 className="text-lg font-medium text-foreground">Typography</h3>
+                <div className="space-y-2">
+                  <Label>Profile Font</Label>
+                  <Select
+                    value={layoutFont || 'geist'}
+                    onValueChange={(val) => setValue('layoutFont', val, { shouldDirty: true })}
+                  >
+                    <SelectTrigger className="w-full sm:w-[300px]">
+                      <SelectValue placeholder="Select a font" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="geist">Geist (Minimal & Modern)</SelectItem>
+                      <SelectItem value="playfair">Playfair Display (Elegant)</SelectItem>
+                      <SelectItem value="orbitron">Orbitron (Futuristic)</SelectItem>
+                      <SelectItem value="courier">Courier Prime (Typewriter)</SelectItem>
+                      <SelectItem value="archivo">Archivo Black (Bold)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground">This font will only be applied to your public profile.</p>
+                </div>
+              </div>
 
             {profileLayout === 'canvas' && (
               <div className="mt-6 space-y-6 pt-6 border-t border-border">

@@ -1,0 +1,1 @@
+ALTER TABLE "profiles" ADD COLUMN "layout_font" text DEFAULT 'geist';

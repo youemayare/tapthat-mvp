@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import type { Profile } from '@/lib/db/schema';
-import { buildWhatsAppUrl } from '@/lib/utils';
+import { buildWhatsAppUrl, getFontClass } from '@/lib/utils';
 import {
   Phone, Mail, Globe, Download,
   MessageCircle, FileText,
@@ -48,7 +48,7 @@ export function IdentityProfileLayout({ profile, cardUid }: Props) {
   const { isOwner, resolved } = viewerState;
 
   return (
-    <div className="min-h-[100dvh] bg-zinc-950 text-white flex flex-col relative w-full overflow-x-hidden">
+    <div className={`min-h-[100dvh] bg-zinc-950 text-white flex flex-col relative w-full overflow-x-hidden ${getFontClass(profile.layoutFont)}`}>
       {/* Home link */}
       {viewerState.isLoggedIn && !viewerState.isOwner && (
         <div className="absolute top-4 left-4 z-50">

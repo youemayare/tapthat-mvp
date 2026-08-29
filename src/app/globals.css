@@ -8,6 +8,11 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans);
+  --font-geist: var(--font-sans);
+  --font-playfair: var(--font-playfair);
+  --font-orbitron: var(--font-orbitron);
+  --font-courier: var(--font-courier);
+  --font-archivo: var(--font-archivo);
   --font-mono: var(--font-geist-mono);
   --font-heading: var(--font-sans);
   --color-sidebar-ring: var(--sidebar-ring);
