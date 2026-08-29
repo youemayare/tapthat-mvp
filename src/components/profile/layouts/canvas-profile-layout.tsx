@@ -6,7 +6,7 @@ import { buildWhatsAppUrl } from '@/lib/utils';
 import {
   Phone, Mail, Globe, Download,
   MessageCircle, FileText,
-  UserPlus
+  UserPlus, UserCheck
 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
@@ -22,6 +22,7 @@ interface Props {
 export function CanvasProfileLayout({ profile, cardUid }: Props) {
   const {
     viewerState,
+    saved,
     savingNote,
     showNoteModal,
     noteContent,
@@ -156,12 +157,26 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
               Save Contact
             </button>
             <button
-              onClick={() => setShowNoteModal(true)}
-              aria-label="Save to My Connections"
-              className="flex items-center gap-2 px-5 py-2.5 rounded-full border border-white/30 bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-colors text-white text-sm font-medium"
+              onClick={saved ? undefined : () => setShowNoteModal(true)}
+              aria-label={saved ? 'Already connected' : 'Save to My Connections'}
+              disabled={saved}
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-full border text-sm font-medium transition-colors ${
+                saved
+                  ? 'border-green-400/40 bg-green-400/15 text-green-300 cursor-default'
+                  : 'border-white/30 bg-white/10 backdrop-blur-sm hover:bg-white/20 text-white'
+              }`}
             >
-              <UserPlus className="w-4 h-4" />
-              Connect
+              {saved ? (
+                <>
+                  <UserCheck className="w-4 h-4" />
+                  Connected
+                </>
+              ) : (
+                <>
+                  <UserPlus className="w-4 h-4" />
+                  Connect
+                </>
+              )}
             </button>
           </div>
         )}
