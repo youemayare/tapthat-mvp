@@ -61,7 +61,7 @@ export function IdentityProfileLayout({ profile, cardUid }: Props) {
 
       {/* Theme Toggle Top Right */}
       <div className="absolute top-4 right-4 z-50">
-        <ThemeToggle />
+        <ThemeToggle className="rounded-full bg-background/40 backdrop-blur-md" />
       </div>
 
       {/* Hero Section */}

@@ -74,8 +74,8 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
       )}
 
       {/* Theme Toggle Top Right */}
-      <div className="absolute top-4 right-4 z-50 [&_button]:bg-black/40 [&_button]:backdrop-blur-md [&_button]:border-white/10 [&_button]:text-white [&_button:hover]:bg-black/60">
-        <ThemeToggle />
+      <div className="absolute top-4 right-4 z-50">
+        <ThemeToggle className="bg-black/40 backdrop-blur-md border-white/10 text-white hover:bg-black/60 rounded-full" />
       </div>
       {/* Background Image */}
       {profile.layoutBackgroundImageUrl && (
