@@ -14,6 +14,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { FaLinkedin, FaInstagram } from 'react-icons/fa';
 import { useProfileActions } from '@/components/profile/use-profile-actions';
+import { ThemeToggle } from '@/components/theme-toggle';
 
 interface Props {
   profile: Partial<Profile> & { id: string; userId: string };
@@ -57,6 +58,11 @@ export function IdentityProfileLayout({ profile, cardUid }: Props) {
           </Link>
         </div>
       )}
+
+      {/* Theme Toggle Top Right */}
+      <div className="absolute top-4 right-4 z-50">
+        <ThemeToggle />
+      </div>
 
       {/* Hero Section */}
       <div 

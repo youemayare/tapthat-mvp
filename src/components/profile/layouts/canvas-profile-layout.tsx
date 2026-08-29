@@ -6,13 +6,14 @@ import { buildWhatsAppUrl, getFontClass } from '@/lib/utils';
 import {
   Phone, Mail, Globe, Download,
   FileText,
-  UserPlus, UserCheck
+  UserPlus, UserCheck, Home
 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { FaLinkedin, FaInstagram, FaWhatsapp } from 'react-icons/fa';
 import { useProfileActions } from '@/components/profile/use-profile-actions';
+import { ThemeToggle } from '@/components/theme-toggle';
 
 interface Props {
   profile: Partial<Profile> & { id: string; userId: string };
@@ -63,6 +64,19 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
       className="h-[100dvh] w-full flex flex-col relative text-white selection:bg-white/30 overflow-hidden"
       style={{ backgroundColor: bgColor }}
     >
+      {/* Home link */}
+      {viewerState.isLoggedIn && !viewerState.isOwner && (
+        <div className="absolute top-4 left-4 z-50">
+          <Link href="/dashboard" className="w-10 h-10 bg-black/40 backdrop-blur-md border border-white/10 rounded-full flex items-center justify-center text-white hover:bg-black/60 transition-colors shadow-sm">
+            <Home className="w-5 h-5" />
+          </Link>
+        </div>
+      )}
+
+      {/* Theme Toggle Top Right */}
+      <div className="absolute top-4 right-4 z-50 [&_button]:bg-black/40 [&_button]:backdrop-blur-md [&_button]:border-white/10 [&_button]:text-white [&_button:hover]:bg-black/60">
+        <ThemeToggle />
+      </div>
       {/* Background Image */}
       {profile.layoutBackgroundImageUrl && (
         <div 
