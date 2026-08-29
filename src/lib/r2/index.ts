@@ -1,4 +1,4 @@
-import {
+﻿import {
   S3Client,
   PutObjectCommand,
   DeleteObjectCommand,
@@ -20,7 +20,7 @@ const client = new S3Client({
 const BUCKET = process.env.R2_BUCKET_NAME!;
 const PUBLIC_URL = process.env.NEXT_PUBLIC_R2_PUBLIC_URL!;
 
-/** Generate a presigned URL for direct browser → R2 uploads (PUT). */
+/** Generate a presigned URL for direct browser â†’ R2 uploads (PUT). */
 export async function getUploadUrl(
   key: string,
   contentType: string,
@@ -63,10 +63,11 @@ export function getPublicUrl(key: string): string {
  */
 export function buildStorageKey(
   userId: string,
-  type: 'avatar' | 'logo' | 'cv' | 'wallet_hero_image',
+  type: 'avatar' | 'logo' | 'cv' | 'wallet_hero_image' | 'background',
   filename: string
 ): string {
   const ext = filename.split('.').pop()?.toLowerCase() ?? 'bin';
   const id = crypto.randomUUID();
   return `${userId}/${type}/${id}.${ext}`;
 }
+

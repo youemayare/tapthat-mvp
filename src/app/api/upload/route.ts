@@ -1,4 +1,4 @@
-/**
+﻿/**
  * POST /api/upload
  *
  * Server-buffered upload route (interim implementation; P-1 partially addressed).
@@ -13,9 +13,9 @@
  *  7. PDF validation path (CVs only)
  *  8. Random object key generation (server-controlled, not user-supplied)
  *  9. Upload to R2 (or local fallback in dev)
- * 10. Return only the public URL — never expose bucket, key structure, or credentials
+ * 10. Return only the public URL â€” never expose bucket, key structure, or credentials
  *
- * Error responses are generic ("Upload failed") — detailed diagnostics are
+ * Error responses are generic ("Upload failed") â€” detailed diagnostics are
  * logged server-side with a correlation ID, never returned to the client (S-1).
  *
  * Follow-up: migrate to presigned direct-to-R2 uploads for P-1 full fix.
@@ -36,7 +36,7 @@ import { logError, generateRequestId } from '@/lib/security';
 
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024;   // 5 MB
 const MAX_PDF_SIZE   = 10 * 1024 * 1024;  // 10 MB for CVs
-const MAX_IMAGE_DIMENSION = 1200;          // px — max width/height after resize
+const MAX_IMAGE_DIMENSION = 1200;          // px â€” max width/height after resize
 
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'] as const;
 const ALLOWED_PDF_TYPE    = 'application/pdf';
@@ -45,7 +45,7 @@ export async function POST(req: Request) {
   const requestId = generateRequestId();
 
   try {
-    // ── 1. Authentication ──────────────────────────────────────────────────────
+    // â”€â”€ 1. Authentication â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const supabase = await createClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
 
@@ -53,7 +53,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // ── 2. Rate limit (per IP; fail-closed without Redis) ──────────────────────
+    // â”€â”€ 2. Rate limit (per IP; fail-closed without Redis) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? '0.0.0.0';
     const { uploadRatelimit } = await import('@/lib/ratelimit');
     const { success: allowed, reset } = await uploadRatelimit.limit(ip);
@@ -67,7 +67,7 @@ export async function POST(req: Request) {
       );
     }
 
-    // ── 3. Parse and validate form data ───────────────────────────────────────
+    // â”€â”€ 3. Parse and validate form data â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const formData = await req.formData();
     const file = formData.get('file') as File | null;
     const type = formData.get('type') as string | null;
@@ -76,7 +76,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Missing file or type' }, { status: 400 });
     }
 
-    const isImage = type === 'avatar' || type === 'logo';
+    const isImage = type === 'avatar' || type === 'logo' || type === 'background';
     const isWalletHero = type === 'wallet_hero_image';
     const isPdf   = type === 'cv';
 
@@ -84,7 +84,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Invalid upload type' }, { status: 400 });
     }
 
-    // ── 4. Size limit BEFORE buffering ────────────────────────────────────────
+    // â”€â”€ 4. Size limit BEFORE buffering â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const maxSize = isPdf ? MAX_PDF_SIZE : isWalletHero ? 2 * 1024 * 1024 : MAX_IMAGE_SIZE;
     if (file.size > maxSize) {
       return NextResponse.json(
@@ -95,7 +95,7 @@ export async function POST(req: Request) {
 
     const rawBuffer = Buffer.from(await file.arrayBuffer());
 
-    // ── 5. Magic-byte validation ───────────────────────────────────────────────
+    // â”€â”€ 5. Magic-byte validation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const fileTypeResult = await fileTypeFromBuffer(rawBuffer);
     if (!fileTypeResult) {
       return NextResponse.json({ error: 'Could not determine file type' }, { status: 400 });
@@ -114,15 +114,15 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Invalid image type' }, { status: 400 });
     }
 
-    // ── 6. Image processing (resize + WebP conversion) ─────────────────────────
+    // â”€â”€ 6. Image processing (resize + WebP conversion) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     // CVs skip this step entirely and are stored as-is.
-    // Wallet hero images: resize to 1032×812 max, preserve PNG (no WebP conversion).
+    // Wallet hero images: resize to 1032Ã—812 max, preserve PNG (no WebP conversion).
     let processedBuffer: Buffer = rawBuffer;
     let finalMime: string = fileTypeResult.mime;
     let finalExt: string = fileTypeResult.ext;
 
     if (isWalletHero) {
-      // Resize to max 1032×812 (5:4), keep native format (PNG preferred, JPEG allowed)
+      // Resize to max 1032Ã—812 (5:4), keep native format (PNG preferred, JPEG allowed)
       const isPng = fileTypeResult.mime === 'image/png';
       processedBuffer = await sharp(rawBuffer)
         .resize(1032, 812, { fit: 'inside', withoutEnlargement: true })
@@ -142,12 +142,12 @@ export async function POST(req: Request) {
       finalExt  = 'webp';
     }
 
-    // ── 7. Server-generated object key ────────────────────────────────────────
+    // â”€â”€ 7. Server-generated object key â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     // The client never supplies or influences the key.
     const safeFilename = `${crypto.randomBytes(16).toString('hex')}.${finalExt}`;
-    const key = buildStorageKey(user.id, type as 'avatar' | 'logo' | 'cv' | 'wallet_hero_image', safeFilename);
+    const key = buildStorageKey(user.id, type as 'avatar' | 'logo' | 'cv' | 'wallet_hero_image' | 'background', safeFilename);
 
-    // ── 8. Local development fallback ─────────────────────────────────────────
+    // â”€â”€ 8. Local development fallback â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     if (!process.env.R2_ACCESS_KEY_ID || process.env.R2_ACCESS_KEY_ID.includes('your-r2')) {
       if (process.env.NODE_ENV === 'production') {
         return NextResponse.json(
@@ -171,7 +171,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ publicUrl: `/uploads/${key}`, key });
     }
 
-    // ── 9. Upload to R2 ────────────────────────────────────────────────────────
+    // â”€â”€ 9. Upload to R2 â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const R2_ENDPOINT = `https://${process.env.CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com`;
     const s3Client = new S3Client({
       region: 'auto',
@@ -200,3 +200,4 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Upload failed' }, { status: 500 });
   }
 }
+

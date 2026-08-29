@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+﻿import { NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
 
 import { withRlsUser } from '@/lib/db/auth-wrapper';
@@ -29,7 +29,9 @@ const profileSchema = z.object({
   instagramUrl: z.string().url().optional().nullable().or(z.literal('')),
   isPublished: z.boolean().default(false),
   label: z.string().max(50).optional().nullable(),
-  profileLayout: z.enum(['classic', 'identity']).default('classic').optional(),
+  profileLayout: z.enum(['classic', 'identity', 'canvas']).default('classic').optional(),
+  layoutBackgroundColor: z.string().optional().nullable().or(z.literal('')),
+  layoutBackgroundImageUrl: z.string().optional().nullable().or(z.literal('')),
   // Google Wallet Appearance
   walletThemeColor: z
     .string()
@@ -91,7 +93,7 @@ export async function PUT(req: Request) {
       // Check if profile exists
       const existing = await tx.select({ id: profiles.id }).from(profiles).where(eq(profiles.userId, user.id)).limit(1);
 
-      // ── Multi-profile: edit a specific profile by ID ──────────────────────────
+      // â”€â”€ Multi-profile: edit a specific profile by ID â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
       // Only triggered when the flag is on AND a profileId is explicitly provided.
       // Existing single-profile code path (no profileId) is completely unchanged.
       if (isMultiProfileEnabled() && body.profileId) {
@@ -112,7 +114,7 @@ export async function PUT(req: Request) {
         return updated[0];
       }
 
-      // ── Single-profile mode (legacy fallback) ─────────────────────────────────
+      // â”€â”€ Single-profile mode (legacy fallback) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
       if (existing.length > 0) {
         // Update
         const updated = await tx.update(profiles)
@@ -151,7 +153,7 @@ export async function PUT(req: Request) {
     revalidatePath(`/p/[slug]`, 'page');
 
     // Non-blocking: update the Google Wallet pass object if it exists.
-    // We fire and forget — a failure here must never break the profile save response.
+    // We fire and forget â€” a failure here must never break the profile save response.
     if (result) {
       const { patchGoogleWalletObject } = await import('@/lib/wallet/google');
       const fullName = [result.firstName, result.lastName].filter(Boolean).join(' ') || 'My Profile';
@@ -251,4 +253,5 @@ export async function DELETE(req: Request) {
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
+
 
