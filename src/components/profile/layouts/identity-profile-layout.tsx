@@ -48,11 +48,11 @@ export function IdentityProfileLayout({ profile, cardUid }: Props) {
   const { isOwner, resolved } = viewerState;
 
   return (
-    <div className="min-h-[100dvh] bg-zinc-950 text-white flex flex-col relative w-full overflow-x-hidden">
+    <div className="min-h-[100dvh] bg-background text-foreground flex flex-col relative w-full overflow-x-hidden">
       {/* Home link */}
       {viewerState.isLoggedIn && !viewerState.isOwner && (
         <div className="absolute top-4 left-4 z-50">
-          <Link href="/dashboard" className="w-10 h-10 bg-black/40 backdrop-blur-md border border-white/10 rounded-full flex items-center justify-center text-white hover:bg-black/60 transition-colors shadow-sm">
+          <Link href="/dashboard" className="w-10 h-10 bg-background/40 backdrop-blur-md border border-border rounded-full flex items-center justify-center text-foreground hover:bg-background/60 transition-colors shadow-sm">
             <Home className="w-5 h-5" />
           </Link>
         </div>
@@ -70,23 +70,23 @@ export function IdentityProfileLayout({ profile, cardUid }: Props) {
             className="w-full h-full object-cover"
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-zinc-800 to-zinc-950 flex items-center justify-center">
-            <span className="text-8xl font-bold text-white/10">{initials}</span>
+          <div className="w-full h-full bg-gradient-to-br from-muted to-background flex items-center justify-center">
+            <span className="text-8xl font-bold text-muted-foreground/20">{initials}</span>
           </div>
         )}
 
         {/* Gradient Overlay for Text Contrast */}
-        <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/60 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
 
         {/* Identity Block (Bottom of Hero) */}
         <div className="absolute bottom-0 left-0 w-full p-6 pb-8 flex flex-col items-center text-center">
-          <h1 className={`text-4xl font-extrabold tracking-tight text-white mb-1 drop-shadow-md ${getFontClass(profile.layoutFont)}`}>
+          <h1 className={`text-4xl font-extrabold tracking-tight text-foreground mb-1 drop-shadow-md ${getFontClass(profile.layoutFont)}`}>
             {fullName}
           </h1>
           {(profile.jobTitle || profile.companyName) && (
             <div className="flex flex-col items-center gap-1.5 mt-1 drop-shadow-md max-w-sm">
               {profile.jobTitle && (
-                <span className={`text-lg text-zinc-300 font-medium ${getFontClass(profile.layoutFont)}`}>{profile.jobTitle}</span>
+                <span className={`text-lg text-muted-foreground font-medium ${getFontClass(profile.layoutFont)}`}>{profile.jobTitle}</span>
               )}
               {profile.companyName && (
                 <div className="flex items-center justify-center gap-2">
@@ -94,10 +94,10 @@ export function IdentityProfileLayout({ profile, cardUid }: Props) {
                     <img 
                       src={profile.companyLogoUrl} 
                       alt={profile.companyName || 'Company Logo'}
-                      className="w-6 h-6 rounded-full object-contain bg-white p-0.5 border border-white/20 shrink-0"
+                      className="w-6 h-6 rounded-full object-contain bg-background p-0.5 border border-border shrink-0"
                     />
                   )}
-                  <span className={`text-base text-zinc-300 font-medium ${getFontClass(profile.layoutFont)}`}>{profile.companyName}</span>
+                  <span className={`text-base text-muted-foreground font-medium ${getFontClass(profile.layoutFont)}`}>{profile.companyName}</span>
                 </div>
               )}
             </div>
@@ -110,7 +110,7 @@ export function IdentityProfileLayout({ profile, cardUid }: Props) {
         {/* Bio */}
         {profile.bio && (
           <div className="text-center">
-            <p className="text-zinc-300 text-sm leading-relaxed">{profile.bio}</p>
+            <p className="text-muted-foreground text-sm leading-relaxed">{profile.bio}</p>
           </div>
         )}
 
@@ -119,7 +119,7 @@ export function IdentityProfileLayout({ profile, cardUid }: Props) {
           <Button 
             size="lg" 
             onClick={handleSaveContact} 
-            className="w-full rounded-2xl h-14 text-base font-bold bg-white text-zinc-950 hover:bg-zinc-200 transition-colors"
+            className="w-full rounded-2xl h-14 text-base font-bold bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
           >
             <Download className="w-5 h-5 mr-2" />
             Save Contact
@@ -131,7 +131,7 @@ export function IdentityProfileLayout({ profile, cardUid }: Props) {
               variant="outline"
               onClick={handleToggleSave}
               disabled={saving}
-              className="w-full rounded-2xl h-14 text-base font-semibold border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white transition-colors"
+              className="w-full rounded-2xl h-14 text-base font-semibold border-border bg-card text-card-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
             >
               {saving ? (
                 'Updating...'
@@ -142,7 +142,7 @@ export function IdentityProfileLayout({ profile, cardUid }: Props) {
                 </>
               ) : (
                 <>
-                  <BookmarkPlus className="w-5 h-5 mr-2 text-zinc-300" />
+                  <BookmarkPlus className="w-5 h-5 mr-2 text-muted-foreground" />
                   Save to My Connections
                 </>
               )}
@@ -152,7 +152,7 @@ export function IdentityProfileLayout({ profile, cardUid }: Props) {
           {resolved && !isOwner && !viewerState.isLoggedIn && !viewerState.alreadySaved && (
             <Link 
               href={`/signup?redirect=/p/${profile.slug || profile.id}`}
-              className="w-full flex items-center justify-center gap-2 h-14 rounded-2xl bg-zinc-900 border border-white/10 text-white font-medium hover:bg-zinc-800 transition-colors"
+              className="w-full flex items-center justify-center gap-2 h-14 rounded-2xl bg-card border border-border text-card-foreground font-medium hover:bg-accent transition-colors"
             >
               <UserPlus className="w-5 h-5 text-brand-400" />
               Create your own profile
@@ -163,26 +163,26 @@ export function IdentityProfileLayout({ profile, cardUid }: Props) {
         {/* Links / Socials */}
         <div className="grid grid-cols-2 gap-3 mt-4">
           {profile.phone && (
-            <a href={`tel:${profile.phone}`} className="flex flex-col items-center justify-center gap-2 p-4 rounded-2xl bg-zinc-900 border border-white/10 hover:bg-zinc-800 transition-colors group text-white">
-              <Phone className="w-6 h-6 text-zinc-400 group-hover:text-white transition-colors" />
+            <a href={`tel:${profile.phone}`} className="flex flex-col items-center justify-center gap-2 p-4 rounded-2xl bg-card border border-border hover:bg-accent transition-colors group text-card-foreground">
+              <Phone className="w-6 h-6 text-muted-foreground group-hover:text-foreground transition-colors" />
               <span className="text-xs font-medium">Call</span>
             </a>
           )}
           {profile.email && (
-            <a href={`mailto:${profile.email}`} className="flex flex-col items-center justify-center gap-2 p-4 rounded-2xl bg-zinc-900 border border-white/10 hover:bg-zinc-800 transition-colors group text-white">
-              <Mail className="w-6 h-6 text-zinc-400 group-hover:text-white transition-colors" />
+            <a href={`mailto:${profile.email}`} className="flex flex-col items-center justify-center gap-2 p-4 rounded-2xl bg-card border border-border hover:bg-accent transition-colors group text-card-foreground">
+              <Mail className="w-6 h-6 text-muted-foreground group-hover:text-foreground transition-colors" />
               <span className="text-xs font-medium">Email</span>
             </a>
           )}
           {profile.whatsapp && (
-            <a href={buildWhatsAppUrl(profile.whatsapp)} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center justify-center gap-2 p-4 rounded-2xl bg-zinc-900 border border-white/10 hover:bg-zinc-800 transition-colors group text-white">
-              <FaWhatsapp className="w-6 h-6 text-zinc-400 group-hover:text-white transition-colors" />
+            <a href={buildWhatsAppUrl(profile.whatsapp)} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center justify-center gap-2 p-4 rounded-2xl bg-card border border-border hover:bg-accent transition-colors group text-card-foreground">
+              <FaWhatsapp className="w-6 h-6 text-muted-foreground group-hover:text-foreground transition-colors" />
               <span className="text-xs font-medium">WhatsApp</span>
             </a>
           )}
           {profile.websiteUrl && (
-            <a href={profile.websiteUrl} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center justify-center gap-2 p-4 rounded-2xl bg-zinc-900 border border-white/10 hover:bg-zinc-800 transition-colors group text-white">
-              <Globe className="w-6 h-6 text-zinc-400 group-hover:text-white transition-colors" />
+            <a href={profile.websiteUrl} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center justify-center gap-2 p-4 rounded-2xl bg-card border border-border hover:bg-accent transition-colors group text-card-foreground">
+              <Globe className="w-6 h-6 text-muted-foreground group-hover:text-foreground transition-colors" />
               <span className="text-xs font-medium">Website</span>
             </a>
           )}
@@ -192,12 +192,12 @@ export function IdentityProfileLayout({ profile, cardUid }: Props) {
         {(profile.linkedinUrl || profile.instagramUrl) && (
           <div className="flex justify-center gap-4 mt-2">
             {profile.linkedinUrl && (
-              <a href={profile.linkedinUrl} target="_blank" rel="noopener noreferrer" className="w-12 h-12 rounded-full bg-zinc-900 border border-white/10 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors">
+              <a href={profile.linkedinUrl} target="_blank" rel="noopener noreferrer" className="w-12 h-12 rounded-full bg-card border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-accent transition-colors">
                 <FaLinkedin className="w-5 h-5" />
               </a>
             )}
             {profile.instagramUrl && (
-              <a href={profile.instagramUrl} target="_blank" rel="noopener noreferrer" className="w-12 h-12 rounded-full bg-zinc-900 border border-white/10 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors">
+              <a href={profile.instagramUrl} target="_blank" rel="noopener noreferrer" className="w-12 h-12 rounded-full bg-card border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-accent transition-colors">
                 <FaInstagram className="w-5 h-5" />
               </a>
             )}
@@ -206,8 +206,8 @@ export function IdentityProfileLayout({ profile, cardUid }: Props) {
 
         {/* CV Link */}
         {profile.cvUrl && (
-          <a href={profile.cvUrl} target="_blank" rel="noopener noreferrer" className="mt-2 flex items-center justify-center gap-2 p-4 rounded-2xl bg-zinc-900 border border-white/10 hover:bg-zinc-800 transition-colors text-white">
-            <FileText className="w-5 h-5 text-zinc-400" />
+          <a href={profile.cvUrl} target="_blank" rel="noopener noreferrer" className="mt-2 flex items-center justify-center gap-2 p-4 rounded-2xl bg-card border border-border hover:bg-accent transition-colors text-card-foreground">
+            <FileText className="w-5 h-5 text-muted-foreground" />
             <span className="text-sm font-medium">View Resume / CV</span>
           </a>
         )}
@@ -216,22 +216,22 @@ export function IdentityProfileLayout({ profile, cardUid }: Props) {
         <div className="mt-8 flex flex-col items-center gap-4 relative z-10 w-full">
           <Link
             href="/"
-            className="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-white/5 hover:bg-white/10 text-zinc-400 text-xs font-medium rounded-full transition-all duration-200 border border-white/5"
+            className="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-card hover:bg-accent text-muted-foreground text-xs font-medium rounded-full transition-all duration-200 border border-border"
           >
-            Want your own custom card? <span className="text-white ml-0.5">Get Anoya</span>
+            Want your own custom card? <span className="text-foreground ml-0.5">Get Anoya</span>
           </Link>
-          <p className="text-xs text-zinc-500 font-medium">
-            Powered by <Link href="/" className="hover:text-white transition-colors">Anoya</Link>
+          <p className="text-xs text-muted-foreground/80 font-medium">
+            Powered by <Link href="/" className="hover:text-foreground transition-colors">Anoya</Link>
           </p>
         </div>
       </div>
 
       {/* Connection Note Modal */}
       <Dialog open={showNoteModal} onOpenChange={setShowNoteModal}>
-        <DialogContent className="sm:max-w-md bg-zinc-900 text-white border-zinc-800">
+        <DialogContent className="sm:max-w-md bg-background text-foreground border-border">
           <DialogHeader>
             <DialogTitle>Save to My Connections</DialogTitle>
-            <DialogDescription className="text-zinc-400">
+            <DialogDescription className="text-muted-foreground">
               Add {profile.firstName || 'this person'} to your personal Anoya CRM. You can add a private note below (optional).
             </DialogDescription>
           </DialogHeader>
@@ -240,11 +240,11 @@ export function IdentityProfileLayout({ profile, cardUid }: Props) {
               placeholder="E.g., Met at the AI summit, talked about partnership..."
               value={noteContent}
               onChange={(e) => setNoteContent(e.target.value)}
-              className="resize-none h-24 bg-zinc-950 border-zinc-800 text-white placeholder:text-zinc-600 focus-visible:ring-zinc-700"
+              className="resize-none h-24 bg-background border-input text-foreground placeholder:text-muted-foreground focus-visible:ring-ring"
             />
           </div>
           <DialogFooter className="flex-col sm:flex-row gap-2">
-            <Button type="button" variant="ghost" onClick={() => setShowNoteModal(false)} className="rounded-xl text-zinc-300 hover:text-white hover:bg-zinc-800">
+            <Button type="button" variant="ghost" onClick={() => setShowNoteModal(false)} className="rounded-xl text-muted-foreground hover:text-foreground hover:bg-accent">
               Cancel
             </Button>
             <Button 
