@@ -66,7 +66,7 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
       {/* Dark overlay only when there is a background image to ensure legibility */}
       {hasBackgroundImage && <div className="absolute inset-0 z-0 bg-black/40" />}
 
-      <div className="relative z-10 flex-1 flex flex-col items-center justify-start pt-[20dvh] p-6 pb-24 w-full max-w-md mx-auto min-h-[100dvh]">
+      <div className="relative z-10 flex-1 flex flex-col items-center justify-start pt-[20dvh] p-6 pb-24 w-full max-w-md mx-auto">
         
         {/* Top Actions: Phone & Email */}
         <div className="flex items-center gap-4 mb-8">
