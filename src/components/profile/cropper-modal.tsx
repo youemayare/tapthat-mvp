@@ -7,7 +7,7 @@ import getCroppedImg from '@/lib/cropImage';
 
 interface CropperModalProps {
   imageSrc: string;
-  type: 'avatar' | 'logo';
+  type: 'avatar' | 'logo' | 'background';
   onClose: () => void;
   onCropComplete: (croppedBlob: Blob) => void;
 }
@@ -63,7 +63,7 @@ export function CropperModal({ imageSrc, type, onClose, onCropComplete }: Croppe
           image={imageSrc}
           crop={crop}
           zoom={zoom}
-          aspect={type === 'avatar' ? 1 : 2}
+          aspect={type === 'avatar' ? 1 : type === 'background' ? 9 / 16 : 2}
           cropShape={type === 'avatar' ? 'round' : 'rect'}
           onCropChange={setCrop}
           onCropComplete={onCropCompleteHandler}

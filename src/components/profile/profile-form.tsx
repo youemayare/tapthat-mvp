@@ -270,7 +270,7 @@ export function ProfileForm({ initialData, isMultiProfile }: ProfileFormProps) {
                 <div className="space-y-4">
                   <div>
                     <div className="mt-2">
-                      <FileUpload
+                      <ImageUpload
                         label="Background Image (Optional)"
                         type="background"
                         currentUrl={layoutBackgroundImageUrl}

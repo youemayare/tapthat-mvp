@@ -8,12 +8,13 @@ import { CropperModal } from './cropper-modal';
 
 interface ImageUploadProps {
   label: string;
-  type: 'avatar' | 'logo';
+  type: 'avatar' | 'logo' | 'background';
   currentUrl?: string | null;
   onUploadSuccess: (url: string) => void;
+  onRemove?: () => void;
 }
 
-export function ImageUpload({ label, type, currentUrl, onUploadSuccess }: ImageUploadProps) {
+export function ImageUpload({ label, type, currentUrl, onUploadSuccess, onRemove }: ImageUploadProps) {
   const [isUploading, setIsUploading] = useState(false);
   const [imageFailed, setImageFailed] = useState(false);
   
@@ -81,14 +82,17 @@ export function ImageUpload({ label, type, currentUrl, onUploadSuccess }: ImageU
 
   return (
     <>
-      <div className="flex flex-col items-start gap-3">
+      <div className="flex flex-col items-start gap-3 w-full">
         <span className="text-sm font-medium text-foreground">{label}</span>
-        <div 
-          onClick={() => !isUploading && fileInputRef.current?.click()}
-          className={`relative group cursor-pointer overflow-hidden bg-muted border flex items-center justify-center transition-all ${
-            type === 'avatar' ? 'w-24 h-24 rounded-full' : 'w-32 h-16 rounded-xl'
-          } ${isUploading ? 'opacity-50' : 'hover:bg-accent'} ${imageFailed ? 'border-red-500 bg-red-50' : 'border-border'}`}
-        >
+        <div className="flex items-center gap-4 w-full">
+          <div 
+            onClick={() => !isUploading && fileInputRef.current?.click()}
+            className={`relative group cursor-pointer overflow-hidden bg-muted border flex-shrink-0 flex items-center justify-center transition-all ${
+              type === 'avatar' ? 'w-24 h-24 rounded-full' : 
+              type === 'background' ? 'w-24 h-40 rounded-xl' :
+              'w-32 h-16 rounded-xl'
+            } ${isUploading ? 'opacity-50' : 'hover:bg-accent'} ${imageFailed ? 'border-red-500 bg-red-50' : 'border-border'}`}
+          >
           {currentUrl ? (
             /* eslint-disable-next-line @next/next/no-img-element */
             <img 
@@ -114,6 +118,21 @@ export function ImageUpload({ label, type, currentUrl, onUploadSuccess }: ImageU
             )}
           </div>
         </div>
+
+        {/* Action buttons next to the preview */}
+        {currentUrl && onRemove && (
+          <div className="flex flex-col gap-2">
+            <button
+              type="button"
+              onClick={onRemove}
+              className="text-sm font-medium text-red-500 hover:text-red-600 transition-colors bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg flex items-center gap-1.5"
+            >
+              Remove
+            </button>
+          </div>
+        )}
+        </div>
+
         <input
           type="file"
           ref={fileInputRef}
