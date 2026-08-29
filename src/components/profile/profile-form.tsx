@@ -19,7 +19,7 @@ import { WalletColorPicker } from '@/components/profile/wallet-color-picker';
 import { useRouter } from 'next/navigation';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { ProfileView } from '@/app/n/[uid]/profile-view';
-import { Eye, Trash2 } from 'lucide-react';
+import { Eye, Trash2, ArrowLeft } from 'lucide-react';
 import {
   Dialog,
   DialogClose,
@@ -192,9 +192,9 @@ export function ProfileForm({ initialData, isMultiProfile }: ProfileFormProps) {
           <div className="flex items-center justify-between">
             <a
               href="/dashboard/profile"
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
-              â† All profiles
+              <ArrowLeft className="w-4 h-4" /> All profiles
             </a>
             
             <div className="flex items-center p-1 bg-muted rounded-lg">
