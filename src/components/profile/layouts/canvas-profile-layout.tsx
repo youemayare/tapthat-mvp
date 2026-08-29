@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import Link from 'next/link';
 import type { Profile } from '@/lib/db/schema';
@@ -21,6 +21,7 @@ interface Props {
 
 export function CanvasProfileLayout({ profile, cardUid }: Props) {
   const {
+    viewerState,
     savingNote,
     showNoteModal,
     noteContent,
@@ -29,6 +30,8 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
     handleSaveContact,
     handleSaveConnectionAndNote,
   } = useProfileActions(profile, cardUid);
+
+  const { isOwner, resolved } = viewerState;
 
   const fullName = [profile.firstName, profile.lastName].filter(Boolean).join(' ');
   const initials = fullName
@@ -45,6 +48,7 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
   ].flatMap(link => typeof link === 'object' && link !== null ? [link] : []);
 
   const bgColor = profile.layoutBackgroundColor || '#1a1a2e';
+  const hasBackgroundImage = !!profile.layoutBackgroundImageUrl;
 
   return (
     <div 
@@ -54,11 +58,12 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
       {/* Background Image */}
       {profile.layoutBackgroundImageUrl && (
         <div 
-          className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-60 mix-blend-overlay"
+          className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
           style={{ backgroundImage: 'url(' + profile.layoutBackgroundImageUrl + ')' }}
         />
       )}
-      <div className="absolute inset-0 z-0 bg-black/40" />
+      {/* Dark overlay only when there is a background image to ensure legibility */}
+      {hasBackgroundImage && <div className="absolute inset-0 z-0 bg-black/40" />}
 
       <div className="relative z-10 flex-1 flex flex-col items-center justify-center p-6 pb-24 w-full max-w-md mx-auto min-h-[100dvh]">
         
@@ -135,21 +140,25 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
               {link.icon}
             </a>
           ))}
-          {/* Main Actions in Row */}
-          <button
-            onClick={handleSaveContact}
-            aria-label="Save Contact"
-            className="w-12 h-12 rounded-full border border-white/30 bg-white/10 backdrop-blur-sm flex items-center justify-center hover:bg-white/20 transition-colors text-white"
-          >
-            <Download className="w-5 h-5" />
-          </button>
-          <button
-            onClick={() => setShowNoteModal(true)}
-            aria-label="Save to My Connections"
-            className="w-12 h-12 rounded-full border border-white/30 bg-white/10 backdrop-blur-sm flex items-center justify-center hover:bg-white/20 transition-colors text-white"
-          >
-            <UserPlus className="w-5 h-5" />
-          </button>
+          {/* Download & Save actions — hidden for profile owner */}
+          {resolved && !isOwner && (
+            <>
+              <button
+                onClick={handleSaveContact}
+                aria-label="Save Contact"
+                className="w-12 h-12 rounded-full border border-white/30 bg-white/10 backdrop-blur-sm flex items-center justify-center hover:bg-white/20 transition-colors text-white"
+              >
+                <Download className="w-5 h-5" />
+              </button>
+              <button
+                onClick={() => setShowNoteModal(true)}
+                aria-label="Save to My Connections"
+                className="w-12 h-12 rounded-full border border-white/30 bg-white/10 backdrop-blur-sm flex items-center justify-center hover:bg-white/20 transition-colors text-white"
+              >
+                <UserPlus className="w-5 h-5" />
+              </button>
+            </>
+          )}
         </div>
 
         {/* Company Logo in Circle */}

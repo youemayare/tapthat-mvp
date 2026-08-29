@@ -102,7 +102,9 @@ export function useProfileActions(profile: Partial<Profile> & { id: string; user
 
   async function handleSaveContact() {
     try {
-      const res = await fetch(`/api/vcard?profileId=${profile.id}`);
+      // Route is /api/vcard/[slug] — use slug if available, fall back to id (API accepts UUIDs too)
+      const identifier = profile.slug || profile.id;
+      const res = await fetch(`/api/vcard/${identifier}`);
       if (!res.ok) throw new Error('Failed to generate vCard');
 
       const blob = await res.blob();
