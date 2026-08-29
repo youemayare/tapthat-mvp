@@ -51,18 +51,13 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
   const bgColor = profile.layoutBackgroundColor || '#1a1a2e';
   const hasBackgroundImage = !!profile.layoutBackgroundImageUrl;
 
-  // Premium silver gradient border style
-  const silverBorder: React.CSSProperties = {
-    border: '2px solid transparent',
+  // Premium silver gradient border style generator
+  const getSilverBorderStyle = (borderWidth: number, innerBg: string): React.CSSProperties => ({
+    border: `${borderWidth}px solid transparent`,
     backgroundClip: 'padding-box',
-    boxShadow: '0 0 0 2px rgba(192,192,192,0.5), inset 0 0 0 0 transparent',
-    background: `linear-gradient(${bgColor}, ${bgColor}) padding-box, linear-gradient(145deg, #e8e8e8, #a0a0a0, #d4d4d4, #888888, #c0c0c0) border-box`,
-  };
-
-  const silverBorderLight: React.CSSProperties = {
-    border: '1.5px solid transparent',
-    background: `linear-gradient(${hasBackgroundImage ? 'rgba(0,0,0,0.2)' : bgColor}, ${hasBackgroundImage ? 'rgba(0,0,0,0.2)' : bgColor}) padding-box, linear-gradient(145deg, #e8e8e8, #a0a0a0, #d4d4d4, #888888, #c0c0c0) border-box`,
-  };
+    boxShadow: `0 0 0 ${borderWidth}px rgba(192,192,192,0.5), inset 0 0 0 0 transparent`,
+    background: `linear-gradient(${innerBg}, ${innerBg}) padding-box, linear-gradient(145deg, #e8e8e8, #a0a0a0, #d4d4d4, #888888, #c0c0c0) border-box`,
+  });
 
   return (
     <div 
@@ -91,8 +86,8 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
             {profile.phone && (
               <a 
                 href={'tel:' + profile.phone}
-                className="w-14 h-14 rounded-full bg-black/30 backdrop-blur-md flex items-center justify-center hover:bg-black/50 transition-colors"
-                style={silverBorderLight}
+                className="w-14 h-14 rounded-full backdrop-blur-md flex items-center justify-center hover:bg-black/50 transition-colors"
+                style={getSilverBorderStyle(1.5, 'rgba(0,0,0,0.3)')}
                 aria-label="Call"
               >
                 <Phone className="w-6 h-6 text-white" />
@@ -101,8 +96,8 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
             {profile.email && (
               <a 
                 href={'mailto:' + profile.email}
-                className="w-14 h-14 rounded-full bg-black/30 backdrop-blur-md flex items-center justify-center hover:bg-black/50 transition-colors"
-                style={silverBorderLight}
+                className="w-14 h-14 rounded-full backdrop-blur-md flex items-center justify-center hover:bg-black/50 transition-colors"
+                style={getSilverBorderStyle(1.5, 'rgba(0,0,0,0.3)')}
                 aria-label="Email"
               >
                 <Mail className="w-6 h-6 text-white" />
@@ -113,8 +108,8 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
 
         {/* Profile Avatar */}
         <div 
-          className="w-32 h-32 rounded-full overflow-hidden mb-6 bg-black/20 backdrop-blur-md shadow-2xl flex-shrink-0"
-          style={silverBorder}
+          className="w-32 h-32 rounded-full overflow-hidden mb-6 backdrop-blur-md shadow-2xl flex-shrink-0"
+          style={getSilverBorderStyle(2, 'rgba(0,0,0,0.2)')}
         >
           {profile.profilePhotoUrl ? (
             <img 
@@ -161,8 +156,8 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={link.label}
-                className="w-12 h-12 rounded-full bg-black/20 backdrop-blur-sm flex items-center justify-center hover:bg-black/40 transition-colors"
-                style={silverBorderLight}
+                className="w-12 h-12 rounded-full backdrop-blur-sm flex items-center justify-center hover:bg-black/40 transition-colors"
+                style={getSilverBorderStyle(1.5, 'rgba(0,0,0,0.2)')}
               >
                 {link.icon}
               </a>
@@ -207,8 +202,8 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
         {profile.companyLogoUrl && (
           <div className="mb-16 flex justify-center">
             <div 
-              className="w-12 h-12 rounded-full bg-white p-0.5 flex items-center justify-center shadow-lg"
-              style={silverBorderLight}
+              className="w-12 h-12 rounded-full p-0.5 flex items-center justify-center shadow-lg"
+              style={getSilverBorderStyle(1.5, '#ffffff')}
             >
               <img 
                 src={profile.companyLogoUrl} 
