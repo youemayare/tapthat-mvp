@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useRef } from 'react';
 import { FileText, Loader2, UploadCloud, X } from 'lucide-react';
@@ -93,7 +93,7 @@ export function FileUpload({ label, type, currentUrl, onUploadSuccess, onRemove 
           ) : (
             <>
               <UploadCloud className="w-5 h-5" />
-              <span>Click to upload PDF</span>
+              <span>Click to upload {type === 'cv' ? 'PDF' : 'image'}</span>
             </>
           )}
         </button>
@@ -106,7 +106,7 @@ export function FileUpload({ label, type, currentUrl, onUploadSuccess, onRemove 
         accept={type === 'cv' ? 'application/pdf' : 'image/*'}
         className="hidden"
       />
-      <p className="text-xs text-muted-foreground">Max 5MB. PDF only.</p>
+      <p className="text-xs text-muted-foreground">Max 5MB. {type === 'cv' ? 'PDF only.' : 'JPG, PNG, WEBP.'}</p>
     </div>
   );
 }

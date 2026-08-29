@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
@@ -269,7 +269,6 @@ export function ProfileForm({ initialData, isMultiProfile }: ProfileFormProps) {
                 <h3 className="text-lg font-medium text-foreground">Canvas Settings</h3>
                 <div className="space-y-4">
                   <div>
-                    <Label>Background Image</Label>
                     <div className="mt-2">
                       <FileUpload
                         label="Background Image (Optional)"
