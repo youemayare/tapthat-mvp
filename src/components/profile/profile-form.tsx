@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
@@ -194,7 +194,7 @@ export function ProfileForm({ initialData, isMultiProfile }: ProfileFormProps) {
               href="/dashboard/profile"
               className="text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
-              ← All profiles
+              â† All profiles
             </a>
             
             <div className="flex items-center p-1 bg-muted rounded-lg">
@@ -231,7 +231,7 @@ export function ProfileForm({ initialData, isMultiProfile }: ProfileFormProps) {
               ? ''
               : (isMultiProfile 
                   ? 'This is what people see when you tap your card.'
-                  : 'Manage your professional profile — this is what people see when they tap your card.')}
+                  : 'Manage your professional profile â€” this is what people see when they tap your card.')}
           </p>
         </div>
       </div>
@@ -293,7 +293,7 @@ export function ProfileForm({ initialData, isMultiProfile }: ProfileFormProps) {
               </div>
             )}
           </div>
-        {/* ── Media ── */}
+        {/* â”€â”€ Media â”€â”€ */}
       <div className="bg-card text-card-foreground border border-border shadow-sm rounded-2xl p-6 space-y-6">
         <h2 className="text-xl font-semibold text-foreground">Profile Media</h2>
         <div className="flex flex-col sm:flex-row gap-8">
@@ -321,7 +321,7 @@ export function ProfileForm({ initialData, isMultiProfile }: ProfileFormProps) {
         </div>
       </div>
 
-      {/* ── Basic Info ── */}
+      {/* â”€â”€ Basic Info â”€â”€ */}
       <div className="bg-card text-card-foreground border border-border shadow-sm rounded-2xl p-6 space-y-6">
         <h2 className="text-xl font-semibold text-foreground">Basic Information</h2>
         
@@ -363,7 +363,7 @@ export function ProfileForm({ initialData, isMultiProfile }: ProfileFormProps) {
         </div>
       </div>
 
-      {/* ── Contact Info ── */}
+      {/* â”€â”€ Contact Info â”€â”€ */}
       <div className="bg-card text-card-foreground border border-border shadow-sm rounded-2xl p-6 space-y-6">
         <h2 className="text-xl font-semibold text-foreground">Contact Information</h2>
         
@@ -405,7 +405,7 @@ export function ProfileForm({ initialData, isMultiProfile }: ProfileFormProps) {
         </div>
       </div>
 
-      {/* ── Profile Settings ── */}
+      {/* â”€â”€ Profile Settings â”€â”€ */}
         <div className="bg-card text-card-foreground border border-border shadow-sm rounded-2xl p-6 space-y-6">
           <h2 className="text-xl font-semibold text-foreground">Profile Settings</h2>
           
@@ -452,7 +452,7 @@ export function ProfileForm({ initialData, isMultiProfile }: ProfileFormProps) {
       </div>
 
       <div className={activeTab === 'wallet' ? 'space-y-8' : 'hidden'}>
-      {/* ── Google Wallet Appearance ── */}
+      {/* â”€â”€ Google Wallet Appearance â”€â”€ */}
       <div className="bg-card text-card-foreground border border-border shadow-sm rounded-2xl p-6 space-y-6">
         <div>
           <h2 className="text-xl font-semibold text-foreground">Google Wallet Appearance</h2>
@@ -571,6 +571,7 @@ export function ProfileForm({ initialData, isMultiProfile }: ProfileFormProps) {
     </form>
   );
 }
+
 
 
 

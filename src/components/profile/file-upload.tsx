@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useRef } from 'react';
 import { FileText, Loader2, UploadCloud, X } from 'lucide-react';
@@ -110,4 +110,5 @@ export function FileUpload({ label, type, currentUrl, onUploadSuccess, onRemove 
     </div>
   );
 }
+
 

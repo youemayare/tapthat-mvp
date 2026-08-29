@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import type { Profile } from '@/lib/db/schema';
 import { ClassicProfileLayout } from '@/components/profile/layouts/classic-profile-layout';
@@ -11,7 +11,7 @@ interface Props {
 }
 
 /**
- * ProfileView � public-facing profile card router.
+ * ProfileView — public-facing profile card router.
  * Routes to Classic, Identity, or Canvas layout based on profile settings.
  */
 export function ProfileView({ profile, cardUid }: Props) {
@@ -25,3 +25,4 @@ export function ProfileView({ profile, cardUid }: Props) {
   
   return <ClassicProfileLayout profile={profile} cardUid={cardUid} />;
 }
+

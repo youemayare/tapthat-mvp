@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import Link from 'next/link';
 import type { Profile } from '@/lib/db/schema';
@@ -211,4 +211,5 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
     </div>
   );
 }
+
 
