@@ -132,27 +132,29 @@ export function IdentityProfileLayout({ profile, cardUid }: Props) {
           </Button>
 
           {resolved && !isOwner && (
-            <Button
-              size="lg"
-              variant="outline"
+            <button
               onClick={handleToggleSave}
               disabled={saving}
-              className="w-full rounded-2xl h-14 text-base font-semibold border-border bg-card text-card-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
+              className={`w-full flex items-center justify-center gap-2 h-14 rounded-2xl text-base font-semibold transition-all duration-200 active:scale-95 border ${
+                saved
+                  ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20'
+                  : 'bg-card border-border text-foreground hover:border-brand-500/40 hover:bg-brand-500/5'
+              }`}
             >
               {saving ? (
                 'Updating...'
               ) : saved ? (
                 <>
-                  <BookmarkCheck className="w-5 h-5 mr-2 text-green-400" />
+                  <BookmarkCheck className="w-5 h-5 mr-2" />
                   Saved to My Connections
                 </>
               ) : (
                 <>
-                  <BookmarkPlus className="w-5 h-5 mr-2 text-muted-foreground" />
+                  <BookmarkPlus className="w-5 h-5 mr-2" />
                   Save to My Connections
                 </>
               )}
-            </Button>
+            </button>
           )}
 
           {resolved && !isOwner && !viewerState.isLoggedIn && !viewerState.alreadySaved && (
