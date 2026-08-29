@@ -280,11 +280,12 @@ export function ProfileForm({ initialData, isMultiProfile }: ProfileFormProps) {
                       <SelectValue placeholder="Select a font" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="geist">Geist (Minimal & Modern)</SelectItem>
-                      <SelectItem value="playfair">Playfair Display (Elegant)</SelectItem>
-                      <SelectItem value="orbitron">Orbitron (Futuristic)</SelectItem>
-                      <SelectItem value="courier">Courier Prime (Typewriter)</SelectItem>
-                      <SelectItem value="archivo">Archivo Black (Bold)</SelectItem>
+                      <SelectItem value="geist">Geist</SelectItem>
+                      <SelectItem value="playfair">Playfair Display</SelectItem>
+                      <SelectItem value="orbitron">Orbitron</SelectItem>
+                      <SelectItem value="courier">Courier Prime</SelectItem>
+                      <SelectItem value="archivo">Archivo Black</SelectItem>
+                      <SelectItem value="allura">Allura</SelectItem>
                     </SelectContent>
                   </Select>
                   <p className="text-xs text-muted-foreground">This font will only be applied to your public profile.</p>

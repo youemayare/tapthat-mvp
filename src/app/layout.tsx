@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Inter, Geist, Playfair_Display, Orbitron, Courier_Prime, Archivo_Black } from 'next/font/google';
+import { Inter, Geist, Playfair_Display, Orbitron, Courier_Prime, Archivo_Black, Allura } from 'next/font/google';
 import './globals.css';
 import { cn } from "@/lib/utils";
 
@@ -34,6 +34,13 @@ const archivo = Archivo_Black({
   weight: '400',
   subsets: ['latin'],
   variable: '--font-archivo',
+  display: 'swap',
+});
+
+const allura = Allura({
+  weight: '400',
+  subsets: ['latin'],
+  variable: '--font-allura',
   display: 'swap',
 });
 
@@ -78,7 +85,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning className={cn("font-sans", geist.variable, playfair.variable, orbitron.variable, courier.variable, archivo.variable)}>
+    <html lang="en" suppressHydrationWarning className={cn("font-sans", geist.variable, playfair.variable, orbitron.variable, courier.variable, archivo.variable, allura.variable)}>
       <body className={`${inter.variable} font-sans antialiased bg-background text-foreground`}>
         <ThemeProvider
           attribute="class"

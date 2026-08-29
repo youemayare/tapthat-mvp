@@ -12,6 +12,7 @@ export function getFontClass(font?: string | null) {
     case 'orbitron': return 'font-orbitron';
     case 'courier': return 'font-courier';
     case 'archivo': return 'font-archivo';
+    case 'allura': return 'font-allura';
     case 'geist':
     default: return 'font-geist';
   }
