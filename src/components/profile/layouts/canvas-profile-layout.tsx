@@ -51,13 +51,7 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
   const bgColor = profile.layoutBackgroundColor || '#1a1a2e';
   const hasBackgroundImage = !!profile.layoutBackgroundImageUrl;
 
-  // Premium silver gradient border style generator
-  const getSilverBorderStyle = (borderWidth: number, innerBg: string): React.CSSProperties => ({
-    border: `${borderWidth}px solid transparent`,
-    backgroundClip: 'padding-box',
-    boxShadow: `0 0 0 ${borderWidth}px rgba(192,192,192,0.5), inset 0 0 0 0 transparent`,
-    background: `linear-gradient(${innerBg}, ${innerBg}) padding-box, linear-gradient(145deg, #e8e8e8, #a0a0a0, #d4d4d4, #888888, #c0c0c0) border-box`,
-  });
+  const silverGradient = "linear-gradient(145deg, #e8e8e8, #a0a0a0, #d4d4d4, #888888, #c0c0c0)";
 
   return (
     <div 
@@ -84,44 +78,45 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
         {(profile.phone || profile.email) && (
           <div className="flex items-center gap-4 mb-8">
             {profile.phone && (
-              <a 
-                href={'tel:' + profile.phone}
-                className="w-14 h-14 rounded-full backdrop-blur-md flex items-center justify-center hover:bg-black/50 transition-colors"
-                style={getSilverBorderStyle(1.5, 'rgba(0,0,0,0.3)')}
-                aria-label="Call"
-              >
-                <Phone className="w-6 h-6 text-white" />
-              </a>
+              <div className="w-14 h-14 rounded-full p-[1.5px]" style={{ background: silverGradient }}>
+                <a 
+                  href={'tel:' + profile.phone}
+                  className="w-full h-full rounded-full bg-black/30 backdrop-blur-md flex items-center justify-center hover:bg-black/50 transition-colors"
+                  aria-label="Call"
+                >
+                  <Phone className="w-6 h-6 text-white" />
+                </a>
+              </div>
             )}
             {profile.email && (
-              <a 
-                href={'mailto:' + profile.email}
-                className="w-14 h-14 rounded-full backdrop-blur-md flex items-center justify-center hover:bg-black/50 transition-colors"
-                style={getSilverBorderStyle(1.5, 'rgba(0,0,0,0.3)')}
-                aria-label="Email"
-              >
-                <Mail className="w-6 h-6 text-white" />
-              </a>
+              <div className="w-14 h-14 rounded-full p-[1.5px]" style={{ background: silverGradient }}>
+                <a 
+                  href={'mailto:' + profile.email}
+                  className="w-full h-full rounded-full bg-black/30 backdrop-blur-md flex items-center justify-center hover:bg-black/50 transition-colors"
+                  aria-label="Email"
+                >
+                  <Mail className="w-6 h-6 text-white" />
+                </a>
+              </div>
             )}
           </div>
         )}
 
         {/* Profile Avatar */}
-        <div 
-          className="w-32 h-32 rounded-full overflow-hidden mb-6 backdrop-blur-md shadow-2xl flex-shrink-0"
-          style={getSilverBorderStyle(2, 'rgba(0,0,0,0.2)')}
-        >
-          {profile.profilePhotoUrl ? (
-            <img 
-              src={profile.profilePhotoUrl} 
-              alt={fullName}
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <div className="w-full h-full bg-gradient-to-br from-zinc-800 to-zinc-950 flex items-center justify-center">
-              <span className="text-4xl font-bold text-white/20">{initials}</span>
-            </div>
-          )}
+        <div className="w-32 h-32 rounded-full p-[2px] mb-6 flex-shrink-0 shadow-2xl" style={{ background: silverGradient }}>
+          <div className="w-full h-full rounded-full overflow-hidden bg-black/20 backdrop-blur-md">
+            {profile.profilePhotoUrl ? (
+              <img 
+                src={profile.profilePhotoUrl} 
+                alt={fullName}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full bg-gradient-to-br from-zinc-800 to-zinc-950 flex items-center justify-center">
+                <span className="text-4xl font-bold text-white/20">{initials}</span>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Name / Title / Company / Bio */}
@@ -150,17 +145,17 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
         {socialLinks.length > 0 && (
           <div className="flex flex-wrap items-center justify-center gap-3 w-full mb-4">
             {socialLinks.map((link, idx) => (
-              <a
-                key={idx}
-                href={link.href!}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={link.label}
-                className="w-12 h-12 rounded-full backdrop-blur-sm flex items-center justify-center hover:bg-black/40 transition-colors"
-                style={getSilverBorderStyle(1.5, 'rgba(0,0,0,0.2)')}
-              >
-                {link.icon}
-              </a>
+              <div key={idx} className="w-12 h-12 rounded-full p-[1.5px]" style={{ background: silverGradient }}>
+                <a
+                  href={link.href!}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={link.label}
+                  className="w-full h-full rounded-full bg-black/20 backdrop-blur-sm flex items-center justify-center hover:bg-black/40 transition-colors"
+                >
+                  {link.icon}
+                </a>
+              </div>
             ))}
           </div>
         )}
@@ -195,25 +190,23 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
           </div>
         )}
 
-        {/* Bottom spacer */}
-        <div className="flex-1 shrink-0 min-h-0" />
-
-        {/* Company Logo — pinned just above the CTA footer */}
+        {/* Company Logo — sits below social/action links */}
         {profile.companyLogoUrl && (
-          <div className="mb-16 flex justify-center">
-            <div 
-              className="w-12 h-12 rounded-full p-0.5 flex items-center justify-center shadow-lg"
-              style={getSilverBorderStyle(1.5, '#ffffff')}
-            >
-              <img 
-                src={profile.companyLogoUrl} 
-                alt={profile.companyName || 'Company Logo'}
-                className="w-full h-full rounded-full object-contain"
-              />
+          <div className="mt-6 flex justify-center">
+            <div className="w-12 h-12 rounded-full p-[1.5px] shadow-lg" style={{ background: silverGradient }}>
+              <div className="w-full h-full rounded-full bg-white p-0.5 flex items-center justify-center overflow-hidden">
+                <img 
+                  src={profile.companyLogoUrl} 
+                  alt={profile.companyName || 'Company Logo'}
+                  className="w-full h-full rounded-full object-contain"
+                />
+              </div>
             </div>
           </div>
         )}
-        {!profile.companyLogoUrl && <div className="mb-16" />}
+
+        {/* Bottom spacer */}
+        <div className="flex-1 shrink-0 min-h-0" />
       </div>
 
       {/* Footer CTA */}
