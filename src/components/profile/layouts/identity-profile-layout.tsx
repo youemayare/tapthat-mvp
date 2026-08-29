@@ -48,7 +48,7 @@ export function IdentityProfileLayout({ profile, cardUid }: Props) {
   const { isOwner, resolved } = viewerState;
 
   return (
-    <div className={`min-h-[100dvh] bg-zinc-950 text-white flex flex-col relative w-full overflow-x-hidden ${getFontClass(profile.layoutFont)}`}>
+    <div className="min-h-[100dvh] bg-zinc-950 text-white flex flex-col relative w-full overflow-x-hidden">
       {/* Home link */}
       {viewerState.isLoggedIn && !viewerState.isOwner && (
         <div className="absolute top-4 left-4 z-50">
@@ -80,13 +80,13 @@ export function IdentityProfileLayout({ profile, cardUid }: Props) {
 
         {/* Identity Block (Bottom of Hero) */}
         <div className="absolute bottom-0 left-0 w-full p-6 pb-8 flex flex-col items-center text-center">
-          <h1 className="text-4xl font-extrabold tracking-tight text-white mb-1 drop-shadow-md">
+          <h1 className={`text-4xl font-extrabold tracking-tight text-white mb-1 drop-shadow-md ${getFontClass(profile.layoutFont)}`}>
             {fullName}
           </h1>
           {(profile.jobTitle || profile.companyName) && (
             <div className="flex flex-col items-center gap-1.5 mt-1 drop-shadow-md max-w-sm">
               {profile.jobTitle && (
-                <span className="text-lg text-zinc-300 font-medium">{profile.jobTitle}</span>
+                <span className={`text-lg text-zinc-300 font-medium ${getFontClass(profile.layoutFont)}`}>{profile.jobTitle}</span>
               )}
               {profile.companyName && (
                 <div className="flex items-center justify-center gap-2">
@@ -97,7 +97,7 @@ export function IdentityProfileLayout({ profile, cardUid }: Props) {
                       className="w-6 h-6 rounded-full object-contain bg-white p-0.5 border border-white/20 shrink-0"
                     />
                   )}
-                  <span className="text-base text-zinc-300 font-medium">{profile.companyName}</span>
+                  <span className={`text-base text-zinc-300 font-medium ${getFontClass(profile.layoutFont)}`}>{profile.companyName}</span>
                 </div>
               )}
             </div>

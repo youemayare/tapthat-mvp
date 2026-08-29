@@ -28,6 +28,7 @@ export const PROFILE_PUBLIC_COLS = {
   profileLayout: profiles.profileLayout,
   layoutBackgroundColor: profiles.layoutBackgroundColor,
   layoutBackgroundImageUrl: profiles.layoutBackgroundImageUrl,
+  layoutFont: profiles.layoutFont,
   isPublished: profiles.isPublished,
   archivedAt: profiles.archivedAt,
 };

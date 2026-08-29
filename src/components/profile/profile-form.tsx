@@ -32,6 +32,15 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
+const FONT_OPTIONS: Record<string, string> = {
+  geist: 'Geist (Minimal & Modern)',
+  playfair: 'Playfair Display (Elegant)',
+  orbitron: 'Orbitron (Futuristic)',
+  courier: 'Courier Prime (Typewriter)',
+  archivo: 'Archivo Black (Bold)',
+  allura: 'Allura (Signature)'
+};
+
 const profileSchema = z.object({
   profilePhotoUrl: z.string().optional().nullable().or(z.literal('')),
   companyLogoUrl: z.string().optional().nullable().or(z.literal('')),
@@ -270,26 +279,27 @@ export function ProfileForm({ initialData, isMultiProfile }: ProfileFormProps) {
 
               <div className="mt-8 space-y-4">
                 <h3 className="text-lg font-medium text-foreground">Typography</h3>
-                <div className="space-y-2">
-                  <Label>Profile Font</Label>
-                  <Select
-                    value={layoutFont || 'geist'}
-                    onValueChange={(val) => setValue('layoutFont', val, { shouldDirty: true })}
-                  >
-                    <SelectTrigger className="w-full sm:w-[300px]">
-                      <SelectValue placeholder="Select a font" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="geist">Geist</SelectItem>
-                      <SelectItem value="playfair">Playfair Display</SelectItem>
-                      <SelectItem value="orbitron">Orbitron</SelectItem>
-                      <SelectItem value="courier">Courier Prime</SelectItem>
-                      <SelectItem value="archivo">Archivo Black</SelectItem>
-                      <SelectItem value="allura">Allura</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <p className="text-xs text-muted-foreground">This font will only be applied to your public profile.</p>
-                </div>
+                  <div className="space-y-2">
+                    <Label>Profile Font</Label>
+                    <Select
+                      value={layoutFont || 'geist'}
+                      onValueChange={(val) => setValue('layoutFont', val, { shouldDirty: true })}
+                    >
+                      <SelectTrigger className="w-full sm:w-[300px]">
+                        <SelectValue placeholder="Select a font">
+                          {FONT_OPTIONS[layoutFont || 'geist']}
+                        </SelectValue>
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Object.entries(FONT_OPTIONS).map(([val, label]) => (
+                          <SelectItem key={val} value={val}>
+                            {label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <p className="text-xs text-muted-foreground">This font will only be applied to your public profile.</p>
+                  </div>  
               </div>
 
             {profileLayout === 'canvas' && (

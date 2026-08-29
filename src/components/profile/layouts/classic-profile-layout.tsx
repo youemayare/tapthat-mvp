@@ -42,7 +42,7 @@ export function ClassicProfileLayout({ profile, cardUid }: Props) {
   const { isOwner, resolved } = viewerState;
 
   return (
-    <main className={`min-h-screen bg-background flex flex-col items-center justify-start px-4 py-10 pb-24 relative ${getFontClass(profile.layoutFont)}`}>
+    <main className="min-h-screen bg-background flex flex-col items-center justify-start px-4 py-10 pb-24 relative">
       {/* Home Dashboard link if logged in */}
       {viewerState.isLoggedIn && !viewerState.isOwner && (
         <div className="absolute top-4 left-4 z-50">
@@ -56,14 +56,14 @@ export function ClassicProfileLayout({ profile, cardUid }: Props) {
         <ThemeToggle />
       </div>
 
-      {/* Background gradient */}
+      {/* Decorative ambient background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] rounded-full bg-brand-600/10 blur-[100px]" />
       </div>
 
       <div className="relative z-10 w-full max-w-sm space-y-6">
 
-        {/* ── Profile Card ── */}
+        {/* 🌟 Profile Card 🌟 */}
         <div className="bg-card text-card-foreground border border-border rounded-3xl backdrop-blur-sm text-center shadow-xl overflow-hidden relative">
           
           {/* Cover Photo / Background Rectangle */}
@@ -96,15 +96,15 @@ export function ClassicProfileLayout({ profile, cardUid }: Props) {
             </div>
 
             {/* Name & title */}
-            <h1 className="text-2xl font-bold text-foreground mb-1">{fullName}</h1>
+            <h1 className={`text-2xl font-bold text-foreground mb-1 ${getFontClass(profile.layoutFont)}`}>{fullName}</h1>
             {profile.jobTitle && (
-              <p className="text-brand-400 font-medium text-sm mb-1">{profile.jobTitle}</p>
+              <p className={`text-brand-400 font-medium text-sm mb-1 ${getFontClass(profile.layoutFont)}`}>{profile.jobTitle}</p>
             )}
 
             {/* Company */}
             {profile.companyName && (
               <div className="flex items-center justify-center mt-1">
-                <p className="text-muted-foreground text-sm font-medium">{profile.companyName}</p>
+                <p className={`text-muted-foreground text-sm font-medium ${getFontClass(profile.layoutFont)}`}>{profile.companyName}</p>
               </div>
             )}
 

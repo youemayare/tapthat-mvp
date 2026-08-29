@@ -60,7 +60,7 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
 
   return (
     <div 
-      className={`h-[100dvh] w-full flex flex-col relative text-white selection:bg-white/30 overflow-hidden ${getFontClass(profile.layoutFont)}`}
+      className="h-[100dvh] w-full flex flex-col relative text-white selection:bg-white/30 overflow-hidden"
       style={{ backgroundColor: bgColor }}
     >
       {/* Background Image */}
@@ -125,16 +125,16 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
 
         {/* Name / Title / Company / Bio */}
         <div className="text-center mb-10 w-full">
-          <h1 className="text-3xl font-bold tracking-tight text-white mb-2 drop-shadow-md">
+          <h1 className={`text-3xl font-bold tracking-tight text-white mb-2 drop-shadow-md ${getFontClass(profile.layoutFont)}`}>
             {fullName}
           </h1>
           {profile.jobTitle && (
-            <p className="text-lg text-white/80 font-medium drop-shadow-md mb-1">
+            <p className={`text-lg text-white/80 font-medium drop-shadow-md mb-1 ${getFontClass(profile.layoutFont)}`}>
               {profile.jobTitle}
             </p>
           )}
           {profile.companyName && (
-            <p className="text-base text-white/60 drop-shadow-md max-w-xs mx-auto">
+            <p className={`text-base text-white/60 drop-shadow-md max-w-xs mx-auto ${getFontClass(profile.layoutFont)}`}>
               {profile.companyName}
             </p>
           )}
