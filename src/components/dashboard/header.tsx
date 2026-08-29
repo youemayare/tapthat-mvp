@@ -13,10 +13,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetDescription } from '@/components/ui/sheet';
-import { SidebarContent } from '@/components/dashboard/sidebar';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { LogOut, Settings, User as UserIcon, Menu } from 'lucide-react';
+import { LogOut, Settings, User as UserIcon } from 'lucide-react';
 import Link from 'next/link';
 import { ThemeToggle } from '@/components/theme-toggle';
 
@@ -29,7 +27,6 @@ export function DashboardHeader({ user }: Props) {
   const pathname = usePathname();
   const supabase = createClient();
   const [signingOut, setSigningOut] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const name = user.user_metadata?.full_name ?? user.email ?? 'User';
   const initials = name
@@ -48,19 +45,8 @@ export function DashboardHeader({ user }: Props) {
 
   return (
     <header className="flex items-center justify-between px-6 lg:px-8 h-[72px] border-b border-border bg-background/80 backdrop-blur-xl sticky top-0 z-30 transition-colors">
-      {/* Mobile Burger Menu & Logo */}
+      {/* Mobile Logo */}
       <div className="flex items-center gap-3 lg:hidden">
-        <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
-          <SheetTrigger className="p-2 -ml-2 text-foreground hover:bg-accent rounded-lg transition-colors flex items-center justify-center">
-            <Menu className="w-5 h-5" />
-          </SheetTrigger>
-          <SheetContent side="left" className="p-0 w-64 border-r-border flex flex-col">
-            <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
-            <SheetDescription className="sr-only">Dashboard navigation menu</SheetDescription>
-            <SidebarContent pathname={pathname} onItemClick={() => setIsMobileMenuOpen(false)} />
-          </SheetContent>
-        </Sheet>
-        
         <Link href="/" className="text-xl font-bold text-foreground">
           Ano<span className="text-brand-400">ya</span>
         </Link>

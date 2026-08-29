@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-const navItems = [
+export const navItems = [
   { href: '/dashboard', label: 'Overview', icon: LayoutDashboard, exact: true },
   { href: '/dashboard/profile', label: 'My Profiles', icon: User },
   { href: '/dashboard/analytics', label: 'Analytics', icon: BarChart3 },
