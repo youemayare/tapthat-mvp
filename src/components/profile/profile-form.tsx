@@ -304,19 +304,61 @@ export function ProfileForm({ initialData, isMultiProfile }: ProfileFormProps) {
 
             {profileLayout === 'canvas' && (
               <div className="mt-6 space-y-6 pt-6 border-t border-border">
-                <h3 className="text-lg font-medium text-foreground">Canvas Settings</h3>
-                <div className="space-y-4">
-                  <div>
-                    <div className="mt-2">
-                      <ImageUpload
-                        label="Background Image (Optional)"
-                        type="background"
-                        currentUrl={layoutBackgroundImageUrl}
-                        onUploadSuccess={(url) => setValue('layoutBackgroundImageUrl', url, { shouldDirty: true })}
-                        onRemove={() => setValue('layoutBackgroundImageUrl', '', { shouldDirty: true })}
-                      />
+                  <h3 className="text-lg font-medium text-foreground">Canvas Settings</h3>
+                  <div className="space-y-4">
+                    <div>
+                      <Label className="mb-4 block text-sm font-medium">Background Image (Optional)</Label>
+                      
+                      {/* Default Backgrounds Carousel */}
+                      <div className="flex overflow-x-auto gap-3 pb-4 mb-2 snap-x no-scrollbar -mx-6 px-6 sm:mx-0 sm:px-0">
+                        {Array.from({ length: 15 }).map((_, i) => {
+                          const bgUrl = `/backgrounds/bg-${i + 1}.png`;
+                          const isSelected = layoutBackgroundImageUrl === bgUrl;
+                          return (
+                            <div
+                              key={i}
+                              className={`flex-shrink-0 w-24 h-40 rounded-xl overflow-hidden cursor-pointer border-2 transition-all snap-start relative ${
+                                isSelected
+                                  ? 'border-brand-500 ring-2 ring-brand-500/20'
+                                  : 'border-transparent hover:border-white/20'
+                              }`}
+                              onClick={() => {
+                                if (isSelected) {
+                                  setValue('layoutBackgroundImageUrl', '', { shouldDirty: true });
+                                } else {
+                                  setValue('layoutBackgroundImageUrl', bgUrl, { shouldDirty: true });
+                                }
+                              }}
+                            >
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img src={bgUrl} alt={`Preset ${i + 1}`} className="w-full h-full object-cover" />
+                              {isSelected && (
+                                <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                                  <div className="bg-brand-500 rounded-full p-1 shadow-lg">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      {/* Custom Upload */}
+                      <div className="mt-2 pt-4 border-t border-border">
+                        <ImageUpload
+                          label="Custom Background Image"
+                          type="background"
+                          currentUrl={
+                            layoutBackgroundImageUrl && !layoutBackgroundImageUrl.startsWith('/backgrounds/')
+                              ? layoutBackgroundImageUrl
+                              : null
+                          }
+                          onUploadSuccess={(url) => setValue('layoutBackgroundImageUrl', url, { shouldDirty: true })}
+                          onRemove={() => setValue('layoutBackgroundImageUrl', '', { shouldDirty: true })}
+                        />
+                      </div>
                     </div>
-                  </div>
                   <div>
                     <Label>Background Color</Label>
                     <div className="mt-2">
