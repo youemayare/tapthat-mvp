@@ -9,11 +9,12 @@ import getCroppedImg from '@/lib/cropImage';
 interface CropperModalProps {
   imageSrc: string;
   type: 'avatar' | 'logo' | 'background';
+  profileLayout?: string;
   onClose: () => void;
   onCropComplete: (croppedBlob: Blob) => void;
 }
 
-export function CropperModal({ imageSrc, type, onClose, onCropComplete }: CropperModalProps) {
+export function CropperModal({ imageSrc, type, profileLayout, onClose, onCropComplete }: CropperModalProps) {
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<import('react-easy-crop').Area | null>(null);
@@ -51,6 +52,10 @@ export function CropperModal({ imageSrc, type, onClose, onCropComplete }: Croppe
 
   if (!mounted) return null;
 
+  const isCircularLogo = type === 'logo' && (profileLayout === 'canvas' || profileLayout === 'identity');
+  const cropAspect = type === 'avatar' ? 1 : type === 'background' ? 9 / 16 : isCircularLogo ? 1 : 2;
+  const computedCropShape = (type === 'avatar' || isCircularLogo) ? 'round' : 'rect';
+
   const content = (
     <div 
       className="fixed inset-0 z-[100] bg-black/90 flex flex-col items-center justify-center"
@@ -81,8 +86,8 @@ export function CropperModal({ imageSrc, type, onClose, onCropComplete }: Croppe
           image={imageSrc}
           crop={crop}
           zoom={zoom}
-          aspect={type === 'avatar' ? 1 : type === 'background' ? 9 / 16 : 2}
-          cropShape={type === 'avatar' ? 'round' : 'rect'}
+          aspect={cropAspect}
+          cropShape={computedCropShape}
           onCropChange={setCrop}
           onCropComplete={onCropCompleteHandler}
           onZoomChange={setZoom}

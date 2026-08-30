@@ -10,11 +10,12 @@ interface ImageUploadProps {
   label: string;
   type: 'avatar' | 'logo' | 'background';
   currentUrl?: string | null;
+  profileLayout?: string;
   onUploadSuccess: (url: string) => void;
   onRemove?: () => void;
 }
 
-export function ImageUpload({ label, type, currentUrl, onUploadSuccess, onRemove }: ImageUploadProps) {
+export function ImageUpload({ label, type, currentUrl, profileLayout, onUploadSuccess, onRemove }: ImageUploadProps) {
   const [isUploading, setIsUploading] = useState(false);
   const [imageFailed, setImageFailed] = useState(false);
   
@@ -80,6 +81,9 @@ export function ImageUpload({ label, type, currentUrl, onUploadSuccess, onRemove
     }
   };
 
+  // Compute preview shape
+  const isCircularLogo = type === 'logo' && (profileLayout === 'canvas' || profileLayout === 'identity');
+
   return (
     <>
       <div className="flex flex-col items-start gap-3 w-full">
@@ -88,7 +92,7 @@ export function ImageUpload({ label, type, currentUrl, onUploadSuccess, onRemove
           <div 
             onClick={() => !isUploading && fileInputRef.current?.click()}
             className={`relative group cursor-pointer overflow-hidden bg-muted border flex-shrink-0 flex items-center justify-center transition-all ${
-              type === 'avatar' ? 'w-24 h-24 rounded-full' : 
+              (type === 'avatar' || isCircularLogo) ? 'w-24 h-24 rounded-full' : 
               type === 'background' ? 'w-24 h-40 rounded-xl' :
               'w-32 h-16 rounded-xl'
             } ${isUploading ? 'opacity-50' : 'hover:bg-accent'} ${imageFailed ? 'border-red-500 bg-red-50' : 'border-border'}`}
@@ -147,6 +151,7 @@ export function ImageUpload({ label, type, currentUrl, onUploadSuccess, onRemove
         <CropperModal
           imageSrc={selectedImageSrc}
           type={type}
+          profileLayout={profileLayout}
           onClose={() => setSelectedImageSrc(null)}
           onCropComplete={uploadCroppedImage}
         />

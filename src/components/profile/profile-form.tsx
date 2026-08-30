@@ -390,6 +390,7 @@ export function ProfileForm({ initialData, isMultiProfile }: ProfileFormProps) {
           <ImageUpload
             label="Company Logo"
             type="logo"
+            profileLayout={profileLayout}
             currentUrl={companyLogoUrl}
             onUploadSuccess={(url) => setValue('companyLogoUrl', url, { shouldDirty: true })}
           />
