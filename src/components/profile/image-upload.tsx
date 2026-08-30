@@ -82,7 +82,7 @@ export function ImageUpload({ label, type, currentUrl, profileLayout, onUploadSu
   };
 
   // Compute preview shape
-  const isCircularLogo = type === 'logo' && (profileLayout === 'canvas' || profileLayout === 'identity');
+  const isCircularLogo = type === 'logo' && profileLayout === 'identity';
 
   return (
     <>

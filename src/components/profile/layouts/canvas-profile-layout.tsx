@@ -213,12 +213,12 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
         {/* Company Logo — sits below social/action links */}
         {profile.companyLogoUrl && (
           <div className="mt-6 flex justify-center">
-            <div className="relative w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-lg p-0.5">
-              <div className="absolute inset-0 rounded-full pointer-events-none p-[1.5px] z-20" style={silverBorderMask} />
+            <div className="relative w-24 h-12 rounded-xl bg-white flex items-center justify-center shadow-lg p-1">
+              <div className="absolute inset-0 rounded-xl pointer-events-none p-[1.5px] z-20" style={silverBorderMask} />
               <img 
                 src={profile.companyLogoUrl} 
                 alt={profile.companyName || 'Company Logo'}
-                className="w-full h-full rounded-full object-contain relative z-10"
+                className="w-full h-full rounded-lg object-contain relative z-10"
               />
             </div>
           </div>

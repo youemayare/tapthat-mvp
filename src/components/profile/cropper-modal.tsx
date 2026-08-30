@@ -52,7 +52,7 @@ export function CropperModal({ imageSrc, type, profileLayout, onClose, onCropCom
 
   if (!mounted) return null;
 
-  const isCircularLogo = type === 'logo' && (profileLayout === 'canvas' || profileLayout === 'identity');
+  const isCircularLogo = type === 'logo' && profileLayout === 'identity';
   const cropAspect = type === 'avatar' ? 1 : type === 'background' ? 9 / 16 : isCircularLogo ? 1 : 2;
   const computedCropShape = (type === 'avatar' || isCircularLogo) ? 'round' : 'rect';
 
