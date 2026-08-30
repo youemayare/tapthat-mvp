@@ -312,7 +312,7 @@ export function ProfileForm({ initialData, isMultiProfile }: ProfileFormProps) {
                       {/* Default Backgrounds Carousel */}
                       <div className="flex overflow-x-auto gap-3 pb-4 mb-2 snap-x no-scrollbar -mx-6 sm:mx-0">
                         {/* Left Spacer (Mobile) */}
-                        <div className="w-3 flex-shrink-0 sm:hidden" />
+                        <div className="w-3 flex-shrink-0 snap-start sm:hidden" />
                         
                         {Array.from({ length: 15 }).map((_, i) => {
                           const bgUrl = `/backgrounds/bg-${i + 1}.png`;
@@ -346,7 +346,7 @@ export function ProfileForm({ initialData, isMultiProfile }: ProfileFormProps) {
                           );
                         })}
                         {/* Right Spacer (Mobile) */}
-                        <div className="w-3 flex-shrink-0 sm:hidden" />
+                        <div className="w-3 flex-shrink-0 snap-start sm:hidden" />
                       </div>
 
                       {/* Custom Upload */}
