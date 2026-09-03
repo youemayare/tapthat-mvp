@@ -23,21 +23,24 @@ export function BottomNav() {
               key={href}
               href={href}
               className={cn(
-                "flex flex-col items-center justify-center w-12 h-12 rounded-full transition-all relative group",
+                "flex flex-col items-center justify-center flex-1 h-14 rounded-2xl transition-all relative group",
                 isActive 
                   ? "text-brand-500" 
                   : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
               )}
             >
               <div className={cn(
-                "absolute inset-0 rounded-full transition-opacity",
+                "absolute inset-0 rounded-2xl transition-opacity",
                 isActive ? "bg-brand-500/10 opacity-100" : "opacity-0"
               )} />
               <Icon className={cn(
-                "w-5 h-5 relative z-10 transition-transform duration-200",
+                "w-[22px] h-[22px] relative z-10 transition-transform duration-200 mb-1",
                 isActive ? "scale-110 stroke-[2.5px]" : "scale-100"
               )} />
-              <span className="sr-only">{label}</span>
+              <span className={cn(
+                "text-[10px] font-medium relative z-10 tracking-tight transition-all whitespace-nowrap",
+                isActive ? "opacity-100" : "opacity-80"
+              )}>{label}</span>
             </Link>
           );
         })}
