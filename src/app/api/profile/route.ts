@@ -27,6 +27,14 @@ const profileSchema = z.object({
   websiteUrl: z.string().url().optional().nullable().or(z.literal('')),
   linkedinUrl: z.string().url().optional().nullable().or(z.literal('')),
   instagramUrl: z.string().url().optional().nullable().or(z.literal('')),
+
+  showPhone: z.boolean().optional(),
+  showWhatsapp: z.boolean().optional(),
+  showEmail: z.boolean().optional(),
+  showWebsite: z.boolean().optional(),
+  showLinkedin: z.boolean().optional(),
+  showInstagram: z.boolean().optional(),
+
   isPublished: z.boolean().default(false),
   label: z.string().max(50).optional().nullable(),
   profileLayout: z.enum(['classic', 'identity', 'canvas']).default('classic').optional(),

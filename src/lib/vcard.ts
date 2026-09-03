@@ -26,22 +26,22 @@ export function generateVCard(profile: Profile): string {
   if (profile.jobTitle)    lines.push(`TITLE:${escapeVCard(profile.jobTitle)}`);
 
   // Phone numbers
-  if (profile.phone) {
+  if (profile.phone && profile.showPhone) {
     lines.push(`TEL;TYPE=CELL:${escapeVCard(profile.phone)}`);
   }
-  if (profile.whatsapp && profile.whatsapp !== profile.phone) {
+  if (profile.whatsapp && profile.showWhatsapp && profile.whatsapp !== profile.phone) {
     lines.push(`TEL;TYPE=WORK:${escapeVCard(profile.whatsapp)}`);
   }
 
   // Email
-  if (profile.email) lines.push(`EMAIL;TYPE=WORK:${escapeVCard(profile.email)}`);
+  if (profile.email && profile.showEmail) lines.push(`EMAIL;TYPE=WORK:${escapeVCard(profile.email)}`);
 
   // URLs — escape the value but preserve the URL structure
-  if (profile.websiteUrl) lines.push(`URL:${escapeVCard(profile.websiteUrl)}`);
-  if (profile.linkedinUrl) {
+  if (profile.websiteUrl && profile.showWebsite) lines.push(`URL:${escapeVCard(profile.websiteUrl)}`);
+  if (profile.linkedinUrl && profile.showLinkedin) {
     lines.push(`X-SOCIALPROFILE;type=linkedin:${escapeVCard(profile.linkedinUrl)}`);
   }
-  if (profile.instagramUrl) {
+  if (profile.instagramUrl && profile.showInstagram) {
     lines.push(`X-SOCIALPROFILE;type=instagram:${escapeVCard(profile.instagramUrl)}`);
   }
 

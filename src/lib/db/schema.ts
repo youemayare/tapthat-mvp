@@ -40,6 +40,14 @@ export const profiles = pgTable('profiles', {
   whatsapp: text('whatsapp'),
   email: text('email'),
 
+  // Visibility settings for contact & social fields
+  showPhone: boolean('show_phone').default(true).notNull(),
+  showWhatsapp: boolean('show_whatsapp').default(true).notNull(),
+  showEmail: boolean('show_email').default(true).notNull(),
+  showLinkedin: boolean('show_linkedin').default(true).notNull(),
+  showInstagram: boolean('show_instagram').default(true).notNull(),
+  showWebsite: boolean('show_website').default(true).notNull(),
+
   // Social links (structured)
   linkedinUrl: text('linkedin_url'),
   instagramUrl: text('instagram_url'),

@@ -59,6 +59,14 @@ const profileSchema = z.object({
   websiteUrl: z.string().url('Invalid URL').optional().nullable().or(z.literal('')),
   linkedinUrl: z.string().url('Invalid URL').optional().nullable().or(z.literal('')),
   instagramUrl: z.string().url('Invalid URL').optional().nullable().or(z.literal('')),
+  
+  showPhone: z.boolean().default(true),
+  showWhatsapp: z.boolean().default(true),
+  showEmail: z.boolean().default(true),
+  showWebsite: z.boolean().default(true),
+  showLinkedin: z.boolean().default(true),
+  showInstagram: z.boolean().default(true),
+
   isPublished: z.boolean(),
   label: z.string().max(50, 'Max 50 characters').optional().nullable(),
     profileLayout: z.enum(['classic', 'identity', 'canvas']).default('classic'),
@@ -113,6 +121,14 @@ export function ProfileForm({ initialData, isMultiProfile }: ProfileFormProps) {
       websiteUrl: initialData?.websiteUrl || '',
       linkedinUrl: initialData?.linkedinUrl || '',
       instagramUrl: initialData?.instagramUrl || '',
+      
+      showPhone: initialData?.showPhone ?? true,
+      showWhatsapp: initialData?.showWhatsapp ?? true,
+      showEmail: initialData?.showEmail ?? true,
+      showWebsite: initialData?.showWebsite ?? true,
+      showLinkedin: initialData?.showLinkedin ?? true,
+      showInstagram: initialData?.showInstagram ?? true,
+
       isPublished: initialData?.isPublished ?? false,
       profileLayout: initialData?.profileLayout || 'classic',
         layoutBackgroundColor: initialData?.layoutBackgroundColor || '',
@@ -448,47 +464,107 @@ export function ProfileForm({ initialData, isMultiProfile }: ProfileFormProps) {
         </div>
       </div>
 
-      {/* â”€â”€ Contact Info â”€â”€ */}
-      <div className="bg-card text-card-foreground border border-border shadow-sm rounded-2xl p-6 space-y-6">
-        <h2 className="text-xl font-semibold text-foreground">Contact Information</h2>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-2">
-            <Label htmlFor="email">Public Email</Label>
-            <Input id="email" type="email" {...register('email')} placeholder="hello@example.com" />
-            {errors.email && <p className="text-sm text-red-500">{errors.email.message}</p>}
+        {/* 📋 Contact Info 📋 */}
+        <div className="bg-card text-card-foreground border border-border shadow-sm rounded-2xl p-6 space-y-6">
+          <h2 className="text-xl font-semibold text-foreground">Contact Information</h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="email">Public Email</Label>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-muted-foreground">Display</span>
+                  <Switch 
+                    checked={watch('showEmail')} 
+                    onCheckedChange={(c) => setValue('showEmail', c, { shouldDirty: true })}
+                    className="scale-75 origin-right"
+                  />
+                </div>
+              </div>
+              <Input id="email" type="email" {...register('email')} placeholder="hello@example.com" />
+              {errors.email && <p className="text-sm text-red-500">{errors.email.message}</p>}
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="phone">Phone Number</Label>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-muted-foreground">Display</span>
+                  <Switch 
+                    checked={watch('showPhone')} 
+                    onCheckedChange={(c) => setValue('showPhone', c, { shouldDirty: true })}
+                    className="scale-75 origin-right"
+                  />
+                </div>
+              </div>
+              <Input id="phone" type="tel" {...register('phone')} placeholder="+971 50 123 4567" />
+            </div>
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="phone">Phone Number</Label>
-            <Input id="phone" type="tel" {...register('phone')} placeholder="+971 50 123 4567" />
-          </div>
-        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-2">
-            <Label htmlFor="whatsapp">WhatsApp Number</Label>
-            <Input id="whatsapp" type="tel" {...register('whatsapp')} placeholder="971501234567" />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="whatsapp">WhatsApp Number</Label>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-muted-foreground">Display</span>
+                  <Switch 
+                    checked={watch('showWhatsapp')} 
+                    onCheckedChange={(c) => setValue('showWhatsapp', c, { shouldDirty: true })}
+                    className="scale-75 origin-right"
+                  />
+                </div>
+              </div>
+              <Input id="whatsapp" type="tel" {...register('whatsapp')} placeholder="971501234567" />
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="websiteUrl">Website</Label>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-muted-foreground">Display</span>
+                  <Switch 
+                    checked={watch('showWebsite')} 
+                    onCheckedChange={(c) => setValue('showWebsite', c, { shouldDirty: true })}
+                    className="scale-75 origin-right"
+                  />
+                </div>
+              </div>
+              <Input id="websiteUrl" type="url" {...register('websiteUrl')} placeholder="https://anoya.ae" />
+              {errors.websiteUrl && <p className="text-sm text-red-500">{errors.websiteUrl.message}</p>}
+            </div>
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="websiteUrl">Website</Label>
-            <Input id="websiteUrl" type="url" {...register('websiteUrl')} placeholder="https://anoya.ae" />
-            {errors.websiteUrl && <p className="text-sm text-red-500">{errors.websiteUrl.message}</p>}
-          </div>
-        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-2">
-            <Label htmlFor="linkedinUrl">LinkedIn URL</Label>
-            <Input id="linkedinUrl" type="url" {...register('linkedinUrl')} placeholder="https://linkedin.com/in/umarkhan" />
-            {errors.linkedinUrl && <p className="text-sm text-red-500">{errors.linkedinUrl.message}</p>}
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="instagramUrl">Instagram URL</Label>
-            <Input id="instagramUrl" type="url" {...register('instagramUrl')} placeholder="https://instagram.com/anoya" />
-            {errors.instagramUrl && <p className="text-sm text-red-500">{errors.instagramUrl.message}</p>}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="linkedinUrl">LinkedIn URL</Label>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-muted-foreground">Display</span>
+                  <Switch 
+                    checked={watch('showLinkedin')} 
+                    onCheckedChange={(c) => setValue('showLinkedin', c, { shouldDirty: true })}
+                    className="scale-75 origin-right"
+                  />
+                </div>
+              </div>
+              <Input id="linkedinUrl" type="url" {...register('linkedinUrl')} placeholder="https://linkedin.com/in/umarkhan" />
+              {errors.linkedinUrl && <p className="text-sm text-red-500">{errors.linkedinUrl.message}</p>}
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="instagramUrl">Instagram URL</Label>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-muted-foreground">Display</span>
+                  <Switch 
+                    checked={watch('showInstagram')} 
+                    onCheckedChange={(c) => setValue('showInstagram', c, { shouldDirty: true })}
+                    className="scale-75 origin-right"
+                  />
+                </div>
+              </div>
+              <Input id="instagramUrl" type="url" {...register('instagramUrl')} placeholder="https://instagram.com/anoya" />
+              {errors.instagramUrl && <p className="text-sm text-red-500">{errors.instagramUrl.message}</p>}
+            </div>
           </div>
         </div>
-      </div>
 
       {/* â”€â”€ Profile Settings â”€â”€ */}
         <div className="bg-card text-card-foreground border border-border shadow-sm rounded-2xl p-6 space-y-6">
