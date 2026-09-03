@@ -14,10 +14,10 @@ import { cn } from '@/lib/utils';
 
 export const navItems = [
   { href: '/dashboard', label: 'Overview', icon: LayoutDashboard, exact: true },
-  { href: '/dashboard/profile', label: 'My Profiles', icon: User },
-  { href: '/dashboard/connections', label: 'My Connections', icon: UserCheck },
+  { href: '/dashboard/profile', label: 'Profiles', icon: User },
+  { href: '/dashboard/connections', label: 'Connections', icon: UserCheck },
   { href: '/dashboard/analytics', label: 'Analytics', icon: BarChart3 },
-  { href: '/dashboard/cards', label: 'My Cards', icon: CreditCard },
+  { href: '/dashboard/cards', label: 'Cards', icon: CreditCard },
   { href: '/dashboard/settings', label: 'Settings', icon: Settings },
 ];
 
