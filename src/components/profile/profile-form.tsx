@@ -283,12 +283,11 @@ export function ProfileForm({ initialData, isMultiProfile }: ProfileFormProps) {
                   <span className="text-sm text-muted-foreground">Immersive and photo-led</span>
                 </div>
               </label>
-              <label className={`relative flex cursor-pointer rounded-xl border-2 p-4 transition-all ` + 
-(profileLayout === 'canvas' ? 'border-brand-500 bg-brand-500/5' : 'border-border hover:border-brand-500/50')}>
+              <label className={`relative flex cursor-pointer rounded-xl border-2 p-4 transition-all ` + (profileLayout === 'canvas' ? 'border-brand-500 bg-brand-500/5' : 'border-border hover:border-brand-500/50')}>
                 <input type="radio" value="canvas" {...register('profileLayout')} className="sr-only" />
                 <div className="flex flex-col gap-1">
-                  <span className="font-semibold text-foreground">Canvas</span>
-                  <span className="text-sm text-muted-foreground">Customizable background</span>
+                  <span className="font-semibold text-foreground">Signature</span>
+                  <span className="text-sm text-muted-foreground">Premium and customizable</span>
                 </div>
               </label>
               </div>
@@ -298,29 +297,29 @@ export function ProfileForm({ initialData, isMultiProfile }: ProfileFormProps) {
                   <div className="space-y-2">
                     <Label>Profile Font</Label>
                     <Select
-                      value={layoutFont || 'geist'}
+                      value={layoutFont}
                       onValueChange={(val) => setValue('layoutFont', val, { shouldDirty: true })}
                     >
-                      <SelectTrigger className="w-full sm:w-[300px]">
-                        <SelectValue placeholder="Select a font">
-                          {FONT_OPTIONS[layoutFont || 'geist']}
-                        </SelectValue>
+                      <SelectTrigger className="w-full sm:max-w-xs bg-background">
+                        <SelectValue placeholder="Select a font" />
                       </SelectTrigger>
                       <SelectContent>
-                        {Object.entries(FONT_OPTIONS).map(([val, label]) => (
-                          <SelectItem key={val} value={val}>
-                            {label}
+                        {Object.entries(FONT_OPTIONS).map(([key, name]) => (
+                          <SelectItem key={key} value={key}>
+                            <span className={key === 'geist' ? 'font-sans' : key === 'mono' ? 'font-mono' : key}>{name}</span>
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
-                    <p className="text-xs text-muted-foreground">This font will only be applied to your public profile.</p>
+                    <p className="text-xs text-muted-foreground">
+                      This font will be used for all text on your public profile.
+                    </p>
                   </div>  
               </div>
 
             {profileLayout === 'canvas' && (
               <div className="mt-6 space-y-6 pt-6 border-t border-border">
-                  <h3 className="text-lg font-medium text-foreground">Canvas Settings</h3>
+                <h3 className="text-lg font-medium text-foreground">Signature Settings</h3>
                   <div className="space-y-4">
                     <div>
                       <Label className="mb-4 block text-sm font-medium">Background Image (Optional)</Label>
