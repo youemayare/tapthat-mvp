@@ -69,7 +69,7 @@ const profileSchema = z.object({
 
   isPublished: z.boolean(),
   label: z.string().max(50, 'Max 50 characters').optional().nullable(),
-    profileLayout: z.enum(['classic', 'identity', 'canvas']).default('classic'),
+    profileLayout: z.enum(['classic', 'identity', 'premium', 'canvas', 'professional']).default('classic'),
     layoutBackgroundColor: z.string().optional().nullable().or(z.literal('')),
     layoutBackgroundImageUrl: z.string().optional().nullable().or(z.literal('')),
     layoutFont: z.string().optional().nullable().or(z.literal('')),
@@ -290,7 +290,14 @@ export function ProfileForm({ initialData, isMultiProfile }: ProfileFormProps) {
                   <span className="text-sm text-muted-foreground">Premium and customizable</span>
                 </div>
               </label>
-              </div>
+              <label className={`relative flex cursor-pointer rounded-xl border-2 p-4 transition-all ` + (profileLayout === 'professional' ? 'border-brand-500 bg-brand-500/5' : 'border-border hover:border-brand-500/50')}>
+                <input type="radio" value="professional" {...register('profileLayout')} className="sr-only" />
+                <div className="flex flex-col gap-1">
+                  <span className="font-semibold text-foreground">Professional</span>
+                  <span className="text-sm text-muted-foreground">Refined, executive, and information-first</span>
+                </div>
+              </label>
+            </div>
 
               <div className="mt-8 space-y-4">
                 <h3 className="text-lg font-medium text-foreground">Typography</h3>

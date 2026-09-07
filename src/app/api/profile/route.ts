@@ -37,7 +37,7 @@ const profileSchema = z.object({
 
   isPublished: z.boolean().default(false),
   label: z.string().max(50).optional().nullable(),
-  profileLayout: z.enum(['classic', 'identity', 'canvas']).default('classic').optional(),
+  profileLayout: z.enum(['classic', 'identity', 'premium', 'canvas', 'professional']).default('classic').optional(),
   layoutBackgroundColor: z.string().optional().nullable().or(z.literal('')),
   layoutBackgroundImageUrl: z.string().optional().nullable().or(z.literal('')),
   layoutFont: z.string().optional().nullable().or(z.literal('')),

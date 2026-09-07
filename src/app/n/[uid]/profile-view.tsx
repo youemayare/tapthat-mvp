@@ -4,6 +4,7 @@ import type { Profile } from '@/lib/db/schema';
 import { ClassicProfileLayout } from '@/components/profile/layouts/classic-profile-layout';
 import { IdentityProfileLayout } from '@/components/profile/layouts/identity-profile-layout';
 import { CanvasProfileLayout } from '@/components/profile/layouts/canvas-profile-layout';
+import { ProfessionalProfileLayout } from '@/components/profile/layouts/professional-profile-layout';
 
 interface Props {
   profile: Partial<Profile> & { id: string; userId: string };
@@ -28,6 +29,10 @@ export function ProfileView({ profile: rawProfile, cardUid }: Props) {
 
   if (profile.profileLayout === 'identity') {
     return <IdentityProfileLayout profile={profile as any} cardUid={cardUid} />;
+  }
+  
+  if (profile.profileLayout === 'professional') {
+    return <ProfessionalProfileLayout profile={profile as any} cardUid={cardUid} />;
   }
   
   if (profile.profileLayout === 'canvas') {

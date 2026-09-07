@@ -1,0 +1,1 @@
+ALTER TABLE "profiles" DROP CONSTRAINT IF EXISTS "profiles_profile_layout_check";

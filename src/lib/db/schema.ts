@@ -25,7 +25,7 @@ export const profiles = pgTable('profiles', {
   jobTitle: text('job_title'),
   companyName: text('company_name'),
   bio: text('bio'),
-  profileLayout: text('profile_layout').$type<'classic' | 'identity' | 'canvas'>().notNull().default('classic'),
+  profileLayout: text('profile_layout').$type<'classic' | 'identity' | 'premium' | 'canvas' | 'professional'>().notNull().default('classic'),
   layoutBackgroundColor: text('layout_background_color'),
   layoutBackgroundImageUrl: text('layout_background_image_url'),
   layoutFont: text('layout_font').default('geist'),
