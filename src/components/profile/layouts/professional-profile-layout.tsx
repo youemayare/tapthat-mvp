@@ -68,16 +68,16 @@ export function ProfessionalProfileLayout({ profile, cardUid }: Props) {
   const hasBackground = !!profile.layoutBackgroundImageUrl;
 
   return (
-    <div className="min-h-[100dvh] w-full relative bg-[#F7F7F5] dark:bg-[#0B0A08] text-[#1A1A1A] dark:text-[#F6F1E6] font-sans transition-colors duration-300 overflow-x-hidden selection:bg-[#C9A45D]/20 pb-16">
+    <div className="min-h-[100dvh] w-full relative bg-gradient-to-b from-[#FFFFFF] via-[#FDFDFD] to-[#F4F5F6] dark:bg-none dark:bg-[#0B0A08] text-[#1A1A1A] dark:text-[#F6F1E6] font-sans transition-colors duration-300 overflow-x-hidden selection:bg-[#C9A45D]/20 pb-16">
       
-      {/* Background Layer */}
+      {/* Background Layer - Hidden in Light Mode */}
       {hasBackground && (
         <>
           <div 
-            className="fixed inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-40 dark:opacity-30 mix-blend-multiply dark:mix-blend-overlay"
+            className="fixed inset-0 z-0 bg-cover bg-center bg-no-repeat hidden dark:block opacity-30 mix-blend-overlay"
             style={{ backgroundImage: `url(${profile.layoutBackgroundImageUrl})` }}
           />
-          <div className="fixed inset-0 z-0 bg-gradient-to-b from-transparent via-[#F7F7F5]/80 to-[#F7F7F5] dark:from-transparent dark:via-[#0B0A08]/90 dark:to-[#0B0A08]" />
+          <div className="fixed inset-0 z-0 hidden dark:block bg-gradient-to-b from-transparent via-[#0B0A08]/90 to-[#0B0A08]" />
         </>
       )}
 
