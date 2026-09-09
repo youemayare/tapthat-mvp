@@ -68,7 +68,7 @@ export function ProfessionalProfileLayout({ profile, cardUid }: Props) {
   const hasBackground = !!profile.layoutBackgroundImageUrl;
 
   return (
-    <div className="min-h-[100dvh] w-full relative bg-gradient-to-b from-[#F7F7F5] to-[#E8EAEB] dark:bg-none dark:bg-[#0B0A08] text-[#1A1A1A] dark:text-[#F6F1E6] font-sans transition-colors duration-300 overflow-x-hidden selection:bg-[#C9A45D]/20 pb-16">
+    <div className="min-h-[100dvh] w-full relative bg-gradient-to-b from-[#F7F7F5] to-[#E8EAEB] dark:from-[#1A1814] dark:to-[#050403] text-[#1A1A1A] dark:text-[#F6F1E6] font-sans transition-colors duration-300 overflow-x-hidden selection:bg-[#C9A45D]/20 pb-16">
       
       {/* Background Layer - Hidden in Light Mode */}
       {hasBackground && (
@@ -77,32 +77,41 @@ export function ProfessionalProfileLayout({ profile, cardUid }: Props) {
             className="fixed inset-0 z-0 bg-cover bg-center bg-no-repeat hidden dark:block opacity-30 mix-blend-overlay"
             style={{ backgroundImage: `url(${profile.layoutBackgroundImageUrl})` }}
           />
-          <div className="fixed inset-0 z-0 hidden dark:block bg-gradient-to-b from-transparent via-[#0B0A08]/90 to-[#0B0A08]" />
+          <div className="fixed inset-0 z-0 hidden dark:block bg-gradient-to-b from-transparent via-[#050403]/90 to-[#050403]" />
         </>
       )}
 
       <div className="relative z-10 max-w-lg mx-auto w-full px-6 pt-6 flex flex-col min-h-[100dvh]">
         {/* Top bar */}
         <div className="flex items-center justify-between mb-8">
-          {viewerState.isLoggedIn && !viewerState.isOwner ? (
-            <Link 
-              href="/dashboard" 
-              className="w-10 h-10 rounded-full flex items-center justify-center border border-[#C9A45D]/30 dark:border-[#C9A45D]/20 bg-white/50 dark:bg-[#15130F]/50 backdrop-blur-sm text-[#C9A45D] transition-colors"
-            >
-              <Home className="w-4 h-4" />
-            </Link>
-          ) : (
-            <div className="w-10" />
-          )}
-
+          <div className="flex items-center gap-3">
+            {viewerState.isLoggedIn && !viewerState.isOwner ? (
+              <Link 
+                href="/dashboard" 
+                className="w-10 h-10 rounded-full flex items-center justify-center border border-[#C9A45D]/30 dark:border-[#C9A45D]/20 bg-[#F7F7F5]/50 dark:bg-[#15130F]/50 backdrop-blur-sm text-[#C9A45D] transition-colors hover:bg-[#F7F7F5] dark:hover:bg-[#15130F]"
+              >
+                <Home className="w-4 h-4" />
+              </Link>
+            ) : viewerState.isOwner ? (
+              <Link 
+                href="/dashboard" 
+                className="w-10 h-10 rounded-full flex items-center justify-center border border-[#C9A45D]/30 dark:border-[#C9A45D]/20 bg-[#F7F7F5]/50 dark:bg-[#15130F]/50 backdrop-blur-sm text-[#C9A45D] transition-colors hover:bg-[#F7F7F5] dark:hover:bg-[#15130F]"
+              >
+                <Home className="w-4 h-4" />
+              </Link>
+            ) : (
+              <div className="w-10 h-10" />
+            )}
+          </div>
+          
           <div className="flex-1" />
           
           <div className="flex items-center gap-3">
-            <ThemeToggle className="rounded-full border border-[#C9A45D]/30 dark:border-[#C9A45D]/20 bg-white/50 dark:bg-[#15130F]/50 backdrop-blur-sm text-[#C9A45D]" />
+            <ThemeToggle className="rounded-full border border-[#C9A45D]/30 dark:border-[#C9A45D]/20 bg-[#F7F7F5]/50 dark:bg-[#15130F]/50 backdrop-blur-sm text-[#C9A45D]" />
             <button 
               onClick={handleShare}
               aria-label="Share profile"
-              className="w-10 h-10 rounded-full flex items-center justify-center border border-[#C9A45D]/30 dark:border-[#C9A45D]/20 bg-white/50 dark:bg-[#15130F]/50 backdrop-blur-sm text-[#C9A45D] transition-colors hover:bg-white dark:hover:bg-[#15130F]"
+              className="w-10 h-10 rounded-full flex items-center justify-center border border-[#C9A45D]/30 dark:border-[#C9A45D]/20 bg-[#F7F7F5]/50 dark:bg-[#15130F]/50 backdrop-blur-sm text-[#C9A45D] transition-colors hover:bg-[#F7F7F5] dark:hover:bg-[#15130F]"
             >
               <Share className="w-4 h-4" />
             </button>
@@ -131,16 +140,14 @@ export function ProfessionalProfileLayout({ profile, cardUid }: Props) {
             </div>
           </div>
 
-          <h1 className="text-4xl md:text-5xl font-playfair tracking-tight mb-2 font-medium">
-            {fullName || 'Name'}
+          <h1 className="text-4xl font-playfair font-medium mb-3 tracking-tight">
+            {fullName}
           </h1>
           
           {profile.jobTitle && (
-            <div className="mt-2">
-              <span className="inline-block text-[13px] font-medium tracking-wide text-[#62666B] dark:text-[#B8B0A2]">
-                {profile.jobTitle}
-              </span>
-            </div>
+            <p className="text-[13px] uppercase tracking-[0.15em] font-medium text-[#62666B] dark:text-[#B8B0A2]">
+              {profile.jobTitle}
+            </p>
           )}
 
           {profile.companyLogoUrl && (
@@ -152,13 +159,9 @@ export function ProfessionalProfileLayout({ profile, cardUid }: Props) {
           )}
 
           {profile.bio && (
-            <div className="mt-6 flex justify-center w-full">
-              <p className="text-[15px] leading-relaxed text-[#62666B] dark:text-[#B8B0A2] max-w-sm relative px-6">
-                <span className="absolute left-0 top-0 text-2xl text-[#C9A45D]/40 font-playfair">"</span>
-                {profile.bio}
-                <span className="absolute right-0 bottom-[-10px] text-2xl text-[#C9A45D]/40 font-playfair">"</span>
-              </p>
-            </div>
+            <p className="mt-8 text-[15px] leading-relaxed max-w-sm mx-auto text-[#4A4D52] dark:text-[#D4D0C5] font-light">
+              {profile.bio}
+            </p>
           )}
         </div>
 
@@ -179,7 +182,7 @@ export function ProfessionalProfileLayout({ profile, cardUid }: Props) {
               disabled={saved}
               className={`w-full h-12 rounded-full flex items-center justify-center font-medium text-[15px] tracking-wide transition-all ${
                 saved 
-                  ? 'bg-gradient-to-b from-[#C9A45D]/80 to-[#B98A3D]/80 border-transparent text-white dark:text-[#0B0A08] cursor-default'
+                  ? 'bg-[#C9A45D]/10 border border-[#C9A45D]/30 text-[#B98A3D] dark:text-[#C9A45D] cursor-default opacity-80'
                   : 'bg-transparent border border-[#C9A45D]/40 text-[#1A1A1A] dark:border-[#C9A45D]/40 dark:text-[#F6F1E6] hover:bg-[#C9A45D]/5 active:scale-[0.98]'
               }`}
             >
