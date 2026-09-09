@@ -113,12 +113,8 @@ export function ProfessionalProfileLayout({ profile, cardUid }: Props) {
         <div className="flex flex-col items-center text-center">
           {/* Company Name moved above profile picture in Gold */}
           {profile.companyName && (
-            <div className="mb-8 flex flex-col items-center w-full relative">
-              <div className="absolute top-1/2 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#C9A45D]/30 to-transparent -z-10" />
-              {profile.companyLogoUrl && (
-                <img src={profile.companyLogoUrl} alt={profile.companyName} className="h-8 mb-3 object-contain bg-[#F7F7F5] dark:bg-[#0B0A08] px-4" />
-              )}
-              <h2 className="text-[12px] uppercase tracking-[0.2em] font-semibold text-[#B98A3D] dark:text-[#C9A45D] bg-[#F7F7F5] dark:bg-[#0B0A08] px-4">
+            <div className="mb-8 flex flex-col items-center w-full">
+              <h2 className="text-[12px] uppercase tracking-[0.2em] font-semibold text-[#B98A3D] dark:text-[#C9A45D]">
                 {profile.companyName}
               </h2>
             </div>
@@ -143,6 +139,12 @@ export function ProfessionalProfileLayout({ profile, cardUid }: Props) {
               <span className="inline-block text-[13px] font-medium tracking-wide text-[#62666B] dark:text-[#B8B0A2]">
                 {profile.jobTitle}
               </span>
+            </div>
+          )}
+
+          {profile.companyLogoUrl && (
+            <div className="mt-6 flex flex-col items-center">
+              <img src={profile.companyLogoUrl} alt={profile.companyName || 'Company Logo'} className="h-10 object-contain" />
             </div>
           )}
 
