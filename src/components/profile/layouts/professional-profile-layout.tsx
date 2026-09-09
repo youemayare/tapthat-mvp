@@ -68,7 +68,7 @@ export function ProfessionalProfileLayout({ profile, cardUid }: Props) {
   const hasBackground = !!profile.layoutBackgroundImageUrl;
 
   return (
-    <div className="min-h-[100dvh] w-full relative bg-[#F7F7F5] dark:bg-[#0B0A08] text-[#1A1A1A] dark:text-[#F6F1E6] font-sans transition-colors duration-300 overflow-x-hidden selection:bg-[#D9DDE1] dark:selection:bg-[#C9A45D]/30 pb-16">
+    <div className="min-h-[100dvh] w-full relative bg-[#F7F7F5] dark:bg-[#0B0A08] text-[#1A1A1A] dark:text-[#F6F1E6] font-sans transition-colors duration-300 overflow-x-hidden selection:bg-[#C9A45D]/20 pb-16">
       
       {/* Background Layer */}
       {hasBackground && (
@@ -77,34 +77,32 @@ export function ProfessionalProfileLayout({ profile, cardUid }: Props) {
             className="fixed inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-40 dark:opacity-30 mix-blend-multiply dark:mix-blend-overlay"
             style={{ backgroundImage: `url(${profile.layoutBackgroundImageUrl})` }}
           />
-          {/* Subtle gradient overlay to ensure text legibility */}
           <div className="fixed inset-0 z-0 bg-gradient-to-b from-transparent via-[#F7F7F5]/80 to-[#F7F7F5] dark:from-transparent dark:via-[#0B0A08]/90 dark:to-[#0B0A08]" />
         </>
       )}
 
-      <div className="relative z-10 max-w-lg mx-auto w-full px-6 pt-6">
+      <div className="relative z-10 max-w-lg mx-auto w-full px-6 pt-6 flex flex-col min-h-[100dvh]">
         {/* Top bar */}
         <div className="flex items-center justify-between mb-8">
           {viewerState.isLoggedIn && !viewerState.isOwner ? (
             <Link 
               href="/dashboard" 
-              className="w-10 h-10 rounded-full flex items-center justify-center border border-[#D8DADD] dark:border-[#C9A45D]/20 bg-white/50 dark:bg-[#15130F]/50 backdrop-blur-sm text-[#1A1A1A] dark:text-[#C9A45D] transition-colors"
+              className="w-10 h-10 rounded-full flex items-center justify-center border border-[#C9A45D]/30 dark:border-[#C9A45D]/20 bg-white/50 dark:bg-[#15130F]/50 backdrop-blur-sm text-[#C9A45D] transition-colors"
             >
               <Home className="w-4 h-4" />
             </Link>
           ) : (
-            <div className="w-10" /> /* Spacer for centering */
+            <div className="w-10" />
           )}
 
-          {/* Optional small logo could go here in center if needed */}
           <div className="flex-1" />
           
           <div className="flex items-center gap-3">
-            <ThemeToggle className="rounded-full border border-[#D8DADD] dark:border-[#C9A45D]/20 bg-white/50 dark:bg-[#15130F]/50 backdrop-blur-sm text-[#1A1A1A] dark:text-[#C9A45D]" />
+            <ThemeToggle className="rounded-full border border-[#C9A45D]/30 dark:border-[#C9A45D]/20 bg-white/50 dark:bg-[#15130F]/50 backdrop-blur-sm text-[#C9A45D]" />
             <button 
               onClick={handleShare}
               aria-label="Share profile"
-              className="w-10 h-10 rounded-full flex items-center justify-center border border-[#D8DADD] dark:border-[#C9A45D]/20 bg-white/50 dark:bg-[#15130F]/50 backdrop-blur-sm text-[#1A1A1A] dark:text-[#C9A45D] transition-colors hover:bg-white dark:hover:bg-[#15130F]"
+              className="w-10 h-10 rounded-full flex items-center justify-center border border-[#C9A45D]/30 dark:border-[#C9A45D]/20 bg-white/50 dark:bg-[#15130F]/50 backdrop-blur-sm text-[#C9A45D] transition-colors hover:bg-white dark:hover:bg-[#15130F]"
             >
               <Share className="w-4 h-4" />
             </button>
@@ -113,12 +111,25 @@ export function ProfessionalProfileLayout({ profile, cardUid }: Props) {
 
         {/* Identity Block */}
         <div className="flex flex-col items-center text-center">
-          <div className="w-28 h-28 mb-6 rounded-full p-[2px] bg-gradient-to-tr from-[#A9ADB2] to-[#E8EAEB] dark:from-[#B98A3D] dark:to-[#E4C98F] shadow-sm">
+          {/* Company Name moved above profile picture in Gold */}
+          {profile.companyName && (
+            <div className="mb-8 flex flex-col items-center w-full relative">
+              <div className="absolute top-1/2 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#C9A45D]/30 to-transparent -z-10" />
+              {profile.companyLogoUrl && (
+                <img src={profile.companyLogoUrl} alt={profile.companyName} className="h-8 mb-3 object-contain bg-[#F7F7F5] dark:bg-[#0B0A08] px-4" />
+              )}
+              <h2 className="text-[12px] uppercase tracking-[0.2em] font-semibold text-[#B98A3D] dark:text-[#C9A45D] bg-[#F7F7F5] dark:bg-[#0B0A08] px-4">
+                {profile.companyName}
+              </h2>
+            </div>
+          )}
+
+          <div className="w-32 h-32 mb-6 rounded-full p-[1.5px] bg-gradient-to-tr from-[#B98A3D] via-[#E4C98F] to-[#B98A3D] shadow-md">
             <div className="w-full h-full rounded-full overflow-hidden bg-white dark:bg-[#15130F] flex items-center justify-center">
               {profile.profilePhotoUrl ? (
                 <img src={profile.profilePhotoUrl} alt={fullName} className="w-full h-full object-cover" />
               ) : (
-                <span className="text-3xl font-playfair text-[#7B8188] dark:text-[#C9A45D]">{initials}</span>
+                <span className="text-4xl font-playfair text-[#C9A45D]">{initials}</span>
               )}
             </div>
           </div>
@@ -128,38 +139,30 @@ export function ProfessionalProfileLayout({ profile, cardUid }: Props) {
           </h1>
           
           {profile.jobTitle && (
-            <div className="mt-1">
-              <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold tracking-wider uppercase bg-[#F0F1F2] dark:bg-[#17140F] text-[#62666B] dark:text-[#C9A45D] border border-[#D8DADD] dark:border-[#C9A45D]/20">
+            <div className="mt-2">
+              <span className="inline-block text-[13px] font-medium tracking-wide text-[#62666B] dark:text-[#B8B0A2]">
                 {profile.jobTitle}
               </span>
             </div>
           )}
 
-          {profile.companyName && (
-            <div className="mt-4 flex flex-col items-center">
-              {profile.companyLogoUrl && (
-                <img src={profile.companyLogoUrl} alt={profile.companyName} className="h-8 mb-2 object-contain" />
-              )}
-              <h2 className="text-[15px] font-medium text-[#1A1A1A] dark:text-[#B8B0A2]">
-                {profile.companyName}
-              </h2>
-            </div>
-          )}
-
           {profile.bio && (
-            <p className="mt-5 text-[15px] leading-relaxed text-[#62666B] dark:text-[#B8B0A2] max-w-sm">
-              {profile.bio}
-            </p>
+            <div className="mt-6 flex justify-center w-full">
+              <p className="text-[15px] leading-relaxed text-[#62666B] dark:text-[#B8B0A2] max-w-sm relative px-6">
+                <span className="absolute left-0 top-0 text-2xl text-[#C9A45D]/40 font-playfair">"</span>
+                {profile.bio}
+                <span className="absolute right-0 bottom-[-10px] text-2xl text-[#C9A45D]/40 font-playfair">"</span>
+              </p>
+            </div>
           )}
         </div>
 
         {/* Action Buttons */}
-        <div className="mt-10 flex flex-col gap-3">
+        <div className="mt-10 flex flex-col gap-3 w-full max-w-sm mx-auto">
           <button 
             onClick={handleSaveContact}
-            className="w-full h-12 rounded-xl flex items-center justify-center font-semibold text-[15px] transition-all
-              bg-gradient-to-b from-[#FFFFFF] to-[#F4F5F6] border border-[#D8DADD] text-[#1A1A1A] shadow-sm
-              dark:bg-gradient-to-b dark:from-[#C9A45D] dark:to-[#B98A3D] dark:border-[#B98A3D] dark:text-[#0B0A08]
+            className="w-full h-12 rounded-full flex items-center justify-center font-medium text-[15px] tracking-wide transition-all
+              bg-gradient-to-b from-[#C9A45D] to-[#B98A3D] border border-[#B98A3D] text-white dark:text-[#0B0A08] shadow-md
               hover:opacity-90 active:scale-[0.98]"
           >
             Save Contact
@@ -168,35 +171,37 @@ export function ProfessionalProfileLayout({ profile, cardUid }: Props) {
           {(viewerState.isLoggedIn && !viewerState.isOwner) && (
             <button 
               onClick={handleToggleSave}
-              className="w-full h-12 rounded-xl flex items-center justify-center font-medium text-[15px] transition-all
-                bg-transparent border border-[#D8DADD] text-[#1A1A1A] 
-                dark:border-[#C9A45D]/30 dark:text-[#F6F1E6]
-                hover:bg-[#F0F1F2] dark:hover:bg-[#17140F] active:scale-[0.98]"
+              className="w-full h-12 rounded-full flex items-center justify-center font-medium text-[15px] tracking-wide transition-all
+                bg-transparent border border-[#C9A45D]/40 text-[#1A1A1A] 
+                dark:border-[#C9A45D]/40 dark:text-[#F6F1E6]
+                hover:bg-[#C9A45D]/5 active:scale-[0.98]"
             >
               {saved ? 'Saved to Connections' : 'Save to Connections'}
             </button>
           )}
         </div>
 
-        {/* Divider */}
+        {/* Decorative Divider */}
         {contactRows.length > 0 && (
-          <div className="w-full flex justify-center my-10">
-            <div className="w-12 h-[1px] bg-[#A9ADB2] dark:bg-[#C9A45D]/40" />
+          <div className="w-full flex justify-center items-center gap-3 my-12 opacity-70">
+            <div className="w-16 h-[1px] bg-gradient-to-r from-transparent to-[#C9A45D]" />
+            <div className="w-1.5 h-1.5 rotate-45 border border-[#C9A45D]" />
+            <div className="w-16 h-[1px] bg-gradient-to-l from-transparent to-[#C9A45D]" />
           </div>
         )}
 
         {/* Contact Rows */}
         {contactRows.length > 0 && (
-          <div className="space-y-0 border-t border-[#D8DADD] dark:border-[#C9A45D]/10">
+          <div className="space-y-0 border-t border-[#C9A45D]/20">
             {contactRows.map((row, idx) => (
               <a 
                 key={idx}
                 href={row.href}
                 target={row.href.startsWith('http') ? '_blank' : undefined}
                 rel="noreferrer"
-                className="flex items-center justify-between py-4 border-b border-[#D8DADD] dark:border-[#C9A45D]/10 hover:bg-[#F0F1F2]/50 dark:hover:bg-[#15130F]/50 transition-colors group"
+                className="flex items-center justify-between py-4 border-b border-[#C9A45D]/20 hover:bg-[#C9A45D]/5 transition-colors group"
               >
-                <span className="text-[11px] font-semibold tracking-widest uppercase text-[#7B8188] dark:text-[#B8B0A2]/70 group-hover:text-[#1A1A1A] dark:group-hover:text-[#C9A45D] transition-colors">
+                <span className="text-[11px] font-semibold tracking-widest uppercase text-[#B98A3D] dark:text-[#C9A45D]/80 group-hover:text-[#C9A45D] transition-colors">
                   {row.label}
                 </span>
                 <span className="text-[15px] font-medium text-[#1A1A1A] dark:text-[#F6F1E6] truncate pl-4">
@@ -207,16 +212,25 @@ export function ProfessionalProfileLayout({ profile, cardUid }: Props) {
           </div>
         )}
 
-        <div className="mt-16 text-center">
-          <p className="text-[11px] text-[#A9ADB2] dark:text-[#B8B0A2]/50 uppercase tracking-widest font-semibold">
-            Powered by Anoya
+        <div className="flex-1" /> {/* Pushes footer to bottom */}
+
+        {/* Footer CTAs */}
+        <div className="mt-16 mb-8 text-center flex flex-col items-center justify-center gap-4">
+          <Link 
+            href="/"
+            className="inline-flex items-center justify-center gap-1.5 px-5 py-2.5 bg-[#C9A45D]/10 hover:bg-[#C9A45D]/20 border border-[#C9A45D]/20 text-[#B98A3D] dark:text-[#C9A45D] text-[13px] font-medium rounded-full transition-all duration-300"
+          >
+            Want your own custom card? <span className="text-[#1A1A1A] dark:text-[#F6F1E6] ml-0.5">Get Anoya</span>
+          </Link>
+          <p className="text-[10px] text-[#A9ADB2] dark:text-[#B8B0A2]/50 uppercase tracking-widest font-semibold">
+            Powered by <Link href="/" className="hover:text-[#C9A45D] transition-colors">Anoya</Link>
           </p>
         </div>
       </div>
 
       {/* Save Connection Note Modal */}
       <Dialog open={showNoteModal} onOpenChange={setShowNoteModal}>
-        <DialogContent className="sm:max-w-md bg-white dark:bg-[#15130F] border-[#D8DADD] dark:border-[#C9A45D]/20 text-[#1A1A1A] dark:text-[#F6F1E6]">
+        <DialogContent className="sm:max-w-md bg-white dark:bg-[#15130F] border-[#C9A45D]/30 text-[#1A1A1A] dark:text-[#F6F1E6]">
           <DialogHeader>
             <DialogTitle className="font-playfair text-2xl font-medium">Add a Note</DialogTitle>
             <DialogDescription className="text-[#62666B] dark:text-[#B8B0A2]">
@@ -228,15 +242,15 @@ export function ProfessionalProfileLayout({ profile, cardUid }: Props) {
               value={noteContent}
               onChange={(e) => setNoteContent(e.target.value)}
               placeholder="e.g., Met at the real estate summit..."
-              className="resize-none bg-transparent border-[#D8DADD] dark:border-[#C9A45D]/20 placeholder:text-[#A9ADB2] dark:placeholder:text-[#B8B0A2]/50 focus-visible:ring-[#7B8188] dark:focus-visible:ring-[#C9A45D]"
+              className="resize-none bg-transparent border-[#C9A45D]/30 placeholder:text-[#A9ADB2] dark:placeholder:text-[#B8B0A2]/50 focus-visible:ring-[#C9A45D]"
               rows={4}
             />
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowNoteModal(false)} className="border-[#D8DADD] dark:border-[#C9A45D]/20 text-[#1A1A1A] dark:text-[#F6F1E6] hover:bg-[#F0F1F2] dark:hover:bg-[#17140F]">
+            <Button variant="outline" onClick={() => setShowNoteModal(false)} className="border-[#C9A45D]/30 text-[#1A1A1A] dark:text-[#F6F1E6] hover:bg-[#C9A45D]/10">
               Cancel
             </Button>
-            <Button onClick={handleSaveConnectionAndNote} disabled={savingNote} className="bg-[#1A1A1A] dark:bg-[#C9A45D] text-white dark:text-[#0B0A08] hover:bg-[#1A1A1A]/90 dark:hover:bg-[#B98A3D]">
+            <Button onClick={handleSaveConnectionAndNote} disabled={savingNote} className="bg-gradient-to-r from-[#C9A45D] to-[#B98A3D] text-white dark:text-[#0B0A08] hover:opacity-90 border-0">
               {savingNote ? 'Saving...' : 'Save Connection'}
             </Button>
           </DialogFooter>

@@ -299,6 +299,7 @@ export function ProfileForm({ initialData, isMultiProfile }: ProfileFormProps) {
               </label>
             </div>
 
+            {profileLayout !== 'professional' && (
               <div className="mt-8 space-y-4">
                 <h3 className="text-lg font-medium text-foreground">Typography</h3>
                   <div className="space-y-2">
@@ -323,6 +324,7 @@ export function ProfileForm({ initialData, isMultiProfile }: ProfileFormProps) {
                     </p>
                   </div>  
               </div>
+            )}
 
             {profileLayout === 'canvas' && (
               <div className="mt-6 space-y-6 pt-6 border-t border-border">
