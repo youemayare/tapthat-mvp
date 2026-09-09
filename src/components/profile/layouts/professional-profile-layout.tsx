@@ -68,7 +68,7 @@ export function ProfessionalProfileLayout({ profile, cardUid }: Props) {
   const hasBackground = !!profile.layoutBackgroundImageUrl;
 
   return (
-    <div className="min-h-[100dvh] w-full relative bg-gradient-to-b from-[#FFFFFF] via-[#FDFDFD] to-[#F4F5F6] dark:bg-none dark:bg-[#0B0A08] text-[#1A1A1A] dark:text-[#F6F1E6] font-sans transition-colors duration-300 overflow-x-hidden selection:bg-[#C9A45D]/20 pb-16">
+    <div className="min-h-[100dvh] w-full relative bg-gradient-to-b from-[#F7F7F5] to-[#E8EAEB] dark:bg-none dark:bg-[#0B0A08] text-[#1A1A1A] dark:text-[#F6F1E6] font-sans transition-colors duration-300 overflow-x-hidden selection:bg-[#C9A45D]/20 pb-16">
       
       {/* Background Layer - Hidden in Light Mode */}
       {hasBackground && (
@@ -122,7 +122,7 @@ export function ProfessionalProfileLayout({ profile, cardUid }: Props) {
           )}
 
           <div className="w-32 h-32 mb-6 rounded-full p-[1.5px] bg-gradient-to-tr from-[#B98A3D] via-[#E4C98F] to-[#B98A3D] shadow-md">
-            <div className="w-full h-full rounded-full overflow-hidden bg-white dark:bg-[#15130F] flex items-center justify-center">
+            <div className="w-full h-full rounded-full overflow-hidden bg-[#F7F7F5] dark:bg-[#15130F] flex items-center justify-center">
               {profile.profilePhotoUrl ? (
                 <img src={profile.profilePhotoUrl} alt={fullName} className="w-full h-full object-cover" />
               ) : (
@@ -145,7 +145,7 @@ export function ProfessionalProfileLayout({ profile, cardUid }: Props) {
 
           {profile.companyLogoUrl && (
             <div className="mt-6 flex flex-col items-center">
-              <div className="w-24 h-12 rounded-lg overflow-hidden shadow-sm border border-[#C9A45D]/20 bg-white dark:bg-[#15130F]">
+              <div className="w-24 h-12 rounded-lg overflow-hidden shadow-sm border border-[#C9A45D]/20 bg-[#F7F7F5] dark:bg-[#15130F]">
                 <img src={profile.companyLogoUrl} alt={profile.companyName || 'Company Logo'} className="w-full h-full object-cover" />
               </div>
             </div>
@@ -235,7 +235,7 @@ export function ProfessionalProfileLayout({ profile, cardUid }: Props) {
 
       {/* Save Connection Note Modal */}
       <Dialog open={showNoteModal} onOpenChange={setShowNoteModal}>
-        <DialogContent className="sm:max-w-md bg-white dark:bg-[#15130F] border-[#C9A45D]/30 text-[#1A1A1A] dark:text-[#F6F1E6]">
+        <DialogContent className="sm:max-w-md bg-[#F7F7F5] dark:bg-[#15130F] border-[#C9A45D]/30 text-[#1A1A1A] dark:text-[#F6F1E6]">
           <DialogHeader>
             <DialogTitle className="font-playfair text-2xl font-medium">Add a Note</DialogTitle>
             <DialogDescription className="text-[#62666B] dark:text-[#B8B0A2]">
