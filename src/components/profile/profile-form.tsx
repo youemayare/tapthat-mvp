@@ -283,18 +283,18 @@ export function ProfileForm({ initialData, isMultiProfile }: ProfileFormProps) {
                   <span className="text-sm text-muted-foreground">Immersive and photo-led</span>
                 </div>
               </label>
+              <label className={`relative flex cursor-pointer rounded-xl border-2 p-4 transition-all ` + (profileLayout === 'professional' ? 'border-brand-500 bg-brand-500/5' : 'border-border hover:border-brand-500/50')}>
+                <input type="radio" value="professional" {...register('profileLayout')} className="sr-only" />
+                <div className="flex flex-col gap-1">
+                  <span className="font-semibold text-foreground">Professional</span>
+                  <span className="text-sm text-muted-foreground">Refined and executive</span>
+                </div>
+              </label>
               <label className={`relative flex cursor-pointer rounded-xl border-2 p-4 transition-all ` + (profileLayout === 'canvas' ? 'border-brand-500 bg-brand-500/5' : 'border-border hover:border-brand-500/50')}>
                 <input type="radio" value="canvas" {...register('profileLayout')} className="sr-only" />
                 <div className="flex flex-col gap-1">
                   <span className="font-semibold text-foreground">Signature</span>
                   <span className="text-sm text-muted-foreground">Premium and customizable</span>
-                </div>
-              </label>
-              <label className={`relative flex cursor-pointer rounded-xl border-2 p-4 transition-all ` + (profileLayout === 'professional' ? 'border-brand-500 bg-brand-500/5' : 'border-border hover:border-brand-500/50')}>
-                <input type="radio" value="professional" {...register('profileLayout')} className="sr-only" />
-                <div className="flex flex-col gap-1">
-                  <span className="font-semibold text-foreground">Professional</span>
-                  <span className="text-sm text-muted-foreground">Refined, executive, and information-first</span>
                 </div>
               </label>
             </div>
