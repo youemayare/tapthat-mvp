@@ -111,12 +111,13 @@ export function ProfessionalProfileLayout({ profile, cardUid }: Props) {
 
         {/* Identity Block */}
         <div className="flex flex-col items-center text-center">
-          {/* Company Name moved above profile picture in Gold */}
           {profile.companyName && (
-            <div className="mb-8 flex flex-col items-center w-full">
-              <h2 className="text-[12px] uppercase tracking-[0.2em] font-semibold text-[#B98A3D] dark:text-[#C9A45D]">
+            <div className="mb-10 flex items-center justify-center w-full max-w-[280px] opacity-80">
+              <div className="flex-1 h-[1px] bg-gradient-to-r from-transparent to-[#C9A45D]/50" />
+              <h2 className="px-4 text-[11px] uppercase tracking-[0.25em] font-semibold text-[#B98A3D] dark:text-[#C9A45D]">
                 {profile.companyName}
               </h2>
+              <div className="flex-1 h-[1px] bg-gradient-to-l from-transparent to-[#C9A45D]/50" />
             </div>
           )}
 
@@ -144,7 +145,9 @@ export function ProfessionalProfileLayout({ profile, cardUid }: Props) {
 
           {profile.companyLogoUrl && (
             <div className="mt-6 flex flex-col items-center">
-              <img src={profile.companyLogoUrl} alt={profile.companyName || 'Company Logo'} className="h-10 object-contain" />
+              <div className="w-24 h-12 rounded-lg overflow-hidden shadow-sm border border-[#C9A45D]/20 bg-white dark:bg-[#15130F]">
+                <img src={profile.companyLogoUrl} alt={profile.companyName || 'Company Logo'} className="w-full h-full object-cover" />
+              </div>
             </div>
           )}
 

@@ -124,15 +124,37 @@ export function ImageUpload({ label, type, currentUrl, profileLayout, onUploadSu
         </div>
 
         {/* Action buttons next to the preview */}
-        {currentUrl && onRemove && (
+        {currentUrl && (
           <div className="flex flex-col gap-2">
             <button
               type="button"
-              onClick={onRemove}
-              className="text-sm font-medium text-red-500 hover:text-red-600 transition-colors bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg flex items-center gap-1.5"
+              onClick={async () => {
+                try {
+                  const res = await fetch(currentUrl);
+                  const blob = await res.blob();
+                  const reader = new FileReader();
+                  reader.onload = () => {
+                    setSelectedImageSrc(reader.result?.toString() || null);
+                    setSelectedFileName('adjusted-image.jpg');
+                  };
+                  reader.readAsDataURL(blob);
+                } catch (e) {
+                  toast.error('Could not load image for readjusting. Try uploading again.');
+                }
+              }}
+              className="text-sm font-medium text-blue-500 hover:text-blue-600 transition-colors bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg flex items-center gap-1.5"
             >
-              Remove
+              Crop / Adjust
             </button>
+            {onRemove && (
+              <button
+                type="button"
+                onClick={onRemove}
+                className="text-sm font-medium text-red-500 hover:text-red-600 transition-colors bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg flex items-center gap-1.5"
+              >
+                Remove
+              </button>
+            )}
           </div>
         )}
         </div>

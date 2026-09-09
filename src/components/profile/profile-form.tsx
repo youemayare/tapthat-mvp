@@ -410,6 +410,7 @@ export function ProfileForm({ initialData, isMultiProfile }: ProfileFormProps) {
             type="avatar"
             currentUrl={profilePhotoUrl}
             onUploadSuccess={(url) => setValue('profilePhotoUrl', url, { shouldDirty: true })}
+            onRemove={() => setValue('profilePhotoUrl', null, { shouldDirty: true })}
           />
           <ImageUpload
             label="Company Logo"
@@ -417,6 +418,7 @@ export function ProfileForm({ initialData, isMultiProfile }: ProfileFormProps) {
             profileLayout={profileLayout}
             currentUrl={companyLogoUrl}
             onUploadSuccess={(url) => setValue('companyLogoUrl', url, { shouldDirty: true })}
+            onRemove={() => setValue('companyLogoUrl', null, { shouldDirty: true })}
           />
         </div>
         <div className="pt-4 border-t border-border">
