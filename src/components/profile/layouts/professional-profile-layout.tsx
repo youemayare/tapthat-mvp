@@ -175,11 +175,13 @@ export function ProfessionalProfileLayout({ profile, cardUid }: Props) {
 
           {(viewerState.isLoggedIn && !viewerState.isOwner) && (
             <button 
-              onClick={handleToggleSave}
-              className="w-full h-12 rounded-full flex items-center justify-center font-medium text-[15px] tracking-wide transition-all
-                bg-transparent border border-[#C9A45D]/40 text-[#1A1A1A] 
-                dark:border-[#C9A45D]/40 dark:text-[#F6F1E6]
-                hover:bg-[#C9A45D]/5 active:scale-[0.98]"
+              onClick={saved ? undefined : handleToggleSave}
+              disabled={saved}
+              className={`w-full h-12 rounded-full flex items-center justify-center font-medium text-[15px] tracking-wide transition-all ${
+                saved 
+                  ? 'bg-gradient-to-b from-[#C9A45D]/80 to-[#B98A3D]/80 border-transparent text-white dark:text-[#0B0A08] cursor-default'
+                  : 'bg-transparent border border-[#C9A45D]/40 text-[#1A1A1A] dark:border-[#C9A45D]/40 dark:text-[#F6F1E6] hover:bg-[#C9A45D]/5 active:scale-[0.98]'
+              }`}
             >
               {saved ? 'Saved to Connections' : 'Save to Connections'}
             </button>
