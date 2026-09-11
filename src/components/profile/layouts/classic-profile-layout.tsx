@@ -6,7 +6,7 @@ import { buildWhatsAppUrl, getFontClass } from '@/lib/utils';
 import {
   Phone, Mail, Globe, Download,
   MessageCircle, Contact, FileText, ExternalLink,
-  BookmarkPlus, BookmarkCheck, UserPlus, Home
+  BookmarkPlus, BookmarkCheck, UserPlus, Home, Share
 } from 'lucide-react';
 import { FaWhatsapp } from 'react-icons/fa';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
@@ -14,6 +14,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { FaLinkedin, FaInstagram } from 'react-icons/fa';
 import { ThemeToggle } from '@/components/theme-toggle';
+import { toast } from 'sonner';
 
 interface Props {
   profile: Partial<Profile> & { id: string; userId: string };
@@ -36,6 +37,30 @@ import { useProfileActions } from '@/components/profile/use-profile-actions';
 export function ClassicProfileLayout({ profile, cardUid }: Props) {
   const fullName = [profile.firstName, profile.lastName].filter(Boolean).join(' ');
 
+  const initials = [profile.firstName, profile.lastName]
+    .filter(Boolean)
+    .map(n => n?.[0])
+    .join('')
+    .toUpperCase();
+
+  const handleShare = async () => {
+    const url = window.location.href;
+    const fullName = [profile.firstName, profile.lastName].filter(Boolean).join(' ');
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: fullName || 'Anoya Profile',
+          url,
+        });
+      } catch (err) {
+        // user cancelled or failed
+      }
+    } else {
+      await navigator.clipboard.writeText(url);
+      toast.success('Link copied to clipboard');
+    }
+  };
+
   // Viewer state — not present in server HTML (no cache contamination)
   const { viewerState, saved, saving, showNoteModal, setShowNoteModal, noteContent, setNoteContent, savingNote, handleSaveConnectionAndNote, handleToggleSave, handleSaveContact } = useProfileActions(profile, cardUid);
 
@@ -51,9 +76,16 @@ export function ClassicProfileLayout({ profile, cardUid }: Props) {
           </Link>
         </div>
       )}
-      {/* Theme Toggle Top Right */}
-      <div className="absolute top-4 right-4 z-50">
+      {/* Top Right Actions */}
+      <div className="absolute top-4 right-4 z-50 flex items-center gap-3">
         <ThemeToggle className="rounded-full" />
+        <button 
+          onClick={handleShare}
+          aria-label="Share profile"
+          className="w-10 h-10 rounded-full flex items-center justify-center bg-background border hover:bg-muted transition-colors"
+        >
+          <Share className="w-4 h-4" />
+        </button>
       </div>
 
       {/* Decorative ambient background */}

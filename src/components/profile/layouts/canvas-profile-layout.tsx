@@ -6,7 +6,7 @@ import { buildWhatsAppUrl, getFontClass } from '@/lib/utils';
 import {
   Phone, Mail, Globe, Download,
   FileText,
-  UserPlus, UserCheck, Home
+  UserPlus, UserCheck, Home, Share
 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/button';
 import { FaLinkedin, FaInstagram, FaWhatsapp } from 'react-icons/fa';
 import { useProfileActions } from '@/components/profile/use-profile-actions';
 import { ThemeToggle } from '@/components/theme-toggle';
+import { toast } from 'sonner';
 
 interface Props {
   profile: Partial<Profile> & { id: string; userId: string };
@@ -36,6 +37,25 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
   const { isOwner, resolved } = viewerState;
 
   const fullName = [profile.firstName, profile.lastName].filter(Boolean).join(' ');
+
+  const handleShare = async () => {
+    const url = window.location.href;
+    const fullName = [profile.firstName, profile.lastName].filter(Boolean).join(' ');
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: fullName || 'Anoya Profile',
+          url,
+        });
+      } catch (err) {
+        // user cancelled or failed
+      }
+    } else {
+      await navigator.clipboard.writeText(url);
+      toast.success('Link copied to clipboard');
+    }
+  };
+
   const initials = fullName
     ? (profile.firstName?.[0] || '') + (profile.lastName?.[0] || '')
     : '?';
@@ -73,9 +93,16 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
         </div>
       )}
 
-      {/* Theme Toggle Top Right */}
-      <div className="absolute top-4 right-4 z-50">
-        <ThemeToggle className="bg-black/40 backdrop-blur-md border-white/10 text-white hover:bg-black/60 rounded-full" />
+      {/* Top Right Actions */}
+      <div className="absolute top-4 right-4 z-50 flex items-center gap-3">
+        <ThemeToggle className="bg-black/40 backdrop-blur-md border border-white/10 text-white hover:bg-black/60 rounded-full" />
+        <button 
+          onClick={handleShare}
+          aria-label="Share profile"
+          className="w-10 h-10 rounded-full flex items-center justify-center bg-black/40 backdrop-blur-md border border-white/10 text-white hover:bg-black/60 transition-colors"
+        >
+          <Share className="w-4 h-4" />
+        </button>
       </div>
       {/* Background Image */}
       {profile.layoutBackgroundImageUrl && (
