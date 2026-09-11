@@ -130,7 +130,13 @@ export function ImageUpload({ label, type, currentUrl, profileLayout, onUploadSu
               type="button"
               onClick={async () => {
                 try {
-                  const res = await fetch(currentUrl);
+                  const isRelative = currentUrl.startsWith('/');
+                  const fetchUrl = isRelative 
+                    ? currentUrl 
+                    : `/api/proxy-image?url=${encodeURIComponent(currentUrl)}`;
+                  
+                  const res = await fetch(fetchUrl);
+                  if (!res.ok) throw new Error('Failed to fetch image');
                   const blob = await res.blob();
                   const reader = new FileReader();
                   reader.onload = () => {
@@ -139,6 +145,7 @@ export function ImageUpload({ label, type, currentUrl, profileLayout, onUploadSu
                   };
                   reader.readAsDataURL(blob);
                 } catch (e) {
+                  console.error('Adjust image error:', e);
                   toast.error('Could not load image for readjusting. Try uploading again.');
                 }
               }}
