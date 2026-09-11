@@ -2,7 +2,7 @@
 
 import { useState, useRef } from 'react';
 
-import { Camera, Loader2, UploadCloud } from 'lucide-react';
+import { Camera, Loader2, UploadCloud, Crop, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { CropperModal } from './cropper-modal';
 
@@ -128,6 +128,7 @@ export function ImageUpload({ label, type, currentUrl, profileLayout, onUploadSu
           <div className="flex flex-col gap-2">
             <button
               type="button"
+              title="Crop / Adjust"
               onClick={async () => {
                 try {
                   const isRelative = currentUrl.startsWith('/');
@@ -149,17 +150,18 @@ export function ImageUpload({ label, type, currentUrl, profileLayout, onUploadSu
                   toast.error('Could not load image for readjusting. Try uploading again.');
                 }
               }}
-              className="text-sm font-medium text-blue-500 hover:text-blue-600 transition-colors bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg flex items-center gap-1.5"
+              className="w-8 h-8 rounded-lg flex items-center justify-center text-blue-500 hover:text-blue-600 bg-blue-50 hover:bg-blue-100 transition-colors"
             >
-              Crop / Adjust
+              <Crop className="w-4 h-4" />
             </button>
             {onRemove && (
               <button
                 type="button"
+                title="Remove image"
                 onClick={onRemove}
-                className="text-sm font-medium text-red-500 hover:text-red-600 transition-colors bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg flex items-center gap-1.5"
+                className="w-8 h-8 rounded-lg flex items-center justify-center text-red-500 hover:text-red-600 bg-red-50 hover:bg-red-100 transition-colors"
               >
-                Remove
+                <Trash2 className="w-4 h-4" />
               </button>
             )}
           </div>
