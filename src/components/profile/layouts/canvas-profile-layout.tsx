@@ -15,6 +15,7 @@ import { FaLinkedin, FaInstagram, FaWhatsapp } from 'react-icons/fa';
 import { useProfileActions } from '@/components/profile/use-profile-actions';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { toast } from 'sonner';
+import { ExchangeDetailsDrawer } from '../exchange-details-drawer';
 
 interface Props {
   profile: Partial<Profile> & { id: string; userId: string };
@@ -26,6 +27,8 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
     viewerState,
     saved,
     savingNote,
+    showExchangeDrawer,
+    setShowExchangeDrawer,
     showNoteModal,
     noteContent,
     setNoteContent,
@@ -209,31 +212,46 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
 
         {/* Download & Save — hidden for owner */}
         {resolved && !isOwner && (
-          <div className="flex items-center justify-center gap-3 w-full mb-3">
+          <div className="flex flex-col items-center justify-center gap-3 w-full mb-3 max-w-[280px]">
             <button
               onClick={handleSaveContact}
               aria-label="Save Contact"
-              className="flex items-center gap-2 px-4 py-2 rounded-full border border-white/30 bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-colors text-white text-sm font-medium"
+              className="flex items-center justify-center gap-2 w-full px-4 py-3 rounded-full border border-white/30 bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-colors text-white text-sm font-bold"
             >
               <Download className="w-4 h-4" />
               Save Contact
             </button>
             <button
-              onClick={saved ? undefined : () => setShowNoteModal(true)}
-              aria-label={saved ? 'Already connected' : 'Save to My Connections'}
-              disabled={saved}
-              className={`flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
-                saved
-                  ? 'border-green-400/40 bg-green-400/15 text-green-300 cursor-default'
-                  : 'border-white/30 bg-white/10 backdrop-blur-sm hover:bg-white/20 text-white'
-              }`}
+              onClick={() => setShowExchangeDrawer(true)}
+              disabled={viewerState.exchangeStatus === 'pending' || viewerState.exchangeStatus === 'accepted'}
+              aria-label="Exchange Details"
+              className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-full border border-white/20 bg-black/20 backdrop-blur-sm hover:bg-black/40 transition-colors text-white text-sm font-semibold"
             >
-              {saved ? (
-                <><UserCheck className="w-4 h-4" />Connected</>
-              ) : (
-                <><UserPlus className="w-4 h-4" />Connect</>
-              )}
+              <MessageCircle className="w-4 h-4 text-brand-300" />
+              {viewerState.exchangeStatus === 'accepted' 
+                ? 'Details Shared ✓' 
+                : viewerState.exchangeStatus === 'pending'
+                ? 'Exchange Pending'
+                : 'Exchange Details'}
             </button>
+            {viewerState.isLoggedIn && (
+              <button
+                onClick={saved ? undefined : handleToggleSave}
+                aria-label={saved ? 'Already connected' : 'Save to My Connections'}
+                disabled={saved}
+                className={`flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-full text-sm font-medium transition-colors ${
+                  saved
+                    ? 'bg-green-400/15 text-green-300 cursor-default'
+                    : 'hover:bg-white/10 text-white/80 hover:text-white'
+                }`}
+              >
+                {saved ? (
+                  <><UserCheck className="w-4 h-4" />Connected</>
+                ) : (
+                  <><UserPlus className="w-4 h-4" />Save to Connections</>
+                )}
+              </button>
+            )}
           </div>
         )}
 
@@ -299,6 +317,19 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      
+      <ExchangeDetailsDrawer
+        open={showExchangeDrawer}
+        onOpenChange={setShowExchangeDrawer}
+        targetProfileId={profile.id}
+        targetProfileName={fullName}
+        isLoggedIn={viewerState.isLoggedIn}
+        onExchangeSuccess={() => {
+          window.location.reload();
+        }}
+        cardUid={cardUid}
+        exchangeStatus={viewerState.exchangeStatus}
+      />
     </div>
   );
 }

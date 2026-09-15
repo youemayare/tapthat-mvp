@@ -2,10 +2,12 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { db } from '@/lib/db';
 import { connections, connectionNotes, profiles } from '@/lib/db/schema';
-import { eq, desc } from 'drizzle-orm';
+import { eq, desc, and } from 'drizzle-orm';
 import { createClient } from '@/lib/supabase/server';
 import { UserCheck } from 'lucide-react';
 import { ConnectionCard } from '@/components/dashboard/connection-card';
+import { AcceptedExchangeCard } from '@/components/dashboard/accepted-exchange-card';
+import { contactExchanges } from '@/lib/db/schema';
 
 export const metadata: Metadata = { title: 'My Connections' };
 
@@ -27,16 +29,28 @@ export default async function ConnectionsPage() {
     .where(eq(connections.viewerUserId, user.id))
     .orderBy(desc(connections.createdAt));
 
+  const manualExchanges = await db
+    .select()
+    .from(contactExchanges)
+    .where(
+      and(
+        eq(contactExchanges.recipientUserId, user.id),
+        eq(contactExchanges.sourceType, 'manual'),
+        eq(contactExchanges.status, 'accepted')
+      )
+    )
+    .orderBy(desc(contactExchanges.createdAt));
+
+  // Merge and sort
+  const combined = [
+    ...rows.map(r => ({ type: 'connection' as const, data: r, date: r.connection.createdAt })),
+    ...manualExchanges.map(e => ({ type: 'manual' as const, data: e, date: e.createdAt }))
+  ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
   return (
     <div className="space-y-8 pb-10">
-      <div>
-        <h1 className="text-3xl font-bold text-foreground">My Connections</h1>
-        <p className="text-muted-foreground mt-2">
-          People you've saved while exploring Anoya profiles.
-        </p>
-      </div>
 
-      {rows.length === 0 ? (
+      {combined.length === 0 ? (
         <div className="bg-card border border-border rounded-3xl p-12 text-center shadow-sm">
           <div className="w-16 h-16 bg-brand-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
             <UserCheck className="w-8 h-8 text-brand-500" />
@@ -48,14 +62,27 @@ export default async function ConnectionsPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {rows.map(({ connection, profile, note }) => (
-            <ConnectionCard 
-              key={connection.id} 
-              connection={connection} 
-              profile={profile} 
-              note={note} 
-            />
-          ))}
+          {combined.map((item) => {
+            if (item.type === 'connection') {
+              const { connection, profile, note } = item.data as any;
+              return (
+                <ConnectionCard 
+                  key={`conn-${connection.id}`} 
+                  connection={connection} 
+                  profile={profile} 
+                  note={note} 
+                />
+              );
+            } else {
+              const exchange = item.data as any;
+              return (
+                <AcceptedExchangeCard
+                  key={`exch-${exchange.id}`}
+                  exchange={exchange}
+                />
+              );
+            }
+          })}
         </div>
       )}
     </div>

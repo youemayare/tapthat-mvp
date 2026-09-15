@@ -186,6 +186,7 @@ export const connections = pgTable('connections', {
 }, (t) => [
   index('idx_connections_viewer').on(t.viewerUserId),
   index('idx_connections_profile').on(t.profileId),
+  unique('uq_connections_viewer_profile').on(t.viewerUserId, t.profileId),
 ]);
 
 // ─── Type exports ────────────────────────────────────────────────────────────
@@ -218,4 +219,52 @@ export const connectionNotes = pgTable('connection_notes', {
 export type ConnectionNote = typeof connectionNotes.$inferSelect;
 export type NewConnectionNote = typeof connectionNotes.$inferInsert;
 
+// ─── Contact Exchanges ───────────────────────────────────────────────────────
+export const contactExchanges = pgTable('contact_exchanges', {
+  id: uuid('id').defaultRandom().primaryKey(),
 
+  // Who receives this exchange (Person A — always an Anoya user)
+  recipientUserId: uuid('recipient_user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  recipientProfileId: uuid('recipient_profile_id').notNull().references(() => profiles.id, { onDelete: 'cascade' }),
+
+  // Source identification
+  sourceType: text('source_type').notNull().default('manual'),
+  sourceUserId: uuid('source_user_id').references(() => users.id, { onDelete: 'set null' }),
+  sourceProfileId: uuid('source_profile_id').references(() => profiles.id, { onDelete: 'set null' }),
+
+  // Attribution channel (server-derived, never trusted from client claims)
+  sourceChannel: text('source_channel').notNull().default('unknown'),
+
+  // Manual form fields (only used when source_type = 'manual')
+  name: text('name'),
+  email: text('email'),
+  phone: text('phone'),
+  jobTitle: text('job_title'),
+  company: text('company'),
+  message: text('message'),
+
+  // Duplicate detection (HMAC hashes for anonymous visitors)
+  emailHash: text('email_hash'),
+  phoneHash: text('phone_hash'),
+
+  // Request lifecycle
+  status: text('status').notNull().default('pending'),
+
+  // Person A's private note
+  recipientNote: text('recipient_note'),
+  recipientNoteUpdatedAt: timestamp('recipient_note_updated_at', { withTimezone: true }),
+
+  // Privacy & consent
+  consentVersion: text('consent_version'),
+  consentedAt: timestamp('consented_at', { withTimezone: true }),
+  erasureTokenHash: text('erasure_token_hash').unique(),
+
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+}, (t) => [
+  index('idx_ce_recipient').on(t.recipientUserId, t.status),
+  // Additional indexes created in SQL migration for complex conditions
+]);
+
+export type ContactExchange = typeof contactExchanges.$inferSelect;
+export type NewContactExchange = typeof contactExchanges.$inferInsert;

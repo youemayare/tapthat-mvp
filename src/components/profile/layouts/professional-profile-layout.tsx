@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { useProfileActions } from '@/components/profile/use-profile-actions';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { toast } from 'sonner';
+import { ExchangeDetailsDrawer } from '../exchange-details-drawer';
 
 interface Props {
   profile: Partial<Profile> & { id: string; userId: string };
@@ -21,6 +22,8 @@ export function ProfessionalProfileLayout({ profile, cardUid }: Props) {
     viewerState,
     saved,
     savingNote,
+    showExchangeDrawer,
+    setShowExchangeDrawer,
     showNoteModal,
     noteContent,
     setNoteContent,
@@ -167,27 +170,61 @@ export function ProfessionalProfileLayout({ profile, cardUid }: Props) {
 
         {/* Action Buttons */}
         <div className="mt-10 flex flex-col gap-3 w-full max-w-sm mx-auto">
-          <button 
-            onClick={handleSaveContact}
-            className="w-full h-12 rounded-full flex items-center justify-center font-medium text-[15px] tracking-wide transition-all
-              bg-gradient-to-b from-[#C9A45D] to-[#B98A3D] border border-[#B98A3D] text-white dark:text-[#0B0A08] shadow-md
-              hover:opacity-90 active:scale-[0.98]"
-          >
-            Save Contact
-          </button>
-
-          {(viewerState.isLoggedIn && !viewerState.isOwner) && (
+          {(!viewerState.resolved || viewerState.isOwner) && (
             <button 
-              onClick={saved ? undefined : handleToggleSave}
-              disabled={saved}
-              className={`w-full h-12 rounded-full flex items-center justify-center font-medium text-[15px] tracking-wide transition-all ${
-                saved 
-                  ? 'bg-[#C9A45D]/10 border border-[#C9A45D]/30 text-[#B98A3D] dark:text-[#C9A45D] cursor-default opacity-80'
-                  : 'bg-transparent border border-[#C9A45D]/40 text-[#1A1A1A] dark:border-[#C9A45D]/40 dark:text-[#F6F1E6] hover:bg-[#C9A45D]/5 active:scale-[0.98]'
-              }`}
+              onClick={handleSaveContact}
+              className="w-full h-12 rounded-full flex items-center justify-center font-medium text-[15px] tracking-wide transition-all
+                bg-gradient-to-b from-[#C9A45D] to-[#B98A3D] border border-[#B98A3D] text-white dark:text-[#0B0A08] shadow-md
+                hover:opacity-90 active:scale-[0.98]"
             >
-              {saved ? 'Saved to Connections' : 'Save to Connections'}
+              Save Contact
             </button>
+          )}
+
+          {viewerState.resolved && !viewerState.isOwner && (
+            <>
+              <button 
+                onClick={handleSaveContact}
+                className="w-full h-12 rounded-full flex items-center justify-center font-medium text-[15px] tracking-wide transition-all
+                  bg-gradient-to-b from-[#C9A45D] to-[#B98A3D] border border-[#B98A3D] text-white dark:text-[#0B0A08] shadow-md
+                  hover:opacity-90 active:scale-[0.98]"
+              >
+                Save Contact
+              </button>
+              
+              <button
+                onClick={() => setShowExchangeDrawer(true)}
+                disabled={viewerState.exchangeStatus === 'pending' || viewerState.exchangeStatus === 'accepted'}
+                className="w-full h-12 rounded-full flex items-center justify-center font-medium text-[15px] tracking-wide transition-all bg-transparent border-2 border-[#C9A45D]/40 text-[#1A1A1A] dark:text-[#F6F1E6] hover:bg-[#C9A45D]/5 active:scale-[0.98]"
+              >
+                {viewerState.exchangeStatus === 'accepted' 
+                  ? 'Details Shared ✓' 
+                  : viewerState.exchangeStatus === 'pending'
+                  ? 'Exchange Pending'
+                  : 'Exchange Details'}
+              </button>
+
+              {viewerState.isLoggedIn ? (
+                <button 
+                  onClick={saved ? undefined : handleToggleSave}
+                  disabled={saved}
+                  className={`w-full h-12 rounded-full flex items-center justify-center font-medium text-[15px] tracking-wide transition-all ${
+                    saved 
+                      ? 'bg-[#C9A45D]/10 border border-[#C9A45D]/30 text-[#B98A3D] dark:text-[#C9A45D] cursor-default opacity-80'
+                      : 'bg-transparent border border-[#C9A45D]/40 text-[#1A1A1A] dark:border-[#C9A45D]/40 dark:text-[#F6F1E6] hover:bg-[#C9A45D]/5 active:scale-[0.98]'
+                  }`}
+                >
+                  {saved ? 'Saved to Connections' : 'Save to Connections'}
+                </button>
+              ) : (
+                <Link 
+                  href={`/signup?redirect=/p/${profile.slug || profile.id}`}
+                  className="w-full h-12 rounded-full flex items-center justify-center font-medium text-[15px] tracking-wide transition-all bg-[#C9A45D]/10 hover:bg-[#C9A45D]/20 border border-[#C9A45D]/20 text-[#B98A3D] dark:text-[#C9A45D]"
+                >
+                  Create your own profile
+                </Link>
+              )}
+            </>
           )}
         </div>
 
@@ -266,6 +303,19 @@ export function ProfessionalProfileLayout({ profile, cardUid }: Props) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      
+      <ExchangeDetailsDrawer
+        open={showExchangeDrawer}
+        onOpenChange={setShowExchangeDrawer}
+        targetProfileId={profile.id}
+        targetProfileName={fullName}
+        isLoggedIn={viewerState.isLoggedIn}
+        onExchangeSuccess={() => {
+          window.location.reload();
+        }}
+        cardUid={cardUid}
+        exchangeStatus={viewerState.exchangeStatus}
+      />
     </div>
   );
 }

@@ -9,14 +9,16 @@ export function useProfileActions(profile: Partial<Profile> & { id: string; user
     isLoggedIn: boolean;
     isOwner: boolean;
     alreadySaved: boolean;
+    exchangeStatus: 'pending' | 'accepted' | null;
     resolved: boolean;
-  }>({ isOwner: false, alreadySaved: false, isLoggedIn: false, resolved: false });
+  }>({ isOwner: false, alreadySaved: false, isLoggedIn: false, exchangeStatus: null, resolved: false });
 
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [showNoteModal, setShowNoteModal] = useState(false);
   const [noteContent, setNoteContent] = useState('');
   const [savingNote, setSavingNote] = useState(false);
+  const [showExchangeDrawer, setShowExchangeDrawer] = useState(false);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -25,13 +27,13 @@ export function useProfileActions(profile: Partial<Profile> & { id: string; user
       signal: controller.signal,
       cache: 'no-store',
     })
-      .then((res) => (res.ok ? res.json() : { isOwner: false, alreadySaved: false, isLoggedIn: false }))
-      .then((data: { isOwner: boolean; alreadySaved: boolean; isLoggedIn: boolean }) => {
+      .then((res) => (res.ok ? res.json() : { isOwner: false, alreadySaved: false, isLoggedIn: false, exchangeStatus: null }))
+      .then((data: { isOwner: boolean; alreadySaved: boolean; isLoggedIn: boolean; exchangeStatus: 'pending' | 'accepted' | null }) => {
         setViewerState({ ...data, resolved: true });
         setSaved(data.alreadySaved);
       })
       .catch(() => {
-        setViewerState({ isOwner: false, alreadySaved: false, isLoggedIn: false, resolved: true });
+        setViewerState({ isOwner: false, alreadySaved: false, isLoggedIn: false, exchangeStatus: null, resolved: true });
       });
 
     return () => controller.abort();
@@ -140,6 +142,8 @@ export function useProfileActions(profile: Partial<Profile> & { id: string; user
     saving,
     showNoteModal,
     setShowNoteModal,
+    showExchangeDrawer,
+    setShowExchangeDrawer,
     noteContent,
     setNoteContent,
     savingNote,

@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button';
 import { FaLinkedin, FaInstagram } from 'react-icons/fa';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { toast } from 'sonner';
+import { ExchangeDetailsDrawer } from '../exchange-details-drawer';
 
 interface Props {
   profile: Partial<Profile> & { id: string; userId: string };
@@ -62,7 +63,7 @@ export function ClassicProfileLayout({ profile, cardUid }: Props) {
   };
 
   // Viewer state — not present in server HTML (no cache contamination)
-  const { viewerState, saved, saving, showNoteModal, setShowNoteModal, noteContent, setNoteContent, savingNote, handleSaveConnectionAndNote, handleToggleSave, handleSaveContact } = useProfileActions(profile, cardUid);
+  const { viewerState, saved, saving, showNoteModal, setShowNoteModal, showExchangeDrawer, setShowExchangeDrawer, noteContent, setNoteContent, savingNote, handleSaveConnectionAndNote, handleToggleSave, handleSaveContact } = useProfileActions(profile, cardUid);
 
   const { isOwner, resolved } = viewerState;
 
@@ -151,21 +152,42 @@ export function ClassicProfileLayout({ profile, cardUid }: Props) {
           ── Viewer-specific controls ──
           Only rendered after the /api/viewer-state call resolves.
           This ensures owner controls are NEVER present in cached HTML.
-          Anonymous visitors (resolved && !viewerState.isOwner && !viewerState.alreadySaved)
-          see only the sign-in CTA below.
         */}
         {resolved && !isOwner && (
-          <>
-            {/* Save to Anoya (for logged-in non-owners who have a session) */}
-            {viewerState.alreadySaved !== undefined && viewerState.isOwner === false && (
+          <div className="space-y-3">
+            {/* ── Save Contact CTA (always visible to non-owners) ── */}
+            <button
+              onClick={handleSaveContact}
+              id="save-contact-btn"
+              className="w-full flex items-center justify-center gap-3 py-4 px-6 bg-brand-600 hover:bg-brand-500 active:scale-95 text-white font-bold text-lg rounded-2xl transition-all duration-200 shadow-lg shadow-brand-500/25"
+            >
+              <Contact className="w-5 h-5" />
+              Save Contact
+            </button>
+
+            {/* ── Exchange Details (secondary) ── */}
+            <button
+              onClick={() => setShowExchangeDrawer(true)}
+              disabled={viewerState.exchangeStatus === 'pending' || viewerState.exchangeStatus === 'accepted'}
+              className="w-full flex items-center justify-center gap-3 py-3.5 px-6 border-2 border-brand-500/20 hover:border-brand-500/40 hover:bg-brand-500/5 active:scale-95 text-foreground font-semibold text-sm rounded-2xl transition-all duration-200"
+            >
+              <MessageCircle className="w-4 h-4 text-brand-500" />
+              {viewerState.exchangeStatus === 'accepted' 
+                ? 'Details Shared ✓' 
+                : viewerState.exchangeStatus === 'pending'
+                ? 'Exchange Pending'
+                : 'Exchange Details'}
+            </button>
+
+            {/* Save to My Connections (tertiary ghost/text) - only for logged in */}
+            {viewerState.isLoggedIn && (
               <button
                 onClick={handleToggleSave}
                 disabled={saving}
-                id="save-connection-btn"
-                className={`w-full flex items-center justify-center gap-3 py-3.5 px-6 font-semibold text-sm rounded-2xl transition-all duration-200 active:scale-95 border ${
+                className={`w-full flex items-center justify-center gap-2 py-3 px-6 font-medium text-sm rounded-2xl transition-all duration-200 active:scale-95 ${
                   saved
-                    ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20'
-                    : 'bg-card border-border text-foreground hover:border-brand-500/40 hover:bg-brand-500/5'
+                    ? 'text-emerald-500 hover:bg-emerald-500/10'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-accent'
                 }`}
               >
                 {saved ? (
@@ -175,32 +197,30 @@ export function ClassicProfileLayout({ profile, cardUid }: Props) {
                 )}
               </button>
             )}
-          </>
+
+            {/* ── Not logged in — subtle CTA to sign up ── */}
+            {!viewerState.isLoggedIn && (
+              <Link
+                href={`/signup?save=${cardUid}`}
+                className="w-full flex items-center justify-center gap-2 py-3 px-6 text-muted-foreground hover:text-foreground text-sm font-medium rounded-2xl transition-all duration-200 hover:bg-accent"
+              >
+                <UserPlus className="w-4 h-4" />
+                Create your own profile
+              </Link>
+            )}
+          </div>
         )}
 
-        {/* ── Not logged in — subtle CTA to sign up ── */}
-        {/* Only shown AFTER viewer-state resolves AND only for truly anonymous visitors.
-            Never flashes for owners. Hidden during the loading period. */}
-        {resolved && !isOwner && !viewerState.isLoggedIn && !viewerState.alreadySaved && (
-          <Link
-            href={`/signup?save=${cardUid}`}
-            id="signup-save-cta"
-            className="w-full flex items-center justify-center gap-3 py-3.5 px-6 bg-card border border-border text-muted-foreground hover:border-brand-500/40 hover:text-foreground text-sm font-medium rounded-2xl transition-all duration-200"
+        {/* ── Owner / loading fallback for Save Contact ── */}
+        {(!resolved || isOwner) && (
+          <button
+            onClick={handleSaveContact}
+            className="w-full flex items-center justify-center gap-3 py-4 px-6 bg-brand-600 hover:bg-brand-500 active:scale-95 text-white font-bold text-lg rounded-2xl transition-all duration-200 shadow-lg shadow-brand-500/25"
           >
-            <UserPlus className="w-4 h-4" />
-            Sign in to Anoya to save as a Connection
-          </Link>
+            <Contact className="w-5 h-5" />
+            Save Contact
+          </button>
         )}
-
-        {/* ── Save Contact CTA (always visible) ── */}
-        <button
-          onClick={handleSaveContact}
-          id="save-contact-btn"
-          className="w-full flex items-center justify-center gap-3 py-4 px-6 bg-brand-600 hover:bg-brand-500 active:scale-95 text-white font-bold text-lg rounded-2xl transition-all duration-200 shadow-lg shadow-brand-500/25"
-        >
-          <Contact className="w-5 h-5" />
-          Save Contact
-        </button>
 
         {/* ── Contact Actions ── */}
         <div className="space-y-3">
@@ -365,6 +385,20 @@ export function ClassicProfileLayout({ profile, cardUid }: Props) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      
+      <ExchangeDetailsDrawer
+        open={showExchangeDrawer}
+        onOpenChange={setShowExchangeDrawer}
+        targetProfileId={profile.id}
+        targetProfileName={fullName}
+        isLoggedIn={viewerState.isLoggedIn}
+        onExchangeSuccess={() => {
+          // Temporarily reload or we can just fetch viewer state again
+          window.location.reload();
+        }}
+        cardUid={cardUid}
+        exchangeStatus={viewerState.exchangeStatus}
+      />
     </main>
 
   );

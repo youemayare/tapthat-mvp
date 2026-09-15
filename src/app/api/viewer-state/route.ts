@@ -71,8 +71,9 @@ export async function GET(request: NextRequest) {
 
   const isOwner = viewerUserId === profileOwnerId;
   let alreadySaved = false;
+  let exchangeStatus: 'pending' | 'accepted' | null = null;
 
-  // Only check saved status for non-owners
+  // Only check saved status and exchange status for non-owners
   if (!isOwner && profileOwnerId) {
     try {
       const existing = await db.query.connections.findFirst({
@@ -82,13 +83,26 @@ export async function GET(request: NextRequest) {
         ),
       });
       alreadySaved = !!existing;
+
+      const { contactExchanges } = await import('@/lib/db/schema');
+      const exchange = await db.query.contactExchanges.findFirst({
+        where: and(
+          eq(contactExchanges.sourceUserId, viewerUserId),
+          eq(contactExchanges.recipientUserId, profileOwnerId)
+        ),
+        orderBy: (fields, { desc }) => [desc(fields.createdAt)],
+      });
+
+      if (exchange && (exchange.status === 'pending' || exchange.status === 'accepted')) {
+        exchangeStatus = exchange.status;
+      }
     } catch {
-      // Non-critical — default to false
+      // Non-critical — default to false/null
     }
   }
 
   return NextResponse.json(
-    { isOwner, alreadySaved, isLoggedIn: !!viewerUserId },
+    { isOwner, alreadySaved, isLoggedIn: !!viewerUserId, exchangeStatus },
     { headers: { 'Cache-Control': 'no-store' } }
   );
 }

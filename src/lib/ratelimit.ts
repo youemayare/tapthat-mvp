@@ -132,3 +132,17 @@ export const mutationRatelimit = hasRedis
 export const vcardRatelimit = hasRedis
   ? makeRatelimit(Ratelimit.slidingWindow(RATE_LIMITS.VCARD_LIMIT, '60 s'), 'anoya:vcard')
   : failClosed;
+
+/** Exchange limits — all fail closed */
+export const exchangeIpRatelimit = hasRedis
+  ? makeRatelimit(Ratelimit.slidingWindow(5, '60 s'), 'anoya:exch_ip')
+  : failClosed;
+
+export const exchangeRecipientRatelimit = hasRedis
+  ? makeRatelimit(Ratelimit.slidingWindow(20, '3600 s'), 'anoya:exch_recip')
+  : failClosed;
+
+export const exchangeIpRecipientRatelimit = hasRedis
+  ? makeRatelimit(Ratelimit.slidingWindow(3, '3600 s'), 'anoya:exch_ip_recip')
+  : failClosed;
+
