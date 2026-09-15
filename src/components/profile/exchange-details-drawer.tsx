@@ -126,7 +126,7 @@ export function ExchangeDetailsDrawer({
           }
         : {
             targetProfileId,
-            sourceChannel: cardUid ? 'nfc' : 'link',
+            sourceChannel: cardUid ? 'nfc' : 'direct_link',
             ...formData,
           };
 

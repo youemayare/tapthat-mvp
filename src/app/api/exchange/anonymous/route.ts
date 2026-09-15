@@ -111,8 +111,10 @@ export async function POST(req: Request) {
     
   } catch (error) {
     console.error('[Anonymous Exchange Error]', error);
-    if (error instanceof z.ZodError) {
-      return NextResponse.json({ error: (error as any).errors[0].message }, { status: 400 });
+    if (error instanceof z.ZodError || (error && typeof error === 'object' && 'errors' in error)) {
+      const issues = (error as any).errors || (error as any).issues;
+      const message = Array.isArray(issues) && issues.length > 0 ? issues[0].message : 'Validation error';
+      return NextResponse.json({ error: message }, { status: 400 });
     }
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
