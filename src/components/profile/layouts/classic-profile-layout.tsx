@@ -205,7 +205,7 @@ export function ClassicProfileLayout({ profile, cardUid }: Props) {
                 className="w-full flex items-center justify-center gap-2 py-3 px-6 font-medium text-sm rounded-2xl transition-all duration-200 active:scale-95 border-2 border-border text-foreground hover:bg-accent"
               >
                 <BookmarkPlus className="w-4 h-4" />
-                Sign in to save connection
+                Sign In to Save Connection
               </Link>
             )}
           </div>
