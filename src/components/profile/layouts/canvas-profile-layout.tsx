@@ -211,48 +211,51 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
           </div>
         )}
 
-        {/* Download & Save — hidden for owner */}
+        {/* Download & Save - hidden for owner */}
         {resolved && !isOwner && (
           <div className="flex flex-col items-center justify-center gap-3 w-full mb-3 max-w-[280px]">
-            <button
-              onClick={handleSaveContact}
-              aria-label="Save Contact"
-              className="flex items-center justify-center gap-2 w-full px-4 py-3 rounded-full border border-white/30 bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-colors text-white text-sm font-bold"
-            >
-              <Download className="w-4 h-4" />
-              Save Contact
-            </button>
+            <div className="flex w-full gap-2">
+              <button
+                onClick={handleSaveContact}
+                aria-label="Save Contact"
+                className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-full border border-white/30 bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-colors text-white text-xs font-bold"
+              >
+                <Download className="w-3.5 h-3.5" />
+                Save Contact
+              </button>
+              {viewerState.isLoggedIn && (
+                <button
+                  onClick={saved ? undefined : handleToggleSave}
+                  aria-label={saved ? 'Already connected' : 'Save to My Connections'}
+                  disabled={saved}
+                  className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-full border text-xs font-semibold transition-colors ${
+                    saved
+                      ? 'bg-green-400/15 text-green-300 border-green-400/20 cursor-default'
+                      : 'bg-black/20 border-white/10 hover:bg-white/10 text-white/90 backdrop-blur-sm'
+                  }`}
+                >
+                  {saved ? (
+                    <><UserCheck className="w-3.5 h-3.5" />Connected</>
+                  ) : (
+                    <><UserPlus className="w-3.5 h-3.5" />Connect</>
+                  )}
+                </button>
+              )}
+            </div>
+            
             <button
               onClick={() => setShowExchangeDrawer(true)}
               disabled={viewerState.exchangeStatus === 'pending' || viewerState.exchangeStatus === 'accepted'}
               aria-label="Exchange Details"
-              className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-full border border-white/20 bg-black/20 backdrop-blur-sm hover:bg-black/40 transition-colors text-white text-sm font-semibold"
+              className="flex items-center justify-center gap-1.5 w-full px-4 py-2.5 rounded-full border border-white/20 bg-black/20 backdrop-blur-sm hover:bg-black/40 transition-colors text-white text-xs font-semibold"
             >
-              <MessageCircle className="w-4 h-4 text-brand-300" />
+              <MessageCircle className="w-3.5 h-3.5 text-brand-300" />
               {viewerState.exchangeStatus === 'accepted' 
                 ? 'Details Shared ✓' 
                 : viewerState.exchangeStatus === 'pending'
                 ? 'Exchange Pending'
                 : 'Exchange Details'}
             </button>
-            {viewerState.isLoggedIn && (
-              <button
-                onClick={saved ? undefined : handleToggleSave}
-                aria-label={saved ? 'Already connected' : 'Save to My Connections'}
-                disabled={saved}
-                className={`flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-full text-sm font-medium transition-colors ${
-                  saved
-                    ? 'bg-green-400/15 text-green-300 cursor-default'
-                    : 'hover:bg-white/10 text-white/80 hover:text-white'
-                }`}
-              >
-                {saved ? (
-                  <><UserCheck className="w-4 h-4" />Connected</>
-                ) : (
-                  <><UserPlus className="w-4 h-4" />Save to Connections</>
-                )}
-              </button>
-            )}
           </div>
         )}
 
