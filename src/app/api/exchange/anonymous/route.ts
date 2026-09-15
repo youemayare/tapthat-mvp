@@ -4,20 +4,19 @@ import { contactExchanges, profiles } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';
 import crypto from 'crypto';
-import { exchangeIpRatelimit } from '@/lib/redis/rate-limiter';
-import { getIp } from '@/lib/utils/get-ip';
+import { exchangeIpRatelimit } from '@/lib/ratelimit';
 
 const anonymousExchangeSchema = z.object({
   targetProfileId: z.string().uuid(),
-  sourceChannel: z.enum(['nfc', 'qr', 'link']).default('link'),
-  firstName: z.string().min(1, "First name is required").max(50),
-  lastName: z.string().max(50).optional(),
-  email: z.string().email("Invalid email").max(100).optional().or(z.literal('')),
-  phone: z.string().max(30).optional().or(z.literal('')),
-  companyName: z.string().max(100).optional().or(z.literal('')),
-  jobTitle: z.string().max(100).optional().or(z.literal('')),
-  notes: z.string().max(500).optional().or(z.literal('')),
-  turnstileToken: z.string().min(1, "Turnstile token is required"),
+  sourceChannel: z.enum(['nfc', 'qr', 'direct_link']).default('direct_link'),
+  firstName: z.string().min(1, 'First name is required'),
+  lastName: z.string().optional(),
+  email: z.string().email().optional().or(z.literal('')),
+  phone: z.string().optional(),
+  companyName: z.string().optional(),
+  jobTitle: z.string().optional(),
+  notes: z.string().optional(),
+  turnstileToken: z.string().min(1, 'Verification required'),
   consentGiven: z.boolean().refine(val => val === true, {
     message: "You must consent to sharing your details",
   }),
@@ -43,7 +42,7 @@ async function verifyTurnstileToken(token: string) {
 export async function POST(req: Request) {
   try {
     // 1. IP Rate Limiting (Anonymous is higher risk)
-    const ip = getIp(req);
+    const ip = req.headers.get('x-forwarded-for') ?? '127.0.0.1';
     const { success: ipSuccess } = await exchangeIpRatelimit.limit(ip);
     if (!ipSuccess) {
       return NextResponse.json({ error: 'Too many requests. Please try again later.' }, { status: 429 });

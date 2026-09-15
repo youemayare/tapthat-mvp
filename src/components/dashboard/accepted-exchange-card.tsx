@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Mail, Phone, Building2, Briefcase, Calendar, MessageSquarePlus, Edit3, Loader2 } from 'lucide-react';

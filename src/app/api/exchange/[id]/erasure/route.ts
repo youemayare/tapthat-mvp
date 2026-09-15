@@ -3,13 +3,12 @@ import { db } from '@/lib/db';
 import { contactExchanges } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import crypto from 'crypto';
-import { getIp } from '@/lib/utils/get-ip';
-import { exchangeIpRatelimit } from '@/lib/redis/rate-limiter';
+import { exchangeIpRatelimit } from '@/lib/ratelimit';
 
 export async function POST(req: Request, { params }: { params: { id: string } }) {
   try {
     // 1. IP Rate Limiting
-    const ip = getIp(req);
+    const ip = req.headers.get('x-forwarded-for') ?? '127.0.0.1';
     const { success } = await exchangeIpRatelimit.limit(ip);
     if (!success) {
       return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
