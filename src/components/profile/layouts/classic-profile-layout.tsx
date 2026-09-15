@@ -204,8 +204,8 @@ export function ClassicProfileLayout({ profile, cardUid }: Props) {
                 href={`/signup?save=${cardUid}`}
                 className="w-full flex items-center justify-center gap-2 py-3 px-6 text-muted-foreground hover:text-foreground text-sm font-medium rounded-2xl transition-all duration-200 hover:bg-accent"
               >
-                <UserPlus className="w-4 h-4" />
-                Create your own profile
+                <BookmarkPlus className="w-4 h-4" />
+                Sign in to save connection
               </Link>
             )}
           </div>

@@ -209,7 +209,7 @@ export function ProfessionalProfileLayout({ profile, cardUid }: Props) {
                   href={`/signup?redirect=/p/${profile.slug || profile.id}`}
                   className="w-full h-12 rounded-full flex items-center justify-center font-medium text-[15px] tracking-wide transition-all bg-[#C9A45D]/10 hover:bg-[#C9A45D]/20 border border-[#C9A45D]/20 text-[#B98A3D] dark:text-[#C9A45D]"
                 >
-                  Create your own profile
+                  Sign in to save connection
                 </Link>
               )}
 

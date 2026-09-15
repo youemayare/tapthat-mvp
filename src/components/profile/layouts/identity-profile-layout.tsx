@@ -217,8 +217,8 @@ export function IdentityProfileLayout({ profile, cardUid }: Props) {
                   href={`/signup?redirect=/p/${profile.slug || profile.id}`}
                   className="w-full flex items-center justify-center gap-2 h-14 rounded-2xl bg-card border border-border text-card-foreground font-medium hover:bg-accent transition-colors"
                 >
-                  <UserPlus className="w-5 h-5 text-brand-400" />
-                  Create your own profile
+                  <BookmarkPlus className="w-5 h-5 text-brand-400" />
+                  Sign in to save connection
                 </Link>
               )}
             </>
