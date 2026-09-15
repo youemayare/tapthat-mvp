@@ -54,6 +54,7 @@ export function ExchangeDetailsDrawer({
   const [loadingProfiles, setLoadingProfiles] = useState(false);
   const [selectedProfileId, setSelectedProfileId] = useState<string>('');
   const [isExchanging, setIsExchanging] = useState(false);
+  const [showAllFields, setShowAllFields] = useState(false);
   const [successData, setSuccessData] = useState<{ id: string, erasureToken: string } | null>(null);
   const [formData, setFormData] = useState({
     firstName: '',
@@ -313,34 +314,48 @@ export function ExchangeDetailsDrawer({
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="companyName">Company</Label>
-                <Input 
-                  id="companyName" 
-                  value={formData.companyName}
-                  onChange={(e) => setFormData(p => ({ ...p, companyName: e.target.value }))}
-                />
-              </div>
+              {!showAllFields && (
+                <Button 
+                  variant="ghost" 
+                  className="w-full text-brand-500 hover:text-brand-600 hover:bg-brand-500/10 h-9"
+                  onClick={() => setShowAllFields(true)}
+                >
+                  + Add more details
+                </Button>
+              )}
 
-              <div className="space-y-2">
-                <Label htmlFor="jobTitle">Job Title</Label>
-                <Input 
-                  id="jobTitle" 
-                  value={formData.jobTitle}
-                  onChange={(e) => setFormData(p => ({ ...p, jobTitle: e.target.value }))}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="notes">Notes (optional)</Label>
-                <Textarea 
-                  id="notes" 
-                  placeholder="Where did you meet?"
-                  value={formData.notes}
-                  onChange={(e) => setFormData(p => ({ ...p, notes: e.target.value }))}
-                  rows={2}
-                />
-              </div>
+              {showAllFields && (
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="companyName">Company</Label>
+                    <Input 
+                      id="companyName" 
+                      value={formData.companyName}
+                      onChange={(e) => setFormData(p => ({ ...p, companyName: e.target.value }))}
+                    />
+                  </div>
+    
+                  <div className="space-y-2">
+                    <Label htmlFor="jobTitle">Job Title</Label>
+                    <Input 
+                      id="jobTitle" 
+                      value={formData.jobTitle}
+                      onChange={(e) => setFormData(p => ({ ...p, jobTitle: e.target.value }))}
+                    />
+                  </div>
+    
+                  <div className="space-y-2">
+                    <Label htmlFor="notes">Notes (optional)</Label>
+                    <Textarea 
+                      id="notes" 
+                      placeholder="Where did you meet?"
+                      value={formData.notes}
+                      onChange={(e) => setFormData(p => ({ ...p, notes: e.target.value }))}
+                      rows={2}
+                    />
+                  </div>
+                </>
+              )}
 
               <div className="flex items-center space-x-2 pt-2">
                 <Checkbox 

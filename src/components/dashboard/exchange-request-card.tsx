@@ -11,7 +11,11 @@ interface ExchangeRequestCardProps {
 }
 
 export function ExchangeRequestCard({ exchange, profile, type, onAction }: ExchangeRequestCardProps) {
-  const fullName = profile ? [profile.firstName, profile.lastName].filter(Boolean).join(' ') : 'Unknown User';
+  const fullName = profile 
+    ? [profile.firstName, profile.lastName].filter(Boolean).join(' ') 
+    : exchange.name || 'Unknown User';
+    
+  const jobTitle = profile?.jobTitle || exchange.jobTitle || 'No title';
   const timeAgo = formatDistanceToNow(new Date(exchange.createdAt), { addSuffix: true });
 
   const statusColors = {
@@ -33,7 +37,7 @@ export function ExchangeRequestCard({ exchange, profile, type, onAction }: Excha
         ) : (
           <div className="w-12 h-12 rounded-full bg-brand-500/10 flex items-center justify-center shrink-0">
             <span className="text-xl font-bold text-brand-500">
-              {profile?.firstName?.[0] || '?'}
+              {fullName?.[0]?.toUpperCase() || '?'}
             </span>
           </div>
         )}
@@ -43,7 +47,7 @@ export function ExchangeRequestCard({ exchange, profile, type, onAction }: Excha
             {fullName}
           </h3>
           <div className="flex items-center gap-2 mt-0.5 text-sm">
-            <span className="text-muted-foreground">{profile?.jobTitle || 'No title'}</span>
+            <span className="text-muted-foreground">{jobTitle}</span>
             <span className="text-muted-foreground">•</span>
             <span className="text-muted-foreground text-xs">{timeAgo}</span>
           </div>
