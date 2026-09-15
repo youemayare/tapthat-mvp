@@ -125,9 +125,9 @@ export async function POST(req: NextRequest) {
       sourceCardUid: data.sourceCardUid || null,
       status: 'pending'
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     // Catch unique constraint (23505) for duplicate pair
-    if (err.code === '23505') {
+    if (typeof err === 'object' && err !== null && 'code' in err && (err as { code: string }).code === '23505') {
       // Already pending or accepted
       return NextResponse.json({ success: true });
     }

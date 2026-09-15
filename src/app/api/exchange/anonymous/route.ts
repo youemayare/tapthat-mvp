@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { contactExchanges, profiles } from '@/lib/db/schema';
-import { eq, and } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import { z } from 'zod';
+import crypto from 'crypto';
 import { exchangeIpRatelimit } from '@/lib/redis/rate-limiter';
 import { getIp } from '@/lib/utils/get-ip';
 
@@ -73,7 +74,6 @@ export async function POST(req: Request) {
     }
 
     // 5. Generate HMAC token for erasure
-    const crypto = require('crypto');
     const rawErasureToken = crypto.randomBytes(32).toString('hex');
     const erasureTokenHash = crypto
       .createHmac('sha256', process.env.HMAC_SECRET_KEY || 'default-secret')
