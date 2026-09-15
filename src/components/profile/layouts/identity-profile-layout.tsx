@@ -215,9 +215,9 @@ export function IdentityProfileLayout({ profile, cardUid }: Props) {
               {!viewerState.isLoggedIn && (
                 <Link 
                   href={`/signup?redirect=/p/${profile.slug || profile.id}`}
-                  className="w-full flex items-center justify-center gap-2 h-14 rounded-2xl bg-card border border-border text-card-foreground font-medium hover:bg-accent transition-colors"
+                  className="w-full flex items-center justify-center gap-2 h-14 rounded-2xl text-base font-semibold transition-all duration-200 active:scale-95 border bg-card border-border text-foreground hover:border-brand-500/40 hover:bg-brand-500/5"
                 >
-                  <BookmarkPlus className="w-5 h-5 text-brand-400" />
+                  <BookmarkPlus className="w-5 h-5 mr-2" />
                   Sign in to save connection
                 </Link>
               )}

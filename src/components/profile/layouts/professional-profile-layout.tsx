@@ -192,7 +192,7 @@ export function ProfessionalProfileLayout({ profile, cardUid }: Props) {
                 Save Contact
               </button>
               
-              {viewerState.isLoggedIn ? (
+              {viewerState.isLoggedIn && (
                 <button 
                   onClick={saved ? undefined : handleToggleSave}
                   disabled={saved}
@@ -204,13 +204,6 @@ export function ProfessionalProfileLayout({ profile, cardUid }: Props) {
                 >
                   {saved ? 'Saved to Connections' : 'Save to Connections'}
                 </button>
-              ) : (
-                <Link 
-                  href={`/signup?redirect=/p/${profile.slug || profile.id}`}
-                  className="w-full h-12 rounded-full flex items-center justify-center font-medium text-[15px] tracking-wide transition-all bg-[#C9A45D]/10 hover:bg-[#C9A45D]/20 border border-[#C9A45D]/20 text-[#B98A3D] dark:text-[#C9A45D]"
-                >
-                  Sign in to save connection
-                </Link>
               )}
 
               <button
@@ -224,6 +217,15 @@ export function ProfessionalProfileLayout({ profile, cardUid }: Props) {
                   ? 'Exchange Pending'
                   : 'Exchange Details'}
               </button>
+
+              {!viewerState.isLoggedIn && (
+                <Link 
+                  href={`/signup?redirect=/p/${profile.slug || profile.id}`}
+                  className="w-full h-12 rounded-full flex items-center justify-center font-medium text-[15px] tracking-wide transition-all bg-transparent border border-[#C9A45D]/40 text-[#1A1A1A] dark:border-[#C9A45D]/40 dark:text-[#F6F1E6] hover:bg-[#C9A45D]/5 active:scale-[0.98]"
+                >
+                  Sign in to save connection
+                </Link>
+              )}
             </>
           )}
         </div>
