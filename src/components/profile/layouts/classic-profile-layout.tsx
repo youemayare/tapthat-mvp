@@ -68,7 +68,7 @@ export function ClassicProfileLayout({ profile, cardUid }: Props) {
   const { isOwner, resolved } = viewerState;
 
   return (
-    <main className="min-h-screen bg-background flex flex-col items-center justify-start px-4 py-10 pb-24 relative">
+    <main className="min-h-screen bg-background flex flex-col items-center justify-start px-4 pt-20 pb-24 relative">
       {/* Home Dashboard link if logged in */}
       {viewerState.isLoggedIn && !viewerState.isOwner && (
         <div className="absolute top-4 left-4 z-50">
