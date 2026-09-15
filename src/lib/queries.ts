@@ -1,6 +1,6 @@
 import { db } from '@/lib/db';
-import { profiles, cards, users } from '@/lib/db/schema';
-import { eq } from 'drizzle-orm';
+import { profiles, users, cards } from '@/lib/db/schema';
+import { eq, or } from 'drizzle-orm';
 import { unstable_cache } from 'next/cache';
 
 // Explicit columns to minimize JSON payload size and reduce Supabase egress.
@@ -52,7 +52,7 @@ export const getCachedProfileBySlug = (slugOrId: string) => unstable_cache(
       })
       .from(profiles)
       .leftJoin(users, eq(profiles.userId, users.id))
-      .where(isId ? eq(profiles.id, slugOrId) : eq(users.handle, slugOrId))
+      .where(isId ? eq(profiles.id, slugOrId) : or(eq(profiles.slug, slugOrId), eq(users.handle, slugOrId)))
       .limit(1);
     
     return result[0] ?? null;
@@ -86,3 +86,4 @@ export const getCachedCardAndProfile = (sanitizedUid: string) => unstable_cache(
   [`card-${sanitizedUid}`],
   { revalidate: 300, tags: [`card-${sanitizedUid}`] }
 )();
+
