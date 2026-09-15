@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import {
   Drawer,
-  DrawerClose,
   DrawerContent,
   DrawerDescription,
   DrawerFooter,
@@ -173,9 +172,7 @@ export function ExchangeDetailsDrawer({
             </DrawerDescription>
           </DrawerHeader>
           <DrawerFooter>
-            <DrawerClose asChild>
-              <Button variant="outline">Close</Button>
-            </DrawerClose>
+            <Button variant="outline" onClick={() => onOpenChange(false)}>Close</Button>
           </DrawerFooter>
         </DrawerContent>
       </Drawer>
@@ -227,9 +224,11 @@ export function ExchangeDetailsDrawer({
             </div>
           </div>
           <DrawerFooter>
-            <DrawerClose asChild>
-              <Button>Done</Button>
-            </DrawerClose>
+            <Button onClick={() => {
+              onExchangeSuccess();
+              onOpenChange(false);
+              setSuccessData(null);
+            }}>Done</Button>
           </DrawerFooter>
         </DrawerContent>
       </Drawer>
@@ -374,9 +373,7 @@ export function ExchangeDetailsDrawer({
               Have an Anoya account? <a href={`/login?redirect=/p/${targetProfileId}`} className="underline">Sign in</a> to exchange in one tap.
             </div>
           )}
-          <DrawerClose asChild>
-            <Button variant="outline">Cancel</Button>
-          </DrawerClose>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
         </DrawerFooter>
       </DrawerContent>
     </Drawer>

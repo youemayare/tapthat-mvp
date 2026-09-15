@@ -122,7 +122,6 @@ export async function POST(req: NextRequest) {
       sourceUserId: user.id,
       sourceProfileId: sourceProfile.id,
       sourceChannel,
-      sourceCardUid: data.sourceCardUid || null,
       status: 'pending'
     });
   } catch (err: unknown) {

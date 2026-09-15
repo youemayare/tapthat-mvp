@@ -5,8 +5,10 @@ import { eq } from 'drizzle-orm';
 import crypto from 'crypto';
 import { exchangeIpRatelimit } from '@/lib/ratelimit';
 
-export async function POST(req: Request, { params }: { params: { id: string } }) {
+export async function POST(req: Request, props: { params: Promise<{ id: string }> }) {
   try {
+    const { id: exchangeId } = await props.params;
+
     // 1. IP Rate Limiting
     const ip = req.headers.get('x-forwarded-for') ?? '127.0.0.1';
     const { success } = await exchangeIpRatelimit.limit(ip);
@@ -20,7 +22,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
     }
 
     const exchange = await db.query.contactExchanges.findFirst({
-      where: eq(contactExchanges.id, params.id)
+      where: eq(contactExchanges.id, exchangeId)
     });
 
     if (!exchange || exchange.sourceType !== 'manual') {
@@ -54,7 +56,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
         jobTitle: null,
         message: null,
       })
-      .where(eq(contactExchanges.id, params.id));
+      .where(eq(contactExchanges.id, exchangeId));
 
     return NextResponse.json({ success: true });
   } catch (err) {

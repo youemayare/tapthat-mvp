@@ -6,7 +6,7 @@ import { buildWhatsAppUrl, getFontClass } from '@/lib/utils';
 import {
   Phone, Mail, Globe, Download,
   FileText,
-  UserPlus, UserCheck, Home, Share
+  UserPlus, UserCheck, Home, Share, MessageCircle
 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
@@ -34,6 +34,7 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
     setNoteContent,
     setShowNoteModal,
     handleSaveContact,
+    handleToggleSave,
     handleSaveConnectionAndNote,
   } = useProfileActions(profile, cardUid);
 

@@ -4,8 +4,9 @@ import { contactExchanges } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
 import { createClient } from '@/lib/supabase/server';
 
-export async function PATCH(req: Request, { params }: { params: { id: string } }) {
+export async function PATCH(req: Request, props: { params: Promise<{ id: string }> }) {
   try {
+    const { id: exchangeId } = await props.params;
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
@@ -17,7 +18,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
 
     const exchange = await db.query.contactExchanges.findFirst({
       where: and(
-        eq(contactExchanges.id, params.id),
+        eq(contactExchanges.id, exchangeId),
         eq(contactExchanges.recipientUserId, user.id)
       )
     });
@@ -31,7 +32,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
         recipientNote: note,
         recipientNoteUpdatedAt: new Date()
       })
-      .where(eq(contactExchanges.id, params.id));
+      .where(eq(contactExchanges.id, exchangeId));
 
     return NextResponse.json({ success: true });
   } catch (err) {

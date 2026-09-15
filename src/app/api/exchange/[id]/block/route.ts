@@ -4,7 +4,7 @@ import { db } from '@/lib/db';
 import { contactExchanges } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
 
-export async function POST(req: Request, { params }: { params: { id: string } }) {
+export async function POST(req: Request, props: { params: Promise<{ id: string }> }) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -12,7 +12,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const exchangeId = params.id;
+  const { id: exchangeId } = await props.params;
   
   const exchange = await db.query.contactExchanges.findFirst({
     where: and(
