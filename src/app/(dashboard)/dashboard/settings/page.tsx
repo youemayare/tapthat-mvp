@@ -27,6 +27,7 @@ export default async function SettingsPage() {
 
   const fullName = dbUser?.fullName || user.user_metadata?.full_name || '';
   const email = user.email || '';
+  const handle = dbUser?.handle || null;
   
   // Check if they authenticated via OAuth (Google)
   const isOAuth = user.app_metadata?.provider === 'google' || user.app_metadata?.providers?.includes('google');
@@ -38,7 +39,7 @@ export default async function SettingsPage() {
         <p className="text-muted-foreground mt-1">Manage your account, security, and sessions.</p>
       </div>
 
-      <ProfileForm initialName={fullName} email={email} />
+      <ProfileForm initialName={fullName} email={email} initialHandle={handle} />
 
       {!isOAuth ? (
         <PasswordForm />

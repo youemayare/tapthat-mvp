@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { ClaimCard } from './claim-card';
 import { ProfileView } from './profile-view';
 import { getCachedCardAndProfile } from '@/lib/queries';
@@ -71,11 +71,13 @@ export default async function NfcTapPage({ params }: Props) {
   // Look up the card via ISR-cached query
   let card = null;
   let profile = null;
+  let handle = null;
 
   try {
     const row = await getCachedCardAndProfile(sanitizedUid);
     card = row?.card ?? null;
     profile = row?.profile ?? null;
+    handle = row?.handle ?? null;
   } catch {
     // DB not yet connected — fall through to claim page
   }
@@ -124,7 +126,12 @@ export default async function NfcTapPage({ params }: Props) {
     );
   }
 
-  // ── Active card with published profile → show it ──
+  // ── Active card with published profile → redirect to handle if exists ──
+  if (handle) {
+    redirect(`/${handle}?tap=${sanitizedUid}`);
+  }
+
+  // Fallback if handle doesn't exist yet (e.g. legacy profile without handle)
   // Viewer state (isOwner, alreadySaved) is NOT passed here.
   // It is fetched client-side by ProfileView via /api/viewer-state,
   // ensuring it is never present in ISR-cached HTML.

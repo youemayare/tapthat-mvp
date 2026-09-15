@@ -23,9 +23,10 @@ interface Profile {
 interface Props {
   profiles: Profile[];
   hasCards?: boolean;
+  handle?: string | null;
 }
 
-export function ProfileList({ profiles: initialProfiles, hasCards = true }: Props) {
+export function ProfileList({ profiles: initialProfiles, hasCards = true, handle }: Props) {
   const router = useRouter();
   const [profiles] = useState<Profile[]>(initialProfiles);
   const [creating, setCreating] = useState(false);
@@ -202,9 +203,9 @@ export function ProfileList({ profiles: initialProfiles, hasCards = true }: Prop
                   }`}>
                   {isArchived ? 'Archived' : p.isPublished ? 'Published' : 'Draft'}
                 </span>
-                {p.slug && (
+                {p.isDefault && handle && (
                   <span className="px-2 py-0.5 rounded-full text-xs bg-muted text-muted-foreground font-mono">
-                    /p/{p.slug}
+                    /{handle}
                   </span>
                 )}
               </div>

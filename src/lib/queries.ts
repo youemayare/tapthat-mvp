@@ -1,5 +1,5 @@
 import { db } from '@/lib/db';
-import { profiles, cards } from '@/lib/db/schema';
+import { profiles, cards, users } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { unstable_cache } from 'next/cache';
 
@@ -46,9 +46,13 @@ export const getCachedProfileBySlug = (slugOrId: string) => unstable_cache(
     const isId = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(slugOrId);
     
     const result = await db
-      .select(PROFILE_PUBLIC_COLS)
+      .select({
+        ...PROFILE_PUBLIC_COLS,
+        handle: users.handle,
+      })
       .from(profiles)
-      .where(isId ? eq(profiles.id, slugOrId) : eq(profiles.slug, slugOrId))
+      .leftJoin(users, eq(profiles.userId, users.id))
+      .where(isId ? eq(profiles.id, slugOrId) : eq(users.handle, slugOrId))
       .limit(1);
     
     return result[0] ?? null;
@@ -69,9 +73,11 @@ export const getCachedCardAndProfile = (sanitizedUid: string) => unstable_cache(
           status: cards.status,
         },
         profile: PROFILE_PUBLIC_COLS,
+        handle: users.handle,
       })
       .from(cards)
       .leftJoin(profiles, eq(cards.profileId, profiles.id))
+      .leftJoin(users, eq(profiles.userId, users.id))
       .where(eq(cards.cardUid, sanitizedUid))
       .limit(1);
 

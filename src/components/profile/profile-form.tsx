@@ -88,9 +88,10 @@ type ProfileFormValues = z.infer<typeof profileSchema>;
 interface ProfileFormProps {
   initialData: Partial<Profile> | null;
   isMultiProfile?: boolean;
+  handle?: string | null;
 }
 
-export function ProfileForm({ initialData, isMultiProfile }: ProfileFormProps) {
+export function ProfileForm({ initialData, isMultiProfile, handle }: ProfileFormProps) {
   const router = useRouter();
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -592,19 +593,21 @@ export function ProfileForm({ initialData, isMultiProfile }: ProfileFormProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="slug">Custom Profile URL (Username)</Label>
+            <Label>Custom Profile URL (Username)</Label>
             <div className="flex items-center">
               <span className="bg-accent text-accent-foreground border border-r-0 border-border px-3 py-2 rounded-l-md text-muted-foreground text-sm">
-                anoya.ae/p/
+                tapthat.com/
               </span>
               <Input 
-                id="slug" 
-                {...register('slug')} 
-                placeholder="umar-khan" 
-                className="rounded-l-none"
+                disabled
+                value={handle || ''}
+                placeholder="your-name" 
+                className="rounded-l-none bg-muted cursor-not-allowed text-muted-foreground"
               />
             </div>
-            {errors.slug && <p className="text-sm text-red-500">{errors.slug.message}</p>}
+            <p className="text-xs text-muted-foreground">
+              This custom URL applies to all profiles and can be changed in the settings.
+            </p>
           </div>
 
           <div className="flex items-center justify-between border-t border-border pt-6">

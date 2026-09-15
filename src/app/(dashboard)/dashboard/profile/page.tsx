@@ -27,6 +27,12 @@ export default async function ProfilePage({
   const { id: profileId } = await searchParams;
 
   return await withRlsUser(user, async (tx) => {
+    // Get the user's handle
+    const dbUser = await tx.query.users.findFirst({
+      where: eq((await import('@/lib/db/schema')).users.id, user.id)
+    });
+    const handle = dbUser?.handle || null;
+
     // ── Multi-profile mode ───────────────────────────────────────────────────────
     if (multiProfileEnabled) {
       // If a specific profile ID is requested (via ?id=...), show its editor
@@ -42,7 +48,7 @@ export default async function ProfilePage({
 
       return (
         <div className="space-y-6">
-          <ProfileForm initialData={specificProfile} isMultiProfile={true} />
+          <ProfileForm initialData={specificProfile} isMultiProfile={true} handle={handle} />
         </div>
       );
     }
@@ -82,7 +88,7 @@ export default async function ProfilePage({
             Each profile is a separate public persona. This is what people see when you tap your card. You can switch your active profile in My Cards.
           </p>
         </div>
-        <ProfileList profiles={allProfiles} hasCards={hasCards} />
+        <ProfileList profiles={allProfiles} hasCards={hasCards} handle={handle} />
       </div>
     );
   }
@@ -93,7 +99,7 @@ export default async function ProfilePage({
 
     return (
       <div className="space-y-6">
-        <ProfileForm initialData={initialData} isMultiProfile={false} />
+        <ProfileForm initialData={initialData} isMultiProfile={false} handle={handle} />
       </div>
     );
   });

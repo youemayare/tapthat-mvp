@@ -9,6 +9,7 @@ export const users = pgTable('users', {
   fullName: text('full_name'),
   avatarUrl: text('avatar_url'),
   authProvider: text('auth_provider').default('email'),
+  handle: text('handle').unique(),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 });

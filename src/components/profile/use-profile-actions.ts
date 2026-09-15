@@ -44,6 +44,15 @@ export function useProfileActions(profile: Partial<Profile> & { id: string; user
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ uid: cardUid, type: 'tap' }),
     }).catch(() => {});
+
+    // Clean up the URL if it contains the tap parameter
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      if (url.searchParams.has('tap')) {
+        url.searchParams.delete('tap');
+        window.history.replaceState(null, '', url.pathname + url.search);
+      }
+    }
   }, [cardUid]);
 
   async function handleSaveConnectionAndNote() {
