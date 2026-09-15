@@ -26,7 +26,7 @@ export function ConnectionsTabs({ pendingCount }: { pendingCount: number }) {
   ];
 
   return (
-    <div className="flex items-center gap-6 border-b border-border">
+    <div className="flex items-center justify-between sm:justify-start gap-2 sm:gap-6 border-b border-border overflow-x-auto no-scrollbar">
       {tabs.map((tab) => {
         const isActive = tab.exact 
           ? pathname === tab.href 
@@ -37,7 +37,7 @@ export function ConnectionsTabs({ pendingCount }: { pendingCount: number }) {
             key={tab.href}
             href={tab.href}
             className={cn(
-              "relative pb-3 text-sm font-medium transition-colors hover:text-foreground",
+              "relative pb-3 text-[13px] sm:text-sm font-medium transition-colors hover:text-foreground whitespace-nowrap",
               isActive ? "text-foreground" : "text-muted-foreground"
             )}
           >

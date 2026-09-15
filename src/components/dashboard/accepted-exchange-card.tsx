@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState } from 'react';
 import { Mail, Phone, Building2, Briefcase, StickyNote, UserMinus } from 'lucide-react';
@@ -12,13 +12,36 @@ import { toast } from 'sonner';
 export function AcceptedExchangeCard({ exchange }: { exchange: any }) {
   const [showNoteModal, setShowNoteModal] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [noteContent, setNoteContent] = useState(exchange.recipientNote || '');
   const [savingNote, setSavingNote] = useState(false);
   const [localNote, setLocalNote] = useState(exchange.recipientNote);
+  const [isRemoving, setIsRemoving] = useState(false);
+  const [isDeleted, setIsDeleted] = useState(false);
 
   const initials = exchange.name 
     ? exchange.name.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase() 
     : '?';
+
+  const handleRemoveExchange = async () => {
+    setIsRemoving(true);
+    try {
+      const res = await fetch(`/api/exchange/${exchange.id}`, {
+        method: 'DELETE',
+      });
+      if (res.ok) {
+        setIsDeleted(true);
+        toast.success('Connection removed.');
+        setShowConfirmModal(false);
+      } else {
+        toast.error('Failed to remove connection.');
+      }
+    } catch {
+      toast.error('Network error.');
+    } finally {
+      setIsRemoving(false);
+    }
+  };
 
   const handleSaveNote = async () => {
     setSavingNote(true);
@@ -41,9 +64,11 @@ export function AcceptedExchangeCard({ exchange }: { exchange: any }) {
     }
   };
 
+  if (isDeleted) return null;
+
   return (
     <>
-      <div className="relative group bg-card border border-border rounded-2xl p-5 hover:border-brand-500/30 hover:bg-accent/30 transition-all flex flex-col gap-3">
+      <div className={`relative group bg-card border border-border rounded-2xl p-5 hover:border-brand-500/30 hover:bg-accent/30 transition-all flex flex-col gap-3 ${isRemoving ? 'opacity-50 pointer-events-none' : ''}`}>
         <button onClick={() => setShowDetailsModal(true)} className="absolute inset-0 z-0 rounded-2xl cursor-pointer" aria-label="View details"></button>
         
         {/* Avatar + name row */}
@@ -71,6 +96,13 @@ export function AcceptedExchangeCard({ exchange }: { exchange: any }) {
               title={localNote ? 'Edit private note' : 'Add private note'}
             >
               <StickyNote className="w-4 h-4" />
+            </button>
+            <button 
+              onClick={(e) => { e.preventDefault(); setShowConfirmModal(true); }}
+              className="w-9 h-9 rounded-full flex items-center justify-center bg-red-500/10 text-red-500 hover:bg-red-500/20 transition-colors"
+              title="Remove connection"
+            >
+              <UserMinus className="w-4 h-4" />
             </button>
           </div>
         </div>
@@ -184,6 +216,26 @@ export function AcceptedExchangeCard({ exchange }: { exchange: any }) {
             </Button>
             <Button onClick={handleSaveNote} disabled={savingNote}>
               {savingNote ? 'Saving...' : 'Save Note'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Remove Confirm Modal */}
+      <Dialog open={showConfirmModal} onOpenChange={setShowConfirmModal}>
+        <DialogContent className="sm:max-w-md bg-background border-border" style={{ borderRadius: '1.5rem' }}>
+          <DialogHeader>
+            <DialogTitle>Remove Connection?</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to remove {exchange.name} from your connections? This cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button variant="outline" onClick={() => setShowConfirmModal(false)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleRemoveExchange} disabled={isRemoving}>
+              {isRemoving ? 'Removing...' : 'Remove'}
             </Button>
           </DialogFooter>
         </DialogContent>
