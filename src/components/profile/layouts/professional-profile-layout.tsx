@@ -192,18 +192,6 @@ export function ProfessionalProfileLayout({ profile, cardUid }: Props) {
                 Save Contact
               </button>
               
-              <button
-                onClick={() => setShowExchangeDrawer(true)}
-                disabled={viewerState.exchangeStatus === 'pending' || viewerState.exchangeStatus === 'accepted'}
-                className="w-full h-12 rounded-full flex items-center justify-center font-medium text-[15px] tracking-wide transition-all bg-transparent border-2 border-[#C9A45D]/40 text-[#1A1A1A] dark:text-[#F6F1E6] hover:bg-[#C9A45D]/5 active:scale-[0.98]"
-              >
-                {viewerState.exchangeStatus === 'accepted' 
-                  ? 'Details Shared ✓' 
-                  : viewerState.exchangeStatus === 'pending'
-                  ? 'Exchange Pending'
-                  : 'Exchange Details'}
-              </button>
-
               {viewerState.isLoggedIn ? (
                 <button 
                   onClick={saved ? undefined : handleToggleSave}
@@ -224,6 +212,18 @@ export function ProfessionalProfileLayout({ profile, cardUid }: Props) {
                   Create your own profile
                 </Link>
               )}
+
+              <button
+                onClick={() => setShowExchangeDrawer(true)}
+                disabled={viewerState.exchangeStatus === 'pending' || viewerState.exchangeStatus === 'accepted'}
+                className="w-full h-12 rounded-full flex items-center justify-center font-medium text-[15px] tracking-wide transition-all bg-transparent border-2 border-[#C9A45D]/40 text-[#1A1A1A] dark:text-[#F6F1E6] hover:bg-[#C9A45D]/5 active:scale-[0.98]"
+              >
+                {viewerState.exchangeStatus === 'accepted' 
+                  ? 'Details Shared ✓' 
+                  : viewerState.exchangeStatus === 'pending'
+                  ? 'Exchange Pending'
+                  : 'Exchange Details'}
+              </button>
             </>
           )}
         </div>

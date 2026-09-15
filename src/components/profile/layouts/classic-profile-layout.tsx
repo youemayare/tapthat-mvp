@@ -165,6 +165,25 @@ export function ClassicProfileLayout({ profile, cardUid }: Props) {
               Save Contact
             </button>
 
+            {/* Save to My Connections (tertiary ghost/text) - only for logged in */}
+            {viewerState.isLoggedIn && (
+              <button
+                onClick={handleToggleSave}
+                disabled={saving}
+                className={`w-full flex items-center justify-center gap-2 py-3 px-6 font-medium text-sm rounded-2xl transition-all duration-200 active:scale-95 border-2 ${
+                  saved
+                    ? 'border-emerald-500/20 text-emerald-500 hover:bg-emerald-500/10'
+                    : 'border-border text-foreground hover:bg-accent'
+                }`}
+              >
+                {saved ? (
+                  <><BookmarkCheck className="w-4 h-4" /> Saved to My Connections</>
+                ) : (
+                  <><BookmarkPlus className="w-4 h-4" /> Save to My Connections</>
+                )}
+              </button>
+            )}
+
             {/* ── Exchange Details (secondary) ── */}
             <button
               onClick={() => setShowExchangeDrawer(true)}
@@ -178,25 +197,6 @@ export function ClassicProfileLayout({ profile, cardUid }: Props) {
                 ? 'Exchange Pending'
                 : 'Exchange Details'}
             </button>
-
-            {/* Save to My Connections (tertiary ghost/text) - only for logged in */}
-            {viewerState.isLoggedIn && (
-              <button
-                onClick={handleToggleSave}
-                disabled={saving}
-                className={`w-full flex items-center justify-center gap-2 py-3 px-6 font-medium text-sm rounded-2xl transition-all duration-200 active:scale-95 ${
-                  saved
-                    ? 'text-emerald-500 hover:bg-emerald-500/10'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-accent'
-                }`}
-              >
-                {saved ? (
-                  <><BookmarkCheck className="w-4 h-4" /> Saved to My Connections</>
-                ) : (
-                  <><BookmarkPlus className="w-4 h-4" /> Save to My Connections</>
-                )}
-              </button>
-            )}
 
             {/* ── Not logged in — subtle CTA to sign up ── */}
             {!viewerState.isLoggedIn && (

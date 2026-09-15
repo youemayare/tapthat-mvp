@@ -173,19 +173,6 @@ export function IdentityProfileLayout({ profile, cardUid }: Props) {
                 Save Contact
               </Button>
 
-              <button
-                onClick={() => setShowExchangeDrawer(true)}
-                disabled={viewerState.exchangeStatus === 'pending' || viewerState.exchangeStatus === 'accepted'}
-                className="w-full flex items-center justify-center gap-2 h-14 border-2 border-brand-500/20 hover:border-brand-500/40 hover:bg-brand-500/5 active:scale-95 text-foreground font-semibold text-sm rounded-2xl transition-all duration-200"
-              >
-                <MessageCircle className="w-4 h-4 text-brand-500" />
-                {viewerState.exchangeStatus === 'accepted' 
-                  ? 'Details Shared ✓' 
-                  : viewerState.exchangeStatus === 'pending'
-                  ? 'Exchange Pending'
-                  : 'Exchange Details'}
-              </button>
-
               {viewerState.isLoggedIn && (
                 <button
                   onClick={handleToggleSave}
@@ -211,6 +198,19 @@ export function IdentityProfileLayout({ profile, cardUid }: Props) {
                   )}
                 </button>
               )}
+
+              <button
+                onClick={() => setShowExchangeDrawer(true)}
+                disabled={viewerState.exchangeStatus === 'pending' || viewerState.exchangeStatus === 'accepted'}
+                className="w-full flex items-center justify-center gap-2 h-14 border-2 border-brand-500/20 hover:border-brand-500/40 hover:bg-brand-500/5 active:scale-95 text-foreground font-semibold text-sm rounded-2xl transition-all duration-200"
+              >
+                <MessageCircle className="w-4 h-4 text-brand-500" />
+                {viewerState.exchangeStatus === 'accepted' 
+                  ? 'Details Shared ✓' 
+                  : viewerState.exchangeStatus === 'pending'
+                  ? 'Exchange Pending'
+                  : 'Exchange Details'}
+              </button>
 
               {!viewerState.isLoggedIn && (
                 <Link 
