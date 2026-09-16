@@ -214,48 +214,82 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
         {/* Download & Save - hidden for owner */}
         {resolved && !isOwner && (
           <div className="flex flex-col items-center justify-center gap-3 w-full mb-3 max-w-[280px]">
-            <div className="flex w-full gap-2">
-              <button
-                onClick={handleSaveContact}
-                aria-label="Save Contact"
-                className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-full border border-white/30 bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-colors text-white text-xs font-bold"
-              >
-                <Download className="w-3.5 h-3.5" />
-                Save Contact
-              </button>
-              {viewerState.isLoggedIn && (
+            {viewerState.isLoggedIn ? (
+              <>
+                <div className="flex w-full gap-2">
+                  <button
+                    onClick={handleSaveContact}
+                    aria-label="Save Contact"
+                    className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-full border border-white/30 bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-colors text-white text-xs font-bold"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    Save Contact
+                  </button>
+                  <button
+                    onClick={saved ? undefined : handleToggleSave}
+                    aria-label={saved ? 'Already connected' : 'Save to My Connections'}
+                    disabled={saved}
+                    className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-full border text-xs font-semibold transition-colors ${
+                      saved
+                        ? 'bg-green-400/15 text-green-300 border-green-400/20 cursor-default'
+                        : 'bg-black/20 border-white/10 hover:bg-white/10 text-white/90 backdrop-blur-sm'
+                    }`}
+                  >
+                    {saved ? (
+                      <><UserCheck className="w-3.5 h-3.5" />Connected</>
+                    ) : (
+                      <><UserPlus className="w-3.5 h-3.5" />Connect</>
+                    )}
+                  </button>
+                </div>
                 <button
-                  onClick={saved ? undefined : handleToggleSave}
-                  aria-label={saved ? 'Already connected' : 'Save to My Connections'}
-                  disabled={saved}
-                  className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-full border text-xs font-semibold transition-colors ${
-                    saved
-                      ? 'bg-green-400/15 text-green-300 border-green-400/20 cursor-default'
-                      : 'bg-black/20 border-white/10 hover:bg-white/10 text-white/90 backdrop-blur-sm'
-                  }`}
+                  onClick={() => setShowExchangeDrawer(true)}
+                  disabled={viewerState.exchangeStatus === 'pending' || viewerState.exchangeStatus === 'accepted'}
+                  aria-label="Exchange Details"
+                  className="flex items-center justify-center gap-1.5 w-full px-4 py-2.5 rounded-full border border-white/20 bg-black/20 backdrop-blur-sm hover:bg-black/40 transition-colors text-white text-xs font-semibold"
                 >
-                  {saved ? (
-                    <><UserCheck className="w-3.5 h-3.5" />Connected</>
-                  ) : (
-                    <><UserPlus className="w-3.5 h-3.5" />Connect</>
-                  )}
+                  <MessageCircle className="w-3.5 h-3.5 text-brand-300" />
+                  {viewerState.exchangeStatus === 'accepted' 
+                    ? 'Details Shared ✓' 
+                    : viewerState.exchangeStatus === 'pending'
+                    ? 'Exchange Pending'
+                    : 'Exchange Details'}
                 </button>
-              )}
-            </div>
-            
-            <button
-              onClick={() => setShowExchangeDrawer(true)}
-              disabled={viewerState.exchangeStatus === 'pending' || viewerState.exchangeStatus === 'accepted'}
-              aria-label="Exchange Details"
-              className="flex items-center justify-center gap-1.5 w-full px-4 py-2.5 rounded-full border border-white/20 bg-black/20 backdrop-blur-sm hover:bg-black/40 transition-colors text-white text-xs font-semibold"
-            >
-              <MessageCircle className="w-3.5 h-3.5 text-brand-300" />
-              {viewerState.exchangeStatus === 'accepted' 
-                ? 'Details Shared ✓' 
-                : viewerState.exchangeStatus === 'pending'
-                ? 'Exchange Pending'
-                : 'Exchange Details'}
-            </button>
+              </>
+            ) : (
+              <>
+                <div className="flex w-full gap-2">
+                  <button
+                    onClick={handleSaveContact}
+                    aria-label="Save Contact"
+                    className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-full border border-white/30 bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-colors text-white text-xs font-bold"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    Save Contact
+                  </button>
+                  <button
+                    onClick={() => setShowExchangeDrawer(true)}
+                    disabled={viewerState.exchangeStatus === 'pending' || viewerState.exchangeStatus === 'accepted'}
+                    aria-label="Exchange Details"
+                    className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-full border border-white/20 bg-black/20 backdrop-blur-sm hover:bg-black/40 transition-colors text-white text-xs font-semibold"
+                  >
+                    <MessageCircle className="w-3.5 h-3.5 text-brand-300" />
+                    {viewerState.exchangeStatus === 'accepted' 
+                      ? 'Shared ✓' 
+                      : viewerState.exchangeStatus === 'pending'
+                      ? 'Pending'
+                      : 'Exchange'}
+                  </button>
+                </div>
+                <Link
+                  href={`/signup?redirect=/p/${profile.slug || profile.id}`}
+                  className="flex items-center justify-center gap-1.5 w-full px-4 py-2.5 rounded-full border border-white/20 bg-black/20 backdrop-blur-sm hover:bg-black/40 transition-colors text-white text-xs font-semibold"
+                >
+                  <BookmarkPlus className="w-3.5 h-3.5" />
+                  Sign In to Save Connection
+                </Link>
+              </>
+            )}
           </div>
         )}
 
