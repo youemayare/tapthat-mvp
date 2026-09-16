@@ -59,8 +59,8 @@ export async function POST(req: Request, props: { params: Promise<{ id: string }
       .where(eq(contactExchanges.id, exchangeId));
 
     return NextResponse.json({ success: true });
-  } catch (err) {
+  } catch (err: any) {
     console.error('[Erasure Error]', err);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return NextResponse.json({ error: err.message || 'Internal server error', stack: err.stack }, { status: 500 });
   }
 }
