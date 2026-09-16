@@ -1,21 +1,22 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, use } from 'react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { ShieldAlert, Loader2, CheckCircle2 } from 'lucide-react';
 
-export default function RemoveExchangePage({ params }: { params: { id: string, token: string } }) {
+export default function RemoveExchangePage({ params }: { params: Promise<{ id: string, token: string }> }) {
+  const unwrappedParams = use(params);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
   const handleRemove = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/exchange/${params.id}/erasure`, {
+      const res = await fetch(`/api/exchange/${unwrappedParams.id}/erasure`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token: params.token }),
+        body: JSON.stringify({ token: unwrappedParams.token }),
       });
 
       const data = await res.json();
