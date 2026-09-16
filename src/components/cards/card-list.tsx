@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { ZapOff, Play, ShieldAlert, CreditCard, RefreshCw, User } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -36,6 +36,11 @@ export function CardList({ initialCards, profiles = [], multiProfileEnabled = fa
   const router = useRouter();
   const [cards, setCards] = useState<Card[]>(initialCards);
   const [isUpdatingId, setIsUpdatingId] = useState<string | null>(null);
+
+  // Sync local state whenever the server re-fetches initialCards (after router.refresh())
+  useEffect(() => {
+    setCards(initialCards);
+  }, [initialCards]);
 
   // Status change dialog
   const [dialogConfig, setDialogConfig] = useState<{
