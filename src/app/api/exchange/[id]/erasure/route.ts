@@ -43,20 +43,20 @@ export async function POST(req: Request, props: { params: Promise<{ id: string }
       return NextResponse.json({ error: 'Invalid or unauthorized token' }, { status: 403 });
     }
 
-    // 3. Mark as withdrawn and redact PII (Tombstoning)
-    // We overwrite PII with dummy strings to satisfy any potential NOT NULL
-    // database constraints while permanently destroying the user's private data.
+    // 3. Mark as withdrawn and redact PII (Tombstoning).
+    // Only overwrite fields that were actually populated — leaving already-null
+    // fields as null prevents NOT NULL constraint violations on optional columns.
     await db.update(contactExchanges)
       .set({ 
         status: 'withdrawn',
-        name: '[Redacted]',
-        email: 'redacted@anoya.com',
-        phone: '',
-        company: '',
-        jobTitle: '',
-        message: '',
-        emailHash: '',
-        phoneHash: '',
+        name: exchange.name ? '[Redacted]' : null,
+        email: exchange.email ? '[Redacted]' : null,
+        phone: exchange.phone ? '[Redacted]' : null,
+        company: exchange.company ? '[Redacted]' : null,
+        jobTitle: exchange.jobTitle ? '[Redacted]' : null,
+        message: exchange.message ? '[Redacted]' : null,
+        emailHash: exchange.emailHash ? '[Redacted]' : null,
+        phoneHash: exchange.phoneHash ? '[Redacted]' : null,
       })
       .where(eq(contactExchanges.id, exchangeId));
 
