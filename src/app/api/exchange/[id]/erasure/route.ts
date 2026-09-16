@@ -43,19 +43,10 @@ export async function POST(req: Request, props: { params: Promise<{ id: string }
       return NextResponse.json({ error: 'Invalid or unauthorized token' }, { status: 403 });
     }
 
-    // 3. Mark as withdrawn (or hard delete)
-    // We choose soft delete to keep audit of block evasion
+    // 3. Mark as withdrawn
+    // Just update the status to prevent constraint violations
     await db.update(contactExchanges)
-      .set({ 
-        status: 'withdrawn',
-        // Optional: blank out PII
-        name: null,
-        email: null,
-        phone: null,
-        company: null,
-        jobTitle: null,
-        message: null,
-      })
+      .set({ status: 'withdrawn' })
       .where(eq(contactExchanges.id, exchangeId));
 
     return NextResponse.json({ success: true });
