@@ -69,7 +69,24 @@ export default async function HandleProfilePage({ params, searchParams }: Props)
     }
   }
 
-  // If no tap param or specific profile not found, fallback to default profile for the handle
+  // If no tap param or specific profile not found, show the profile linked to
+  // the user's active card. Falls back to isDefault only if no active card exists.
+  if (!profile) {
+    const activeCardResult = await db
+      .select({ profile: PROFILE_PUBLIC_COLS })
+      .from(cards)
+      .innerJoin(profiles, eq(cards.profileId, profiles.id))
+      .innerJoin(users, eq(profiles.userId, users.id))
+      .where(and(
+        eq(users.handle, handle),
+        eq(cards.status, 'active')
+      ))
+      .limit(1);
+
+    profile = activeCardResult[0]?.profile ?? null;
+  }
+
+  // Fallback: default profile for this handle (no active card linked)
   if (!profile) {
     const result = await db
       .select({ profile: PROFILE_PUBLIC_COLS })
