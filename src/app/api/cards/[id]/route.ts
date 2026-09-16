@@ -59,7 +59,7 @@ export async function PATCH(
       if (response.ok) {
         const data = await response.clone().json();
         if (data?.card?.cardUid) {
-          revalidateTag(`card-${data.card.cardUid}`);
+          revalidateTag(`card-${data.card.cardUid}`, 'max');
         }
       }
       return response;
@@ -129,7 +129,7 @@ async function handleStatusChange(tx: Transaction, cardId: string, requestedStat
   });
 
   if (updatedCard?.cardUid) {
-    revalidateTag(`card-${updatedCard.cardUid}`);
+    revalidateTag(`card-${updatedCard.cardUid}`, 'max');
   }
 
   return NextResponse.json({ success: true, card: updatedCard });
@@ -201,7 +201,7 @@ async function handleProfileSwitch(tx: Transaction, cardId: string, profileId: s
   });
 
   if (updatedCard?.cardUid) {
-    revalidateTag(`card-${updatedCard.cardUid}`);
+    revalidateTag(`card-${updatedCard.cardUid}`, 'max');
   }
 
   return NextResponse.json({ success: true, card: updatedCard });
