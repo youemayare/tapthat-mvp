@@ -54,7 +54,15 @@ export async function PATCH(
       if (!isMultiProfileEnabled()) {
         return NextResponse.json({ error: 'Feature not enabled' }, { status: 403 });
       }
-      return await withRlsUser(user, (tx) => handleProfileSwitch(tx, cardId, body.profileId, user.id));
+      const response = await withRlsUser(user, (tx) => handleProfileSwitch(tx, cardId, body.profileId, user.id));
+      // Bust ISR cache AFTER the transaction commits, outside the RLS context
+      if (response.ok) {
+        const data = await response.clone().json();
+        if (data?.card?.cardUid) {
+          revalidateTag(`card-${data.card.cardUid}`);
+        }
+      }
+      return response;
     }
 
     // ── Branch: Status change (existing behavior, unchanged) ──────────────────
@@ -121,7 +129,7 @@ async function handleStatusChange(tx: Transaction, cardId: string, requestedStat
   });
 
   if (updatedCard?.cardUid) {
-    revalidateTag(`card-${updatedCard.cardUid}`, 'max');
+    revalidateTag(`card-${updatedCard.cardUid}`);
   }
 
   return NextResponse.json({ success: true, card: updatedCard });
@@ -193,7 +201,7 @@ async function handleProfileSwitch(tx: Transaction, cardId: string, profileId: s
   });
 
   if (updatedCard?.cardUid) {
-    revalidateTag(`card-${updatedCard.cardUid}`, 'max');
+    revalidateTag(`card-${updatedCard.cardUid}`);
   }
 
   return NextResponse.json({ success: true, card: updatedCard });
