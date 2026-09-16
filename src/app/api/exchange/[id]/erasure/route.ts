@@ -43,10 +43,21 @@ export async function POST(req: Request, props: { params: Promise<{ id: string }
       return NextResponse.json({ error: 'Invalid or unauthorized token' }, { status: 403 });
     }
 
-    // 3. Mark as withdrawn
-    // Just update the status to prevent constraint violations
+    // 3. Mark as withdrawn and redact PII (Tombstoning)
+    // We overwrite PII with dummy strings to satisfy any potential NOT NULL
+    // database constraints while permanently destroying the user's private data.
     await db.update(contactExchanges)
-      .set({ status: 'withdrawn' })
+      .set({ 
+        status: 'withdrawn',
+        name: '[Redacted]',
+        email: 'redacted@anoya.com',
+        phone: '',
+        company: '',
+        jobTitle: '',
+        message: '',
+        emailHash: '',
+        phoneHash: '',
+      })
       .where(eq(contactExchanges.id, exchangeId));
 
     return NextResponse.json({ success: true });
