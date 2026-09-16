@@ -29,8 +29,8 @@ export async function POST(req: Request, props: { params: Promise<{ id: string }
       return NextResponse.json({ error: 'Exchange not found' }, { status: 404 });
     }
 
-    if (exchange.status === 'withdrawn') {
-      return NextResponse.json({ error: 'Exchange already withdrawn' }, { status: 400 });
+    if (exchange.status === 'rejected') {
+      return NextResponse.json({ error: 'Your details have already been removed' }, { status: 400 });
     }
 
     // 2. Hash provided token and compare
@@ -43,12 +43,13 @@ export async function POST(req: Request, props: { params: Promise<{ id: string }
       return NextResponse.json({ error: 'Invalid or unauthorized token' }, { status: 403 });
     }
 
-    // 3. Redact all PII and mark as withdrawn.
-    // All fields are set to a non-empty '[Redacted]' string unconditionally,
-    // satisfying any NOT NULL / CHECK constraints on the Postgres columns.
+    // 3. Redact all PII and mark as rejected (erasure).
+    // 'rejected' is a valid value in the ce_status_check DB constraint.
+    // All PII fields are overwritten with '[Redacted]' — non-null, non-empty
+    // strings that satisfy any NOT NULL / CHECK constraints on those columns.
     await db.update(contactExchanges)
       .set({
-        status: 'withdrawn',
+        status: 'rejected',
         name: '[Redacted]',
         email: '[Redacted]',
         phone: '[Redacted]',
