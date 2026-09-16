@@ -148,7 +148,7 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
         )}
 
         {/* Profile Avatar */}
-        <div className="relative w-28 h-28 rounded-full flex-shrink-0 shadow-2xl">
+        <div className="relative w-[134px] h-[134px] rounded-full flex-shrink-0 shadow-2xl">
           <div className="absolute inset-0 rounded-full pointer-events-none p-[2px] z-20" style={silverBorderMask} />
           <div className="w-full h-full rounded-full overflow-hidden bg-black/20 backdrop-blur-md relative z-10">
             {profile.profilePhotoUrl ? (
