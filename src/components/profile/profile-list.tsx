@@ -88,7 +88,7 @@ export function ProfileList({ profiles: initialProfiles, hasCards = true, handle
             Give this profile a label (e.g., &quot;Business&quot;, &quot;Student&quot;, &quot;Creator&quot;).
             You&apos;ll set the profile content after creating it.
           </p>
-          <div className="flex gap-3">
+          <div className="flex flex-col sm:flex-row gap-3">
             <input
               type="text"
               value={label}
@@ -96,22 +96,24 @@ export function ProfileList({ profiles: initialProfiles, hasCards = true, handle
               onKeyDown={(e) => { if (e.key === 'Enter') handleCreate(); if (e.key === 'Escape') setShowCreateForm(false); }}
               placeholder="e.g. Business"
               maxLength={50}
-              className="flex-1 bg-background border border-border rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-brand-500/40"
+              className="w-full sm:flex-1 bg-background border border-border rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-brand-500/40"
               autoFocus
             />
-            <button
-              onClick={handleCreate}
-              disabled={!label.trim() || creating}
-              className="flex items-center gap-2 px-4 py-2.5 bg-brand-600 hover:bg-brand-500 disabled:opacity-40 text-white text-sm font-semibold rounded-xl transition-all"
-            >
-              {creating ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Create'}
-            </button>
-            <button
-              onClick={() => { setShowCreateForm(false); setLabel(''); }}
-              className="px-4 py-2.5 border border-border rounded-xl text-muted-foreground hover:bg-accent text-sm transition-all"
-            >
-              Cancel
-            </button>
+            <div className="flex gap-2 sm:gap-3 w-full sm:w-auto">
+              <button
+                onClick={handleCreate}
+                disabled={!label.trim() || creating}
+                className="flex-1 sm:flex-none flex justify-center items-center gap-2 px-4 py-2.5 bg-brand-600 hover:bg-brand-500 disabled:opacity-40 text-white text-sm font-semibold rounded-xl transition-all"
+              >
+                {creating ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Create'}
+              </button>
+              <button
+                onClick={() => { setShowCreateForm(false); setLabel(''); }}
+                className="flex-1 sm:flex-none flex justify-center px-4 py-2.5 border border-border rounded-xl text-muted-foreground hover:bg-accent text-sm font-medium transition-all"
+              >
+                Cancel
+              </button>
+            </div>
           </div>
         </div>
       )}
