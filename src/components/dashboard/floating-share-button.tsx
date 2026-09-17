@@ -6,17 +6,20 @@ import { QRShareSheet } from '@/components/profile/qr-share-sheet';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface FloatingShareButtonProps {
-  activeProfile: any; // The profile to share
+  profiles: any[]; // The published profiles
   handle?: string | null;
 }
 
-export function FloatingShareButton({ activeProfile, handle }: FloatingShareButtonProps) {
+export function FloatingShareButton({ profiles, handle }: FloatingShareButtonProps) {
   const [open, setOpen] = useState(false);
 
-  // Do not render the button if there is no active published profile to share
-  if (!activeProfile || !activeProfile.isPublished) {
+  // Do not render the button if there are no published profiles
+  if (!profiles || profiles.length === 0) {
     return null;
   }
+
+  // Determine active profile (use default if available, otherwise first)
+  const activeProfile = profiles.find((p) => p.is_default) || profiles[0];
 
   return (
     <>

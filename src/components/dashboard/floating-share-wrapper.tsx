@@ -7,22 +7,21 @@ export async function FloatingShareWrapper() {
 
   if (!user) return null;
 
-  // Fetch the default profile
-  const { data: profile } = await supabase
+  // Fetch all published profiles
+  const { data: profiles } = await supabase
     .from('profiles')
     .select('*')
     .eq('user_id', user.id)
-    .eq('isDefault', true)
-    .single();
+    .eq('is_published', true); // Note: column is is_published
 
-  // Fetch the user's custom handle if they have one
+  // Fetch the user's custom handle
   const { data: userData } = await supabase
     .from('users')
     .select('handle')
     .eq('id', user.id)
     .single();
 
-  if (!profile) return null;
+  if (!profiles || profiles.length === 0) return null;
 
-  return <FloatingShareButton activeProfile={profile} handle={userData?.handle} />;
+  return <FloatingShareButton profiles={profiles} handle={userData?.handle} />;
 }

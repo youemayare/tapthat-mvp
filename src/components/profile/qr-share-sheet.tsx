@@ -30,7 +30,7 @@ export function QRShareSheet({ open, onOpenChange, profile, handle }: QRShareShe
     ? `${window.location.origin}/${handle}`
     : `${window.location.origin}/p/${profile?.slug || profile?.id}`;
 
-  const displayName = profile?.label || [profile?.firstName, profile?.lastName].filter(Boolean).join(' ') || 'Profile';
+  const displayName = profile?.label || [profile?.firstName || profile?.first_name, profile?.lastName || profile?.last_name].filter(Boolean).join(' ') || 'Profile';
 
   useEffect(() => {
     if (!open || !canvasRef.current || !profile) return;
