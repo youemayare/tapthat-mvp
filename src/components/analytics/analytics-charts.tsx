@@ -85,7 +85,7 @@ export function AnalyticsCharts({ dailyStats, channelStats }: AnalyticsChartsPro
                 />
                 <Legend 
                   iconType="circle" 
-                  wrapperStyle={{ paddingTop: '24px', fontSize: '12px', paddingLeft: '20px' }}
+                  wrapperStyle={{ paddingTop: '24px', fontSize: '12px', paddingLeft: '20px', lineHeight: '24px' }}
                 />
                 <Area 
                   type="monotone" 
