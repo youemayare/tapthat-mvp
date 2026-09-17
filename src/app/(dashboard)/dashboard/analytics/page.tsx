@@ -274,7 +274,7 @@ export default async function AnalyticsPage(
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold text-foreground">{acceptedExchanges}</div>
-            <p className="text-xs text-muted-foreground mt-1">Exchanges you have accepted into your CRM</p>
+            <p className="text-xs text-muted-foreground mt-1">Exchanges you have accepted into your connections</p>
           </CardContent>
         </Card>
       </div>
