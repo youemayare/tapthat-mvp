@@ -39,22 +39,35 @@ export function useProfileActions(profile: Partial<Profile> & { id: string; user
     return () => controller.abort();
   }, [profile.id]);
 
+  const [sourceChannel, setSourceChannel] = useState<'nfc' | 'qr' | 'direct_link'>('direct_link');
+
   useEffect(() => {
     if (!cardUid) return;
-    fetch('/api/tap', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ uid: cardUid, type: 'tap' }),
-    }).catch(() => {});
+    
+    // Default to NFC if cardUid is present, unless qr is explicitly in the URL
+    let channel: 'nfc' | 'qr' | 'direct_link' = 'nfc';
 
-    // Clean up the URL if it contains the tap parameter
+    // Clean up the URL if it contains the tap parameter and detect QR
     if (typeof window !== 'undefined') {
       const url = new URL(window.location.href);
+      if (url.searchParams.has('qr')) {
+        channel = 'qr';
+        url.searchParams.delete('qr');
+      }
+      
+      setSourceChannel(channel);
+
       if (url.searchParams.has('tap')) {
         url.searchParams.delete('tap');
         window.history.replaceState(null, '', url.pathname + url.search);
       }
     }
+
+    fetch('/api/tap', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ uid: cardUid, type: 'tap' }),
+    }).catch(() => {});
   }, [cardUid]);
 
   async function handleSaveConnectionAndNote() {
@@ -149,7 +162,8 @@ export function useProfileActions(profile: Partial<Profile> & { id: string; user
     savingNote,
     handleSaveConnectionAndNote,
     handleToggleSave,
-    handleSaveContact
+    handleSaveContact,
+    sourceChannel
   };
 }
 

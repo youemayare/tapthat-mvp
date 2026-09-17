@@ -29,6 +29,7 @@ interface ExchangeDetailsDrawerProps {
   onExchangeSuccess: () => void;
   cardUid?: string;
   exchangeStatus: 'pending' | 'accepted' | null;
+  sourceChannel?: 'nfc' | 'qr' | 'direct_link';
 }
 
 type Profile = {
@@ -49,6 +50,7 @@ export function ExchangeDetailsDrawer({
   onExchangeSuccess,
   cardUid,
   exchangeStatus,
+  sourceChannel = 'direct_link',
 }: ExchangeDetailsDrawerProps) {
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [loadingProfiles, setLoadingProfiles] = useState(false);
@@ -124,10 +126,11 @@ export function ExchangeDetailsDrawer({
             targetProfileId,
             sourceProfileId: selectedProfileId,
             sourceCardUid: cardUid,
+            sourceChannel,
           }
         : {
             targetProfileId,
-            sourceChannel: cardUid ? 'nfc' : 'direct_link',
+            sourceChannel,
             ...formData,
           };
 

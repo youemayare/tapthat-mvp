@@ -398,6 +398,7 @@ export function ClassicProfileLayout({ profile, cardUid }: Props) {
         }}
         cardUid={cardUid}
         exchangeStatus={viewerState.exchangeStatus}
+        sourceChannel={sourceChannel}
       />
     </main>
 

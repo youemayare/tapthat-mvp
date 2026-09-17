@@ -335,6 +335,7 @@ export function IdentityProfileLayout({ profile, cardUid }: Props) {
         }}
         cardUid={cardUid}
         exchangeStatus={viewerState.exchangeStatus}
+        sourceChannel={sourceChannel}
       />
     </div>
   );

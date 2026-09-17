@@ -317,6 +317,7 @@ export function ProfessionalProfileLayout({ profile, cardUid }: Props) {
         }}
         cardUid={cardUid}
         exchangeStatus={viewerState.exchangeStatus}
+        sourceChannel={sourceChannel}
       />
     </div>
   );

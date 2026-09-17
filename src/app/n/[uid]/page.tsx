@@ -6,6 +6,7 @@ import { getCachedCardAndProfile } from '@/lib/queries';
 
 interface Props {
   params: Promise<{ uid: string }>;
+  searchParams: Promise<{ qr?: string }>;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -127,8 +128,11 @@ export default async function NfcTapPage({ params }: Props) {
   }
 
   // ── Active card with published profile → redirect to handle if exists ──
+  const searchParamsResolved = await searchParams;
+  const isQr = searchParamsResolved?.qr === '1';
+
   if (handle) {
-    redirect(`/${handle}?tap=${sanitizedUid}`);
+    redirect(`/${handle}?tap=${sanitizedUid}${isQr ? '&qr=1' : ''}`);
   }
 
   // Fallback if handle doesn't exist yet (e.g. legacy profile without handle)

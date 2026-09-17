@@ -360,6 +360,7 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
         }}
         cardUid={cardUid}
         exchangeStatus={viewerState.exchangeStatus}
+        sourceChannel={sourceChannel}
       />
     </div>
   );

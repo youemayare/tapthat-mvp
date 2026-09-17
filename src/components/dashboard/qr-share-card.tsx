@@ -14,8 +14,8 @@ export function QrShareCard({ cardUid }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   
   const profileUrl = typeof window !== 'undefined' 
-    ? `${window.location.origin}/n/${cardUid}`
-    : `https://tapthat.app/n/${cardUid}`; // Fallback
+    ? `${window.location.origin}/n/${cardUid}?qr=1`
+    : `https://tapthat.app/n/${cardUid}?qr=1`; // Fallback
 
   useEffect(() => {
     if (isOpen && canvasRef.current) {
