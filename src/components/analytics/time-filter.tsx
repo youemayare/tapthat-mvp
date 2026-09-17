@@ -23,9 +23,9 @@ export function TimeFilter() {
 
   return (
     <div className="flex items-center space-x-2">
-      <span className="text-sm font-medium text-muted-foreground whitespace-nowrap">Timeframe:</span>
+      <span className="text-sm font-medium text-muted-foreground whitespace-nowrap w-[80px]">Timeframe</span>
       <Select value={range} onValueChange={handleValueChange} disabled={isPending}>
-        <SelectTrigger className="w-[140px] h-9 relative bg-card border-border">
+        <SelectTrigger className="w-[200px] h-9 relative bg-card border-border">
           <SelectValue />
           {isPending && (
             <div className="absolute right-7 top-1/2 -translate-y-1/2">

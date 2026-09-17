@@ -43,7 +43,7 @@ export function ProfileFilter({ profiles, selectedProfileId }: ProfileFilterProp
 
   return (
     <div className="flex items-center space-x-2">
-      <span className="text-sm font-medium text-muted-foreground whitespace-nowrap">Filter by Profile:</span>
+      <span className="text-sm font-medium text-muted-foreground whitespace-nowrap w-[80px]">Profile</span>
       <Select
         value={selectedProfileId || 'all'}
         onValueChange={handleValueChange}
