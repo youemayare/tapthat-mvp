@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/server';
 import { UserCheck } from 'lucide-react';
 import { ConnectionCard } from '@/components/dashboard/connection-card';
 import { AcceptedExchangeCard } from '@/components/dashboard/accepted-exchange-card';
+import { ConnectionsListClient } from '@/components/dashboard/connections-list-client';
 import { contactExchanges } from '@/lib/db/schema';
 
 export const metadata: Metadata = { title: 'My Connections' };
@@ -48,43 +49,8 @@ export default async function ConnectionsPage() {
   ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   return (
-    <div className="space-y-8 pb-10">
-
-      {combined.length === 0 ? (
-        <div className="bg-card border border-border rounded-3xl p-12 text-center shadow-sm">
-          <div className="w-16 h-16 bg-brand-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
-            <UserCheck className="w-8 h-8 text-brand-500" />
-          </div>
-          <h3 className="text-xl font-bold text-foreground mb-2">No connections yet</h3>
-          <p className="text-muted-foreground max-w-sm mx-auto">
-            When you tap someone's Anoya card and hit "Save to My Connections", they'll appear here.
-          </p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {combined.map((item) => {
-            if (item.type === 'connection') {
-              const { connection, profile, note } = item.data as any;
-              return (
-                <ConnectionCard 
-                  key={`conn-${connection.id}`} 
-                  connection={connection} 
-                  profile={profile} 
-                  note={note} 
-                />
-              );
-            } else {
-              const exchange = item.data as any;
-              return (
-                <AcceptedExchangeCard
-                  key={`exch-${exchange.id}`}
-                  exchange={exchange}
-                />
-              );
-            }
-          })}
-        </div>
-      )}
+    <div className="space-y-4">
+      <ConnectionsListClient initialItems={combined} />
     </div>
   );
 }
