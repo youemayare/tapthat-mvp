@@ -36,6 +36,11 @@ export function ProfileFilter({ profiles, selectedProfileId }: ProfileFilterProp
     });
   };
 
+  const selectedProfile = profiles.find(p => p.id === selectedProfileId);
+  const selectedName = selectedProfile 
+    ? `${[selectedProfile.firstName, selectedProfile.lastName].filter(Boolean).join(' ') || 'Unnamed Profile'}${selectedProfile.label ? ` (${selectedProfile.label})` : ''}`
+    : 'All Profiles';
+
   return (
     <div className="flex items-center space-x-2">
       <span className="text-sm font-medium text-muted-foreground whitespace-nowrap">Filter by Profile:</span>
@@ -45,7 +50,9 @@ export function ProfileFilter({ profiles, selectedProfileId }: ProfileFilterProp
         disabled={isPending}
       >
         <SelectTrigger className="w-[200px] h-9 relative">
-          <SelectValue placeholder="Select a profile" />
+          <SelectValue placeholder="Select a profile">
+            {selectedProfileId && selectedProfileId !== 'all' ? selectedName : 'All Profiles'}
+          </SelectValue>
           {isPending && (
             <div className="absolute right-7 top-1/2 -translate-y-1/2">
               <Loader2 className="h-4 w-4 animate-spin text-[#0071e3]" />
