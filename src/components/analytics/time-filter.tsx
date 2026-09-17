@@ -11,7 +11,8 @@ export function TimeFilter() {
   const [isPending, startTransition] = useTransition();
   const range = searchParams.get('range') || '30d';
 
-  const handleValueChange = (value: string) => {
+  const handleValueChange = (value: string | null) => {
+    if (!value) return;
     const params = new URLSearchParams(searchParams.toString());
     params.set('range', value);
     
