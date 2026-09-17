@@ -103,8 +103,8 @@ export function ConnectionsListClient({ initialItems }: Props) {
   }, [initialItems, search, sort, timeframe, company]);
 
   const SORT_LABELS: Record<string, string> = {
-    'date-desc': 'Newest First',
-    'date-asc': 'Oldest First',
+    'date-desc': 'Newest',
+    'date-asc': 'Oldest',
     'name-asc': 'Name (A-Z)',
     'name-desc': 'Name (Z-A)',
     'company-asc': 'Company (A-Z)'
@@ -112,8 +112,8 @@ export function ConnectionsListClient({ initialItems }: Props) {
 
   const TIMEFRAME_LABELS: Record<string, string> = {
     'all': 'All Time',
-    '7d': 'Last 7 Days',
-    '30d': 'Last 30 Days',
+    '7d': '7 Days',
+    '30d': '30 Days',
     '1y': 'This Year'
   };
 
@@ -148,17 +148,17 @@ export function ConnectionsListClient({ initialItems }: Props) {
         </div>
 
         {/* Sort & Filters row */}
-        <div className="flex items-center w-full gap-1 sm:gap-2">
+        <div className="flex items-center w-full gap-2">
           
           {/* Sort */}
           <div className="flex-1 min-w-0">
             <Select value={sort} onValueChange={(v) => v && setSort(v)}>
-              <SelectTrigger className="h-9 w-full bg-transparent border-0 hover:bg-accent/50 rounded-lg px-1 sm:px-2 focus:ring-0 font-medium text-xs sm:text-sm text-muted-foreground hover:text-foreground">
+              <SelectTrigger className="h-10 w-full bg-card border border-border shadow-sm hover:bg-accent/50 rounded-xl px-2.5 sm:px-3 focus:ring-2 focus:ring-brand-500/50 font-medium text-xs sm:text-sm text-foreground">
                 <SelectValue>{SORT_LABELS[sort]}</SelectValue>
               </SelectTrigger>
               <SelectContent className="rounded-xl">
-                <SelectItem value="date-desc">Newest First</SelectItem>
-                <SelectItem value="date-asc">Oldest First</SelectItem>
+                <SelectItem value="date-desc">Newest</SelectItem>
+                <SelectItem value="date-asc">Oldest</SelectItem>
                 <SelectItem value="name-asc">Name (A-Z)</SelectItem>
                 <SelectItem value="name-desc">Name (Z-A)</SelectItem>
                 <SelectItem value="company-asc">Company (A-Z)</SelectItem>
@@ -169,13 +169,13 @@ export function ConnectionsListClient({ initialItems }: Props) {
           {/* Timeframe */}
           <div className="flex-1 min-w-0">
             <Select value={timeframe} onValueChange={(v) => v && setTimeframe(v)}>
-              <SelectTrigger className="h-9 w-full bg-transparent border-0 hover:bg-accent/50 rounded-lg px-1 sm:px-2 focus:ring-0 text-xs sm:text-sm font-medium text-muted-foreground hover:text-foreground">
+              <SelectTrigger className="h-10 w-full bg-card border border-border shadow-sm hover:bg-accent/50 rounded-xl px-2.5 sm:px-3 focus:ring-2 focus:ring-brand-500/50 text-xs sm:text-sm font-medium text-foreground">
                 <SelectValue>{TIMEFRAME_LABELS[timeframe]}</SelectValue>
               </SelectTrigger>
               <SelectContent className="rounded-xl">
                 <SelectItem value="all">All Time</SelectItem>
-                <SelectItem value="7d">Last 7 Days</SelectItem>
-                <SelectItem value="30d">Last 30 Days</SelectItem>
+                <SelectItem value="7d">7 Days</SelectItem>
+                <SelectItem value="30d">30 Days</SelectItem>
                 <SelectItem value="1y">This Year</SelectItem>
               </SelectContent>
             </Select>
@@ -185,13 +185,13 @@ export function ConnectionsListClient({ initialItems }: Props) {
           {uniqueCompanies.length > 0 && (
             <div className="flex-1 min-w-0">
               <Select value={company} onValueChange={(v) => v && setCompany(v)}>
-                <SelectTrigger className="h-9 w-full bg-transparent border-0 hover:bg-accent/50 rounded-lg px-1 sm:px-2 focus:ring-0 text-xs sm:text-sm font-medium text-muted-foreground hover:text-foreground">
+                <SelectTrigger className="h-10 w-full bg-card border border-border shadow-sm hover:bg-accent/50 rounded-xl px-2.5 sm:px-3 focus:ring-2 focus:ring-brand-500/50 text-xs sm:text-sm font-medium text-foreground">
                   <SelectValue>
-                    {company === 'all' ? 'All Companies' : company}
+                    {company === 'all' ? 'Company' : company}
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent className="rounded-xl max-w-[200px]">
-                  <SelectItem value="all">All Companies</SelectItem>
+                  <SelectItem value="all">Any Company</SelectItem>
                   {uniqueCompanies.map((c) => (
                     <SelectItem key={c} value={c}>{c}</SelectItem>
                   ))}
