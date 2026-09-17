@@ -12,6 +12,9 @@ interface VCardProfile {
   job_title?: string | null;
   companyName?: string | null;
   company_name?: string | null;
+  phone?: string | null;
+  whatsapp?: string | null;
+  email?: string | null;
   mobileNumber?: string | null;
   mobile_number?: string | null;
   workNumber?: string | null;
@@ -58,13 +61,13 @@ export function generateSlimVCard(profile: VCardProfile, profileUrl?: string): s
   }
 
   // Use the first available phone number
-  const phone = escapeVCardValue(profile.mobileNumber || profile.mobile_number || profile.workNumber || profile.work_number);
+  const phone = escapeVCardValue(profile.phone || profile.whatsapp || profile.mobileNumber || profile.mobile_number || profile.workNumber || profile.work_number);
   if (phone) {
     lines.push(`TEL;TYPE=CELL:${phone}`);
   }
 
   // Use the first available email
-  const email = escapeVCardValue(profile.workEmail || profile.work_email || profile.personalEmail || profile.personal_email);
+  const email = escapeVCardValue(profile.email || profile.workEmail || profile.work_email || profile.personalEmail || profile.personal_email);
   if (email) {
     lines.push(`EMAIL;TYPE=WORK:${email}`);
   }

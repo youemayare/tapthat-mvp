@@ -198,3 +198,13 @@
   --sidebar-ring: oklch(0.708 0 0);
   color-scheme: light;
 }
+
+@keyframes shimmer {
+  0% { transform: translateX(-150%); }
+  20% { transform: translateX(150%); }
+  100% { transform: translateX(150%); }
+}
+
+.animate-shimmer {
+  animation: shimmer 3s infinite;
+}

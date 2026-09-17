@@ -152,27 +152,35 @@ export function IdentityProfileLayout({ profile, cardUid }: Props) {
 
         {/* Primary Action */}
         <div className="flex flex-col gap-3 mt-2">
-          {(!resolved || isOwner) && (
-            <Button 
-              size="lg" 
-              onClick={handleSaveContact} 
-              className="w-full rounded-2xl h-14 text-base font-bold bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
-            >
-              <Download className="w-5 h-5 mr-2" />
-              Save Contact
-            </Button>
-          )}
-
-          {resolved && !isOwner && (
-            <>
+            {(!resolved || isOwner) && (
               <Button 
                 size="lg" 
                 onClick={handleSaveContact} 
-                className="w-full rounded-2xl h-14 text-base font-bold bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+                className="relative overflow-hidden group w-full rounded-2xl h-14 text-base font-bold bg-primary text-primary-foreground 
+hover:bg-primary/90 transition-colors"
               >
-                <Download className="w-5 h-5 mr-2" />
-                Save Contact
+                <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer pointer-events-none" />
+                <span className="relative z-10 flex items-center">
+                  <Download className="w-5 h-5 mr-2" />
+                  Save Contact
+                </span>
               </Button>
+            )}
+
+            {resolved && !isOwner && (
+              <>
+                <Button 
+                  size="lg" 
+                  onClick={handleSaveContact} 
+                  className="relative overflow-hidden group w-full rounded-2xl h-14 text-base font-bold bg-primary text-primary-foreground 
+hover:bg-primary/90 transition-colors"
+                >
+                  <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer pointer-events-none" />
+                  <span className="relative z-10 flex items-center">
+                    <Download className="w-5 h-5 mr-2" />
+                    Save Contact
+                  </span>
+                </Button>
 
               {viewerState.isLoggedIn && (
                 <button
@@ -200,18 +208,21 @@ export function IdentityProfileLayout({ profile, cardUid }: Props) {
                 </button>
               )}
 
-              <button
-                onClick={() => setShowExchangeDrawer(true)}
-                disabled={viewerState.exchangeStatus === 'pending' || viewerState.exchangeStatus === 'accepted'}
-                className="w-full flex items-center justify-center gap-2 h-14 border-2 border-brand-500/20 hover:border-brand-500/40 hover:bg-brand-500/5 active:scale-95 text-foreground font-semibold text-sm rounded-2xl transition-all duration-200"
-              >
-                <MessageCircle className="w-4 h-4 text-brand-500" />
-                {viewerState.exchangeStatus === 'accepted' 
-                  ? 'Details Shared ✓' 
-                  : viewerState.exchangeStatus === 'pending'
-                  ? 'Exchange Pending'
-                  : 'Exchange Details'}
-              </button>
+                <button
+                  onClick={() => setShowExchangeDrawer(true)}
+                  disabled={viewerState.exchangeStatus === 'pending' || viewerState.exchangeStatus === 'accepted'}
+                  className="relative overflow-hidden group w-full flex items-center justify-center gap-2 h-14 border-2 border-brand-500/20 hover:border-brand-500/40 hover:bg-brand-500/5 active:scale-95 text-foreground font-semibold text-sm rounded-2xl transition-all duration-200"
+                >
+                  <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-brand-500/10 to-transparent animate-shimmer pointer-events-none" />
+                  <span className="relative z-10 flex items-center gap-2">
+                    <MessageCircle className="w-4 h-4 text-brand-500" />
+                    {viewerState.exchangeStatus === 'accepted' 
+                      ? 'Details Shared ✓' 
+                      : viewerState.exchangeStatus === 'pending'
+                      ? 'Exchange Pending'
+                      : 'Exchange Details'}
+                  </span>
+                </button>
 
               {!viewerState.isLoggedIn && (
                 <Link 

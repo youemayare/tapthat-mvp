@@ -174,11 +174,14 @@ export function ProfessionalProfileLayout({ profile, cardUid }: Props) {
           {(!viewerState.resolved || viewerState.isOwner) && (
             <button 
               onClick={handleSaveContact}
-              className="w-full h-12 rounded-full flex items-center justify-center font-medium text-[15px] tracking-wide transition-all
+              className="relative overflow-hidden group w-full h-12 rounded-full flex items-center justify-center font-medium text-[15px] tracking-wide transition-all
                 bg-gradient-to-b from-[#C9A45D] to-[#B98A3D] border border-[#B98A3D] text-white dark:text-[#0B0A08] shadow-md
                 hover:opacity-90 active:scale-[0.98]"
             >
-              Save Contact
+              <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent animate-shimmer pointer-events-none" />
+              <span className="relative z-10 flex items-center justify-center">
+                Save Contact
+              </span>
             </button>
           )}
 
@@ -186,11 +189,14 @@ export function ProfessionalProfileLayout({ profile, cardUid }: Props) {
             <>
               <button 
                 onClick={handleSaveContact}
-                className="w-full h-12 rounded-full flex items-center justify-center font-medium text-[15px] tracking-wide transition-all
+                className="relative overflow-hidden group w-full h-12 rounded-full flex items-center justify-center font-medium text-[15px] tracking-wide transition-all
                   bg-gradient-to-b from-[#C9A45D] to-[#B98A3D] border border-[#B98A3D] text-white dark:text-[#0B0A08] shadow-md
                   hover:opacity-90 active:scale-[0.98]"
               >
-                Save Contact
+                <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent animate-shimmer pointer-events-none" />
+                <span className="relative z-10 flex items-center justify-center">
+                  Save Contact
+                </span>
               </button>
               
               {viewerState.isLoggedIn && (

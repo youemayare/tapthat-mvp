@@ -174,10 +174,13 @@ export function ClassicProfileLayout({ profile, cardUid }: Props) {
             <button
               onClick={handleSaveContact}
               id="save-contact-btn"
-              className="w-full flex items-center justify-center gap-3 py-4 px-6 bg-brand-600 hover:bg-brand-500 active:scale-95 text-white font-bold text-lg rounded-2xl transition-all duration-200 shadow-lg shadow-brand-500/25"
+              className="relative overflow-hidden group w-full flex items-center justify-center gap-3 py-4 px-6 bg-brand-600 hover:bg-brand-500 active:scale-95 text-white font-bold text-lg rounded-2xl transition-all duration-200 shadow-lg shadow-brand-500/25"
             >
-              <Contact className="w-5 h-5" />
-              Save Contact
+              <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer pointer-events-none" />
+              <span className="relative z-10 flex items-center gap-3">
+                <Contact className="w-5 h-5" />
+                Save Contact
+              </span>
             </button>
 
             {/* Save to My Connections (tertiary ghost/text) - only for logged in */}
@@ -199,18 +202,21 @@ export function ClassicProfileLayout({ profile, cardUid }: Props) {
               </button>
             )}
 
-            {/* ── Exchange Details (secondary) ── */}
+            {/* 🤝 Exchange Details (secondary) 🤝 */}
             <button
               onClick={() => setShowExchangeDrawer(true)}
               disabled={viewerState.exchangeStatus === 'pending' || viewerState.exchangeStatus === 'accepted'}
-              className="w-full flex items-center justify-center gap-3 py-3.5 px-6 border-2 border-brand-500/20 hover:border-brand-500/40 hover:bg-brand-500/5 active:scale-95 text-foreground font-semibold text-sm rounded-2xl transition-all duration-200"
+              className="relative overflow-hidden group w-full flex items-center justify-center gap-3 py-3.5 px-6 border-2 border-brand-500/20 hover:border-brand-500/40 hover:bg-brand-500/5 active:scale-95 text-foreground font-semibold text-sm rounded-2xl transition-all duration-200"
             >
-              <MessageCircle className="w-4 h-4 text-brand-500" />
-              {viewerState.exchangeStatus === 'accepted' 
-                ? 'Details Shared ✓' 
-                : viewerState.exchangeStatus === 'pending'
-                ? 'Exchange Pending'
-                : 'Exchange Details'}
+              <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-brand-500/10 to-transparent animate-shimmer pointer-events-none" />
+              <span className="relative z-10 flex items-center gap-3">
+                <MessageCircle className="w-5 h-5 text-brand-500" />
+                {viewerState.exchangeStatus === 'accepted'
+                  ? 'Shared 👋'
+                  : viewerState.exchangeStatus === 'pending'
+                  ? 'Exchange Pending'
+                  : 'Exchange Details'}
+              </span>
             </button>
 
             {/* ── Not logged in — CTA to sign up ── */}

@@ -218,10 +218,13 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
                   <button
                     onClick={handleSaveContact}
                     aria-label="Save Contact"
-                    className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-full border border-white/30 bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-colors text-white text-xs font-bold"
+                    className="relative overflow-hidden group flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-full border border-white/30 bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-colors text-white text-xs font-bold"
                   >
-                    <Download className="w-3.5 h-3.5" />
-                    Save Contact
+                    <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent animate-shimmer pointer-events-none" />
+                    <span className="relative z-10 flex items-center justify-center gap-1.5">
+                      <Download className="w-3.5 h-3.5" />
+                      Save Contact
+                    </span>
                   </button>
                   <button
                     onClick={saved ? undefined : handleToggleSave}
@@ -260,10 +263,13 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
                   <button
                     onClick={handleSaveContact}
                     aria-label="Save Contact"
-                    className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-full border border-white/30 bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-colors text-white text-xs font-bold"
+                    className="relative overflow-hidden group flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-full border border-white/30 bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-colors text-white text-xs font-bold"
                   >
-                    <Download className="w-3.5 h-3.5" />
-                    Save Contact
+                    <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent animate-shimmer pointer-events-none" />
+                    <span className="relative z-10 flex items-center justify-center gap-1.5">
+                      <Download className="w-3.5 h-3.5" />
+                      Save Contact
+                    </span>
                   </button>
                   <button
                     onClick={() => setShowExchangeDrawer(true)}
