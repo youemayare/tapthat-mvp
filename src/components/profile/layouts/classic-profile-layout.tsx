@@ -188,17 +188,20 @@ export function ClassicProfileLayout({ profile, cardUid }: Props) {
               <button
                 onClick={handleToggleSave}
                 disabled={saving}
-                className={`w-full flex items-center justify-center gap-2 py-3 px-6 font-medium text-sm rounded-2xl transition-all duration-200 active:scale-95 border-2 ${
+                className={`relative overflow-hidden group w-full flex items-center justify-center gap-2 py-3 px-6 font-medium text-sm rounded-2xl transition-all duration-200 active:scale-95 border-2 ${
                   saved
                     ? 'border-emerald-500/20 text-emerald-500 hover:bg-emerald-500/10'
                     : 'border-border text-foreground hover:bg-accent'
                 }`}
               >
-                {saved ? (
-                  <><BookmarkCheck className="w-4 h-4" /> Saved to My Connections</>
-                ) : (
-                  <><BookmarkPlus className="w-4 h-4" /> Save to My Connections</>
-                )}
+                <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-current opacity-10 to-transparent animate-shimmer pointer-events-none" />
+                <span className="relative z-10 flex items-center gap-2">
+                  {saved ? (
+                    <><BookmarkCheck className="w-4 h-4" /> Saved to My Connections</>
+                  ) : (
+                    <><BookmarkPlus className="w-4 h-4" /> Save to My Connections</>
+                  )}
+                </span>
               </button>
             )}
 
@@ -223,10 +226,13 @@ export function ClassicProfileLayout({ profile, cardUid }: Props) {
             {!viewerState.isLoggedIn && (
               <Link
                 href={`/signup?save=${cardUid}`}
-                className="w-full flex items-center justify-center gap-2 py-3 px-6 font-medium text-sm rounded-2xl transition-all duration-200 active:scale-95 border-2 border-border text-foreground hover:bg-accent"
+                className="relative overflow-hidden group w-full flex items-center justify-center gap-2 py-3 px-6 font-medium text-sm rounded-2xl transition-all duration-200 active:scale-95 border-2 border-border text-foreground hover:bg-accent"
               >
-                <BookmarkPlus className="w-4 h-4" />
-                Sign In to Save Connection
+                <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-current opacity-10 to-transparent animate-shimmer pointer-events-none" />
+                <span className="relative z-10 flex items-center gap-2">
+                  <BookmarkPlus className="w-4 h-4" />
+                  Sign In to Save Connection
+                </span>
               </Link>
             )}
           </div>

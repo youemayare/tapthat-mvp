@@ -25,10 +25,10 @@ export function FloatingShareButton({ profiles, handle }: FloatingShareButtonPro
     <>
       {/* 
         Positioning: 
-        bottom-32 ensures it sits securely above the standard mobile BottomNav (which is usually h-16 or bottom-0 fixed).
+        bottom-28 ensures it sits securely above the standard mobile BottomNav.
         On desktop, the BottomNav is hidden, so bottom-12 is fine.
       */}
-      <div className="fixed bottom-32 lg:bottom-12 left-1/2 -translate-x-1/2 z-40">
+      <div className="fixed bottom-28 lg:bottom-12 left-1/2 -translate-x-1/2 z-40">
         <AnimatePresence>
           <motion.button
             initial={{ scale: 0, opacity: 0 }}

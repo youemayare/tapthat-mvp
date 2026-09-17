@@ -230,31 +230,37 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
                     onClick={saved ? undefined : handleToggleSave}
                     aria-label={saved ? 'Already connected' : 'Save to My Connections'}
                     disabled={saved}
-                    className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-full border text-xs font-semibold transition-colors ${
+                    className={`relative overflow-hidden group flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-full border text-xs font-semibold transition-colors ${
                       saved
                         ? 'bg-green-400/15 text-green-300 border-green-400/20 cursor-default'
                         : 'bg-black/20 border-white/10 hover:bg-white/10 text-white/90 backdrop-blur-sm'
                     }`}
                   >
-                    {saved ? (
-                      <><UserCheck className="w-3.5 h-3.5" />Connected</>
-                    ) : (
-                      <><UserPlus className="w-3.5 h-3.5" />Connect</>
-                    )}
+                    <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-current opacity-10 to-transparent animate-shimmer pointer-events-none" />
+                    <span className="relative z-10 flex items-center gap-1.5">
+                      {saved ? (
+                        <><UserCheck className="w-3.5 h-3.5" />Connected</>
+                      ) : (
+                        <><UserPlus className="w-3.5 h-3.5" />Connect</>
+                      )}
+                    </span>
                   </button>
                 </div>
                 <button
                   onClick={() => setShowExchangeDrawer(true)}
                   disabled={viewerState.exchangeStatus === 'pending' || viewerState.exchangeStatus === 'accepted'}
                   aria-label="Exchange Details"
-                  className="flex items-center justify-center gap-1.5 w-full px-4 py-2 rounded-full border border-white/20 bg-black/20 backdrop-blur-sm hover:bg-black/40 transition-colors text-white text-xs font-semibold"
+                  className="relative overflow-hidden group flex items-center justify-center gap-1.5 w-full px-4 py-2 rounded-full border border-white/20 bg-black/20 backdrop-blur-sm hover:bg-black/40 transition-colors text-white text-xs font-semibold"
                 >
-                  <MessageCircle className="w-3.5 h-3.5 text-brand-300" />
-                  {viewerState.exchangeStatus === 'accepted'
-                    ? 'Details Shared ✓'
-                    : viewerState.exchangeStatus === 'pending'
-                    ? 'Exchange Pending'
-                    : 'Exchange Details'}
+                  <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-current opacity-10 to-transparent animate-shimmer pointer-events-none" />
+                  <span className="relative z-10 flex items-center gap-1.5">
+                    <MessageCircle className="w-3.5 h-3.5 text-brand-300" />
+                    {viewerState.exchangeStatus === 'accepted'
+                      ? 'Details Shared ✓'
+                      : viewerState.exchangeStatus === 'pending'
+                      ? 'Exchange Pending'
+                      : 'Exchange Details'}
+                  </span>
                 </button>
               </>
             ) : (
@@ -275,14 +281,17 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
                     onClick={() => setShowExchangeDrawer(true)}
                     disabled={viewerState.exchangeStatus === 'pending' || viewerState.exchangeStatus === 'accepted'}
                     aria-label="Exchange Details"
-                    className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-full border border-white/20 bg-black/20 backdrop-blur-sm hover:bg-black/40 transition-colors text-white text-xs font-semibold"
+                    className="relative overflow-hidden group flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-full border border-white/20 bg-black/20 backdrop-blur-sm hover:bg-black/40 transition-colors text-white text-xs font-semibold"
                   >
-                    <MessageCircle className="w-3.5 h-3.5 text-brand-300" />
-                    {viewerState.exchangeStatus === 'accepted'
-                      ? 'Shared ✓'
-                      : viewerState.exchangeStatus === 'pending'
-                      ? 'Pending'
-                      : 'Exchange'}
+                    <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-current opacity-10 to-transparent animate-shimmer pointer-events-none" />
+                    <span className="relative z-10 flex items-center gap-1.5">
+                      <MessageCircle className="w-3.5 h-3.5 text-brand-300" />
+                      {viewerState.exchangeStatus === 'accepted'
+                        ? 'Shared 👋'
+                        : viewerState.exchangeStatus === 'pending'
+                        ? 'Pending'
+                        : 'Exchange'}
+                    </span>
                   </button>
                 </div>
                 <Link

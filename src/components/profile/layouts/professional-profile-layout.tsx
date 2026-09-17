@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import type { Profile } from '@/lib/db/schema';
 import { buildWhatsAppUrl } from '@/lib/utils';
-import { Share, Home } from 'lucide-react';
+import { Share, Home, BookmarkPlus } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
@@ -203,34 +203,44 @@ export function ProfessionalProfileLayout({ profile, cardUid }: Props) {
                 <button 
                   onClick={saved ? undefined : handleToggleSave}
                   disabled={saved}
-                  className={`w-full h-12 rounded-full flex items-center justify-center font-medium text-[15px] tracking-wide transition-all ${
+                  className={`relative overflow-hidden group w-full h-12 rounded-full flex items-center justify-center font-medium text-[15px] tracking-wide transition-all ${
                     saved 
                       ? 'bg-[#C9A45D]/10 border border-[#C9A45D]/30 text-[#B98A3D] dark:text-[#C9A45D] cursor-default opacity-80'
                       : 'bg-transparent border border-[#C9A45D]/40 text-[#1A1A1A] dark:border-[#C9A45D]/40 dark:text-[#F6F1E6] hover:bg-[#C9A45D]/5 active:scale-[0.98]'
                   }`}
                 >
-                  {saved ? 'Saved to Connections' : 'Save to Connections'}
+                  <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-current opacity-10 to-transparent animate-shimmer pointer-events-none" />
+                  <span className="relative z-10 flex items-center justify-center">
+                    {saved ? 'Saved to Connections' : 'Save to Connections'}
+                  </span>
                 </button>
               )}
 
               <button
                 onClick={() => setShowExchangeDrawer(true)}
                 disabled={viewerState.exchangeStatus === 'pending' || viewerState.exchangeStatus === 'accepted'}
-                className="w-full h-12 rounded-full flex items-center justify-center font-medium text-[15px] tracking-wide transition-all bg-transparent border-2 border-[#C9A45D]/40 text-[#1A1A1A] dark:text-[#F6F1E6] hover:bg-[#C9A45D]/5 active:scale-[0.98]"
+                className="relative overflow-hidden group w-full h-12 rounded-full flex items-center justify-center font-medium text-[15px] tracking-wide transition-all bg-transparent border-2 border-[#C9A45D]/40 text-[#1A1A1A] dark:text-[#F6F1E6] hover:bg-[#C9A45D]/5 active:scale-[0.98]"
               >
-                {viewerState.exchangeStatus === 'accepted' 
-                  ? 'Details Shared ✓' 
-                  : viewerState.exchangeStatus === 'pending'
-                  ? 'Exchange Pending'
-                  : 'Exchange Details'}
+                <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-current opacity-10 to-transparent animate-shimmer pointer-events-none" />
+                <span className="relative z-10 flex items-center justify-center">
+                  {viewerState.exchangeStatus === 'accepted' 
+                    ? 'Details Shared ✓' 
+                    : viewerState.exchangeStatus === 'pending'
+                    ? 'Exchange Pending'
+                    : 'Exchange Details'}
+                </span>
               </button>
 
               {!viewerState.isLoggedIn && (
-                <Link 
-                  href={`/signup?redirect=/p/${profile.slug || profile.id}`}
-                  className="w-full h-12 rounded-full flex items-center justify-center font-medium text-[15px] tracking-wide transition-all bg-transparent border border-[#C9A45D]/40 text-[#1A1A1A] dark:border-[#C9A45D]/40 dark:text-[#F6F1E6] hover:bg-[#C9A45D]/5 active:scale-[0.98]"
+                <Link
+                  href={`/signup?save=${cardUid}`}
+                  className="relative overflow-hidden group w-full h-12 rounded-full flex items-center justify-center font-medium text-[15px] tracking-wide transition-all bg-transparent border border-[#C9A45D]/20 text-[#1A1A1A]/80 dark:text-[#F6F1E6]/80 hover:bg-[#C9A45D]/5 active:scale-[0.98]"
                 >
-                  Sign In to Save Connection
+                  <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-current opacity-10 to-transparent animate-shimmer pointer-events-none" />
+                  <span className="relative z-10 flex items-center justify-center gap-2">
+                    <BookmarkPlus className="w-4 h-4" />
+                    Sign In to Save Connection
+                  </span>
                 </Link>
               )}
             </>

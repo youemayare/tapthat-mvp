@@ -201,10 +201,10 @@
 
 @keyframes shimmer {
   0% { transform: translateX(-150%); }
-  20% { transform: translateX(150%); }
+  40% { transform: translateX(150%); }
   100% { transform: translateX(150%); }
 }
 
 .animate-shimmer {
-  animation: shimmer 3s infinite;
+  animation: shimmer 4s infinite;
 }

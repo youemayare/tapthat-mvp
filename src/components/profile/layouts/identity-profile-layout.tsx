@@ -186,25 +186,28 @@ hover:bg-primary/90 transition-colors"
                 <button
                   onClick={handleToggleSave}
                   disabled={saving}
-                  className={`w-full flex items-center justify-center gap-2 h-14 rounded-2xl text-base font-semibold transition-all duration-200 active:scale-95 border ${
+                  className={`relative overflow-hidden group w-full flex items-center justify-center gap-2 h-14 rounded-2xl text-base font-semibold transition-all duration-200 active:scale-95 border ${
                     saved
                       ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20'
                       : 'bg-card border-border text-foreground hover:border-brand-500/40 hover:bg-brand-500/5'
                   }`}
                 >
-                  {saving ? (
-                    'Updating...'
-                  ) : saved ? (
-                    <>
-                      <BookmarkCheck className="w-5 h-5 mr-2" />
-                      Saved to My Connections
-                    </>
-                  ) : (
-                    <>
-                      <BookmarkPlus className="w-5 h-5 mr-2" />
-                      Save to My Connections
-                    </>
-                  )}
+                  <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-current opacity-10 to-transparent animate-shimmer pointer-events-none" />
+                  <span className="relative z-10 flex items-center gap-2">
+                    {saving ? (
+                      'Updating...'
+                    ) : saved ? (
+                      <>
+                        <BookmarkCheck className="w-5 h-5" />
+                        Saved to My Connections
+                      </>
+                    ) : (
+                      <>
+                        <BookmarkPlus className="w-5 h-5" />
+                        Save to My Connections
+                      </>
+                    )}
+                  </span>
                 </button>
               )}
 
@@ -227,10 +230,13 @@ hover:bg-primary/90 transition-colors"
               {!viewerState.isLoggedIn && (
                 <Link 
                   href={`/signup?redirect=/p/${profile.slug || profile.id}`}
-                  className="w-full flex items-center justify-center gap-2 h-14 rounded-2xl text-base font-semibold transition-all duration-200 active:scale-95 border bg-card border-border text-foreground hover:border-brand-500/40 hover:bg-brand-500/5"
+                  className="relative overflow-hidden group w-full flex items-center justify-center gap-2 h-14 rounded-2xl text-base font-semibold transition-all duration-200 active:scale-95 border bg-card border-border text-foreground hover:border-brand-500/40 hover:bg-brand-500/5"
                 >
-                  <BookmarkPlus className="w-5 h-5 mr-2" />
-                  Sign In to Save Connection
+                  <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-current opacity-10 to-transparent animate-shimmer pointer-events-none" />
+                  <span className="relative z-10 flex items-center gap-2">
+                    <BookmarkPlus className="w-5 h-5 mr-2" />
+                    Sign In to Save Connection
+                  </span>
                 </Link>
               )}
             </>
