@@ -200,11 +200,11 @@
 }
 
 @keyframes shimmer {
-  0% { transform: translateX(-150%); }
-  40% { transform: translateX(150%); }
-  100% { transform: translateX(150%); }
+  0% { transform: translateX(-250%); }
+  30% { transform: translateX(250%); }
+  100% { transform: translateX(250%); }
 }
 
 .animate-shimmer {
-  animation: shimmer 4s infinite;
+  animation: shimmer 5s linear infinite;
 }
