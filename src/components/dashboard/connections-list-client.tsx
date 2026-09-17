@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { Search, UserCheck, ArrowDownUp, Filter } from 'lucide-react';
+import { Search, UserCheck } from 'lucide-react';
 import { ConnectionCard } from '@/components/dashboard/connection-card';
 import { AcceptedExchangeCard } from '@/components/dashboard/accepted-exchange-card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -148,13 +148,12 @@ export function ConnectionsListClient({ initialItems }: Props) {
         </div>
 
         {/* Sort & Filters row */}
-        <div className="flex items-center justify-between w-full overflow-x-auto hide-scrollbar pb-1 gap-2">
+        <div className="flex items-center w-full gap-1 sm:gap-2">
           
-          {/* Left Side: Sort */}
-          <div className="shrink-0">
+          {/* Sort */}
+          <div className="flex-1 min-w-0">
             <Select value={sort} onValueChange={(v) => v && setSort(v)}>
-              <SelectTrigger className="h-9 w-auto bg-transparent border-0 hover:bg-accent/50 rounded-lg px-2 focus:ring-0 gap-1.5 font-medium text-muted-foreground hover:text-foreground">
-                <ArrowDownUp className="w-4 h-4 shrink-0 text-foreground" />
+              <SelectTrigger className="h-9 w-full bg-transparent border-0 hover:bg-accent/50 rounded-lg px-1 sm:px-2 focus:ring-0 font-medium text-xs sm:text-sm text-muted-foreground hover:text-foreground">
                 <SelectValue>{SORT_LABELS[sort]}</SelectValue>
               </SelectTrigger>
               <SelectContent className="rounded-xl">
@@ -167,12 +166,10 @@ export function ConnectionsListClient({ initialItems }: Props) {
             </Select>
           </div>
 
-          {/* Right Side: Filters */}
-          <div className="flex items-center gap-1 shrink-0">
-            <Filter className="w-4 h-4 shrink-0 text-foreground ml-1 mr-0.5" />
-            
+          {/* Timeframe */}
+          <div className="flex-1 min-w-0">
             <Select value={timeframe} onValueChange={(v) => v && setTimeframe(v)}>
-              <SelectTrigger className="h-9 w-auto bg-transparent border-0 hover:bg-accent/50 rounded-lg px-2 focus:ring-0 gap-1.5 text-sm text-muted-foreground hover:text-foreground">
+              <SelectTrigger className="h-9 w-full bg-transparent border-0 hover:bg-accent/50 rounded-lg px-1 sm:px-2 focus:ring-0 text-xs sm:text-sm font-medium text-muted-foreground hover:text-foreground">
                 <SelectValue>{TIMEFRAME_LABELS[timeframe]}</SelectValue>
               </SelectTrigger>
               <SelectContent className="rounded-xl">
@@ -182,11 +179,14 @@ export function ConnectionsListClient({ initialItems }: Props) {
                 <SelectItem value="1y">This Year</SelectItem>
               </SelectContent>
             </Select>
+          </div>
 
-            {uniqueCompanies.length > 0 && (
+          {/* Company */}
+          {uniqueCompanies.length > 0 && (
+            <div className="flex-1 min-w-0">
               <Select value={company} onValueChange={(v) => v && setCompany(v)}>
-                <SelectTrigger className="h-9 w-auto max-w-[130px] bg-transparent border-0 hover:bg-accent/50 rounded-lg px-2 focus:ring-0 gap-1.5 text-sm text-muted-foreground hover:text-foreground">
-                  <SelectValue className="truncate">
+                <SelectTrigger className="h-9 w-full bg-transparent border-0 hover:bg-accent/50 rounded-lg px-1 sm:px-2 focus:ring-0 text-xs sm:text-sm font-medium text-muted-foreground hover:text-foreground">
+                  <SelectValue>
                     {company === 'all' ? 'All Companies' : company}
                   </SelectValue>
                 </SelectTrigger>
@@ -197,8 +197,8 @@ export function ConnectionsListClient({ initialItems }: Props) {
                   ))}
                 </SelectContent>
               </Select>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </div>
 
