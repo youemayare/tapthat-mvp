@@ -205,7 +205,7 @@ export function ProfileList({ profiles: initialProfiles, hasCards = true, handle
                   }`}>
                   {isArchived ? 'Archived' : p.isPublished ? 'Published' : 'Draft'}
                 </span>
-                {p.isDefault && handle && (
+                {p.isPublished && handle && (
                   <span className="px-2 py-0.5 rounded-full text-xs bg-muted text-muted-foreground font-mono">
                     /{handle}
                   </span>
