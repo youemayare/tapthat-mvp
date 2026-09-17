@@ -40,9 +40,9 @@ export default function RemoveExchangePage({ params }: { params: Promise<{ id: s
           <div className="w-16 h-16 bg-green-500/10 text-green-500 rounded-full flex items-center justify-center mx-auto mb-2">
             <CheckCircle2 className="w-8 h-8" />
           </div>
-          <h1 className="text-2xl font-bold text-foreground">Data Removed</h1>
+          <h1 className="text-2xl font-bold text-foreground">Contact Details Removed</h1>
           <p className="text-muted-foreground text-sm">
-            Your contact details have been successfully removed and withdrawn from the recipient.
+            Your shared contact details have been removed.
           </p>
         </div>
       </div>

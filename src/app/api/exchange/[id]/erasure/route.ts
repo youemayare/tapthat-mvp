@@ -45,8 +45,9 @@ export async function POST(req: Request, props: { params: Promise<{ id: string }
 
     // 3. Redact all PII and mark as withdrawn.
     // 'withdrawn' is valid after migration 0012_add_withdrawn_status.sql.
-    // All PII fields are overwritten with '[Redacted]' — non-null, non-empty
+    // All PII fields and hashes are overwritten with '[Redacted]' — non-null, non-empty
     // strings that satisfy any NOT NULL / CHECK constraints on those columns.
+    // erasureTokenHash is unique, so we append the ID to avoid constraint violations.
     await db.update(contactExchanges)
       .set({
         status: 'withdrawn',
@@ -58,6 +59,8 @@ export async function POST(req: Request, props: { params: Promise<{ id: string }
         message: '[Redacted]',
         emailHash: '[Redacted]',
         phoneHash: '[Redacted]',
+        erasureTokenHash: `[Redacted]-${exchangeId}`,
+        recipientNote: '[Redacted]',
       })
       .where(eq(contactExchanges.id, exchangeId));
 
