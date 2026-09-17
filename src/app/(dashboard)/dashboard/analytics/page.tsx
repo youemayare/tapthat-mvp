@@ -7,7 +7,7 @@ import { eq, and, gt, sql, inArray, or, isNull } from 'drizzle-orm';
 import { createClient } from '@/lib/supabase/server';
 import { AnalyticsCharts } from '@/components/analytics/analytics-charts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Users, MousePointerClick, Activity, Bookmark, UserCheck, Download } from 'lucide-react';
+import { Users, MousePointerClick, Activity, Bookmark, UserCheck, Download, MailPlus, CheckCircle2 } from 'lucide-react';
 
 import { ProfileFilter } from '@/components/analytics/profile-filter';
 import { TimeFilter } from '@/components/analytics/time-filter';
@@ -102,7 +102,8 @@ export default async function AnalyticsPage(
     locationStatsRaw,
     contactSavesResult,
     dailyExchangesRaw,
-    channelStatsRaw
+    channelStatsRaw,
+    statusStatsRaw
   ] = await Promise.all([
     db.select({ count: sql<number>`count(*)` }).from(connections).where(and(inArray(connections.profileId, profileIds), connDateCond)),
     withRlsUser(user, async (tx) => tx.select({ count: sql<number>`count(*)` }).from(connections).where(and(eq(connections.viewerUserId, user.id), connDateCond))),
@@ -117,7 +118,9 @@ export default async function AnalyticsPage(
     withRlsUser(user, async (tx) => tx.select({ date: sql<string>`DATE(created_at)`, count: sql<number>`count(*)` })
       .from(contactExchanges).where(and(inArray(contactExchanges.recipientProfileId, profileIds), exchangeDateCond)).groupBy(sql`DATE(created_at)`).orderBy(sql`DATE(created_at)`)),
     withRlsUser(user, async (tx) => tx.select({ channel: contactExchanges.sourceChannel, count: sql<number>`count(*)` })
-      .from(contactExchanges).where(and(inArray(contactExchanges.recipientProfileId, profileIds), exchangeDateCond)).groupBy(contactExchanges.sourceChannel))
+      .from(contactExchanges).where(and(inArray(contactExchanges.recipientProfileId, profileIds), exchangeDateCond)).groupBy(contactExchanges.sourceChannel)),
+    withRlsUser(user, async (tx) => tx.select({ status: contactExchanges.status, count: sql<number>`count(*)` })
+      .from(contactExchanges).where(and(inArray(contactExchanges.recipientProfileId, profileIds), exchangeDateCond)).groupBy(contactExchanges.status))
   ]);
 
   const totalTaps = Number(totalTapsResult[0]?.count || 0);
@@ -126,6 +129,8 @@ export default async function AnalyticsPage(
   const totalSaves = Number(savesResult[0]?.count || 0);
   const connectionsSaved = Number(connectionsSavedResult[0]?.count || 0);
   const totalContactSaves = Number(contactSavesResult[0]?.count || 0);
+  const totalExchangeRequests = statusStatsRaw.reduce((acc, curr) => acc + Number(curr.count), 0);
+  const acceptedExchanges = Number(statusStatsRaw.find(s => s.status === 'accepted')?.count || 0);
 
   const dailyStatsMap = new Map(dailyStatsRaw.map(d => [d.date, d]));
   const dailyExchangesMap = new Map(dailyExchangesRaw.map(d => [d.date, d]));
@@ -191,7 +196,7 @@ export default async function AnalyticsPage(
         </div>
       </div>
 
-      <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         <Card className="border-border bg-card">
           <CardHeader className="flex flex-row items-start justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Profile Views</CardTitle>
@@ -250,6 +255,26 @@ export default async function AnalyticsPage(
           <CardContent>
             <div className="text-3xl font-bold text-foreground">{connectionsSaved}</div>
             <p className="text-xs text-muted-foreground mt-1">Profiles you&apos;ve saved to your Anoya connections</p>
+          </CardContent>
+        </Card>
+        <Card className="border-border bg-card">
+          <CardHeader className="flex flex-row items-start justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Exchange Requests</CardTitle>
+            <MailPlus className="h-4 w-4 text-indigo-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-foreground">{totalExchangeRequests}</div>
+            <p className="text-xs text-muted-foreground mt-1">People who submitted their contact info to you</p>
+          </CardContent>
+        </Card>
+        <Card className="border-border bg-card">
+          <CardHeader className="flex flex-row items-start justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Contacts Exchanged</CardTitle>
+            <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-foreground">{acceptedExchanges}</div>
+            <p className="text-xs text-muted-foreground mt-1">Exchanges you have accepted into your CRM</p>
           </CardContent>
         </Card>
       </div>
