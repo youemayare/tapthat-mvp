@@ -63,7 +63,22 @@ export function ClassicProfileLayout({ profile, cardUid }: Props) {
   };
 
   // Viewer state — not present in server HTML (no cache contamination)
-  const { viewerState, saved, saving, showNoteModal, setShowNoteModal, showExchangeDrawer, setShowExchangeDrawer, noteContent, setNoteContent, savingNote, handleSaveConnectionAndNote, handleToggleSave, handleSaveContact } = useProfileActions(profile, cardUid);
+  const {
+    viewerState,
+    saved,
+    saving,
+    showNoteModal,
+    setShowNoteModal,
+    showExchangeDrawer,
+    setShowExchangeDrawer,
+    noteContent,
+    setNoteContent,
+    savingNote,
+    handleSaveContact,
+    handleToggleSave,
+    handleSaveConnectionAndNote,
+    sourceChannel,
+  } = useProfileActions(profile, cardUid);
 
   const { isOwner, resolved } = viewerState;
 

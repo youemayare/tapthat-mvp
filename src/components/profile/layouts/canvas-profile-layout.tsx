@@ -36,6 +36,7 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
     handleSaveContact,
     handleToggleSave,
     handleSaveConnectionAndNote,
+    sourceChannel,
   } = useProfileActions(profile, cardUid);
 
   const { isOwner, resolved } = viewerState;

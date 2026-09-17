@@ -60,7 +60,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function NfcTapPage({ params }: Props) {
+export default async function NfcTapPage({ params, searchParams }: Props) {
   const { uid } = await params;
 
   // Sanitize: NFC UIDs are strings, uppercase, allow hyphens for test cards

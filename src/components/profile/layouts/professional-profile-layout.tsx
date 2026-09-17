@@ -30,7 +30,8 @@ export function ProfessionalProfileLayout({ profile, cardUid }: Props) {
     setShowNoteModal,
     handleSaveContact,
     handleSaveConnectionAndNote,
-    handleToggleSave
+    handleToggleSave,
+    sourceChannel
   } = useProfileActions(profile, cardUid);
 
   const fullName = [profile.firstName, profile.lastName].filter(Boolean).join(' ');

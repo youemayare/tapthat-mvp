@@ -66,6 +66,7 @@ export function IdentityProfileLayout({ profile, cardUid }: Props) {
     handleSaveConnectionAndNote,
     handleToggleSave,
     handleSaveContact,
+    sourceChannel,
   } = useProfileActions(profile, cardUid);
 
   const { isOwner, resolved } = viewerState;
