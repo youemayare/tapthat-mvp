@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { db } from '@/lib/db';
 import { withRlsUser } from '@/lib/db/auth-wrapper';
-import { tapEvents, profiles, connections, cards, contactSaves } from '@/lib/db/schema';
+import { tapEvents, profiles, connections, cards, contactSaves, contactExchanges } from '@/lib/db/schema';
 import { eq, and, gt, sql, inArray, or, isNull } from 'drizzle-orm';
 import { createClient } from '@/lib/supabase/server';
 import { AnalyticsCharts } from '@/components/analytics/analytics-charts';
@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Users, MousePointerClick, Activity, Bookmark, UserCheck, Download } from 'lucide-react';
 
 import { ProfileFilter } from '@/components/analytics/profile-filter';
+import { TimeFilter } from '@/components/analytics/time-filter';
 
 export const metadata: Metadata = { title: 'Analytics' };
 
@@ -18,6 +19,7 @@ export default async function AnalyticsPage(
 ) {
   const searchParams = await props.searchParams;
   const selectedProfileId = typeof searchParams.profile === 'string' ? searchParams.profile : null;
+  const rangeParam = typeof searchParams.range === 'string' ? searchParams.range : '30d';
 
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -26,24 +28,31 @@ export default async function AnalyticsPage(
     redirect('/login');
   }
 
+  // Determine date bounds
+  let days = 30;
+  if (rangeParam === '7d') days = 7;
+  if (rangeParam === 'all') days = 0;
+
+  const startDate = days > 0 ? new Date() : null;
+  if (startDate) {
+    startDate.setDate(startDate.getDate() - days);
+    startDate.setHours(0, 0, 0, 0);
+  }
+
   // 1. Fetch profiles and setup conditions
-  const { userProfiles, validProfiles, profileIds, cardIds, profileTapsCondition } = await withRlsUser(user, async (tx) => {
+  const { userProfiles, profileIds, profileTapsCondition } = await withRlsUser(user, async (tx) => {
     const userProfiles = await tx.select().from(profiles).where(eq(profiles.userId, user.id));
     if (userProfiles.length === 0) {
-      return { userProfiles: [], validProfiles: [], profileIds: [], cardIds: [], profileTapsCondition: undefined };
+      return { userProfiles: [], profileIds: [], profileTapsCondition: undefined };
     }
     
-    // Default to all profiles, unless a specific profile is selected
     const selectedProfiles = selectedProfileId 
       ? userProfiles.filter(p => p.id === selectedProfileId) 
       : userProfiles;
       
-    // If the selected profile doesn't belong to the user, fallback to all profiles
     const validProfiles = selectedProfiles.length > 0 ? selectedProfiles : userProfiles;
     const profileIds = validProfiles.map(p => p.id);
 
-    // Get cards. If a specific profile is selected, only get cards for that profile.
-    // If "All" is selected, get all cards for the user (including those with no profileId yet) to recover legacy taps.
     const cardsCondition = selectedProfileId
       ? inArray(cards.profileId, profileIds)
       : eq(cards.userId, user.id);
@@ -61,16 +70,13 @@ export default async function AnalyticsPage(
         )
       : inArray(tapEvents.profileId, profileIds);
 
-    return { userProfiles, validProfiles, profileIds, cardIds, profileTapsCondition };
+    return { userProfiles, profileIds, profileTapsCondition };
   });
 
-  // Early return if no profiles
   if (!userProfiles || userProfiles.length === 0) {
     return (
       <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Analytics</h1>
-        </div>
+        <div><h1 className="text-2xl font-bold text-foreground">Analytics</h1></div>
         <div className="bg-card text-card-foreground border border-border rounded-2xl p-8 text-center">
           <p className="text-muted-foreground">Please create your profile first to see analytics.</p>
         </div>
@@ -78,13 +84,13 @@ export default async function AnalyticsPage(
     );
   }
 
-  // Time range: last 30 days
-  const thirtyDaysAgo = new Date();
-  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-  thirtyDaysAgo.setHours(0, 0, 0, 0);
+  // Base date conditions
+  const tapDateCond = startDate ? gt(tapEvents.tappedAt, startDate) : undefined;
+  const connDateCond = startDate ? gt(connections.createdAt, startDate) : undefined;
+  const saveDateCond = startDate ? gt(contactSaves.savedAt, startDate) : undefined;
+  const exchangeDateCond = startDate ? gt(contactExchanges.createdAt, startDate) : undefined;
 
-  // 2. Execute heavy aggregations concurrently in separate transactions
-  // This avoids postgres single-connection concurrent query warnings
+  // 2. Execute heavy aggregations concurrently
   const [
     savesResult,
     connectionsSavedResult,
@@ -94,19 +100,24 @@ export default async function AnalyticsPage(
     deviceStatsRaw,
     browserStatsRaw,
     locationStatsRaw,
-    contactSavesResult
+    contactSavesResult,
+    dailyExchangesRaw,
+    channelStatsRaw
   ] = await Promise.all([
-    // Profile Saves uses admin db connection directly to count connections without exposing row-level data
-    db.select({ count: sql<number>`count(*)` }).from(connections).where(inArray(connections.profileId, profileIds)),
-    withRlsUser(user, async (tx) => tx.select({ count: sql<number>`count(*)` }).from(connections).where(eq(connections.viewerUserId, user.id))),
-    withRlsUser(user, async (tx) => tx.select({ count: sql<number>`count(*)` }).from(tapEvents).where(profileTapsCondition!)),
-    withRlsUser(user, async (tx) => tx.select({ count: sql<number>`count(*)` }).from(tapEvents).where(and(profileTapsCondition!, eq(tapEvents.isUnique, true)))),
+    db.select({ count: sql<number>`count(*)` }).from(connections).where(and(inArray(connections.profileId, profileIds), connDateCond)),
+    withRlsUser(user, async (tx) => tx.select({ count: sql<number>`count(*)` }).from(connections).where(and(eq(connections.viewerUserId, user.id), connDateCond))),
+    withRlsUser(user, async (tx) => tx.select({ count: sql<number>`count(*)` }).from(tapEvents).where(and(profileTapsCondition!, tapDateCond))),
+    withRlsUser(user, async (tx) => tx.select({ count: sql<number>`count(*)` }).from(tapEvents).where(and(profileTapsCondition!, tapDateCond, eq(tapEvents.isUnique, true)))),
     withRlsUser(user, async (tx) => tx.select({ date: sql<string>`DATE(tapped_at)`, total: sql<number>`count(*)`, unique: sql<number>`count(case when is_unique = true then 1 end)` })
-      .from(tapEvents).where(and(profileTapsCondition!, gt(tapEvents.tappedAt, thirtyDaysAgo))).groupBy(sql`DATE(tapped_at)`).orderBy(sql`DATE(tapped_at)`)),
-    withRlsUser(user, async (tx) => tx.select({ deviceType: tapEvents.deviceType, count: sql<number>`count(*)` }).from(tapEvents).where(profileTapsCondition!).groupBy(tapEvents.deviceType)),
-    withRlsUser(user, async (tx) => tx.select({ browser: tapEvents.browser, count: sql<number>`count(*)` }).from(tapEvents).where(profileTapsCondition!).groupBy(tapEvents.browser)),
-    withRlsUser(user, async (tx) => tx.select({ country: tapEvents.country, count: sql<number>`count(*)` }).from(tapEvents).where(profileTapsCondition!).groupBy(tapEvents.country).orderBy(sql`count(*) DESC`).limit(10)),
-    withRlsUser(user, async (tx) => tx.select({ count: sql<number>`count(*)` }).from(contactSaves).where(inArray(contactSaves.profileId, profileIds)))
+      .from(tapEvents).where(and(profileTapsCondition!, tapDateCond)).groupBy(sql`DATE(tapped_at)`).orderBy(sql`DATE(tapped_at)`)),
+    withRlsUser(user, async (tx) => tx.select({ deviceType: tapEvents.deviceType, count: sql<number>`count(*)` }).from(tapEvents).where(and(profileTapsCondition!, tapDateCond)).groupBy(tapEvents.deviceType)),
+    withRlsUser(user, async (tx) => tx.select({ browser: tapEvents.browser, count: sql<number>`count(*)` }).from(tapEvents).where(and(profileTapsCondition!, tapDateCond)).groupBy(tapEvents.browser)),
+    withRlsUser(user, async (tx) => tx.select({ country: tapEvents.country, count: sql<number>`count(*)` }).from(tapEvents).where(and(profileTapsCondition!, tapDateCond)).groupBy(tapEvents.country).orderBy(sql`count(*) DESC`).limit(10)),
+    withRlsUser(user, async (tx) => tx.select({ count: sql<number>`count(*)` }).from(contactSaves).where(and(inArray(contactSaves.profileId, profileIds), saveDateCond))),
+    withRlsUser(user, async (tx) => tx.select({ date: sql<string>`DATE(created_at)`, count: sql<number>`count(*)` })
+      .from(contactExchanges).where(and(inArray(contactExchanges.recipientProfileId, profileIds), exchangeDateCond)).groupBy(sql`DATE(created_at)`).orderBy(sql`DATE(created_at)`)),
+    withRlsUser(user, async (tx) => tx.select({ channel: contactExchanges.sourceChannel, count: sql<number>`count(*)` })
+      .from(contactExchanges).where(and(inArray(contactExchanges.recipientProfileId, profileIds), exchangeDateCond)).groupBy(contactExchanges.sourceChannel))
   ]);
 
   const totalTaps = Number(totalTapsResult[0]?.count || 0);
@@ -116,53 +127,51 @@ export default async function AnalyticsPage(
   const connectionsSaved = Number(connectionsSavedResult[0]?.count || 0);
   const totalContactSaves = Number(contactSavesResult[0]?.count || 0);
 
-  // Fill in missing days
   const dailyStatsMap = new Map(dailyStatsRaw.map(d => [d.date, d]));
+  const dailyExchangesMap = new Map(dailyExchangesRaw.map(d => [d.date, d]));
   const dailyStats = [];
-  for (let i = 29; i >= 0; i--) {
-    const d = new Date();
-    d.setDate(d.getDate() - i);
-    const dateStr = d.toISOString().split('T')[0];
-    const stat = dailyStatsMap.get(dateStr);
-    dailyStats.push({
-      date: dateStr,
-      total: stat ? Number(stat.total) : 0,
-      unique: stat ? Number(stat.unique) : 0
-    });
+
+  if (days > 0) {
+    // Fill every day in the range
+    for (let i = days - 1; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const dateStr = d.toISOString().split('T')[0];
+      const stat = dailyStatsMap.get(dateStr);
+      const exStat = dailyExchangesMap.get(dateStr);
+      dailyStats.push({
+        date: dateStr,
+        total: stat ? Number(stat.total) : 0,
+        unique: stat ? Number(stat.unique) : 0,
+        contacts: exStat ? Number(exStat.count) : 0
+      });
+    }
+  } else {
+    // All time: show only dates with data, sorted
+    const allDates = Array.from(new Set([...dailyStatsMap.keys(), ...dailyExchangesMap.keys()])).sort();
+    for (const dateStr of allDates) {
+      const stat = dailyStatsMap.get(dateStr);
+      const exStat = dailyExchangesMap.get(dateStr);
+      dailyStats.push({
+        date: dateStr,
+        total: stat ? Number(stat.total) : 0,
+        unique: stat ? Number(stat.unique) : 0,
+        contacts: exStat ? Number(exStat.count) : 0
+      });
+    }
   }
 
-  const deviceStats = deviceStatsRaw
-    .filter(d => d.deviceType) // filter nulls
-    .map(d => ({
-      name: d.deviceType === 'mobile' ? 'Mobile' : d.deviceType === 'desktop' ? 'Desktop' : 'Tablet',
-      value: Number(d.count)
-    }));
+  const channelStatsMap: Record<string, string> = {
+    'nfc': 'NFC Tap',
+    'qr': 'QR Code',
+    'link': 'Profile Link',
+    'unknown': 'Direct / Unknown'
+  };
 
-  const browserStats = browserStatsRaw
-    .filter(b => b.browser && b.browser !== 'Unknown') // filter nulls
-    .map(b => ({
-      name: b.browser || 'Unknown',
-      value: Number(b.count)
-    }));
-
-  const locationStats = locationStatsRaw
-    .map(l => ({
-      name: l.country || 'Unknown', // The UI will normalize ISO codes to names
-      value: Number(l.count)
-    }));
-
-  if (!userProfiles || userProfiles.length === 0) {
-    return (
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Analytics</h1>
-        </div>
-        <div className="bg-card text-card-foreground border border-border rounded-2xl p-8 text-center">
-          <p className="text-muted-foreground">Please create your profile first to see analytics.</p>
-        </div>
-      </div>
-    );
-  }
+  const channelStats = channelStatsRaw.map(c => ({
+    name: channelStatsMap[c.channel] || c.channel,
+    value: Number(c.count)
+  })).sort((a, b) => b.value - a.value);
 
   return (
     <div className="space-y-8 pb-10">
@@ -171,15 +180,15 @@ export default async function AnalyticsPage(
           <h1 className="text-3xl font-bold text-foreground">Analytics</h1>
           <p className="text-muted-foreground mt-2">Track your profile reach and audience engagement</p>
         </div>
-        <ProfileFilter 
-          profiles={userProfiles.map((p: { id: string; label: string | null; firstName: string | null; lastName: string | null; companyName: string | null; }) => ({ 
-            id: p.id, 
-            label: p.label, 
-            firstName: p.firstName, 
-            lastName: p.lastName 
-          }))} 
-          selectedProfileId={selectedProfileId} 
-        />
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+          <TimeFilter />
+          <ProfileFilter 
+            profiles={userProfiles.map((p: any) => ({ 
+              id: p.id, label: p.label, firstName: p.firstName, lastName: p.lastName 
+            }))} 
+            selectedProfileId={selectedProfileId} 
+          />
+        </div>
       </div>
 
       <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
@@ -248,6 +257,7 @@ export default async function AnalyticsPage(
       {(totalTaps > 0) ? (
         <AnalyticsCharts 
           dailyStats={dailyStats} 
+          channelStats={channelStats}
         />
       ) : (
         <div className="bg-card border border-border rounded-3xl p-12 text-center shadow-sm">
