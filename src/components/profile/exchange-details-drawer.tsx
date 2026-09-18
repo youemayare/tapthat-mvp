@@ -396,7 +396,12 @@ export function ExchangeDetailsDrawer({
           </Button>
           {!isLoggedIn && (
             <div className="text-center text-sm text-muted-foreground mt-2">
-              Have an Anoya account? <a href={`/login?redirect=/p/${targetProfileId}`} className="underline">Sign in</a> to exchange in one tap.
+              Have an Anoya account? <a href={`/login?redirect=/p/${targetProfileId}`} className="underline hover:text-foreground">Sign in</a> to exchange in one tap.
+            </div>
+          )}
+          {isLoggedIn && isSubmittingAsGuest && (
+            <div className="text-center text-sm text-muted-foreground mt-2">
+              <a href="/dashboard/profile" className="underline hover:text-foreground">Create an Anoya profile</a> to exchange in one tap.
             </div>
           )}
           <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
