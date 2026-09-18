@@ -58,6 +58,7 @@ export function ExchangeDetailsDrawer({
   const [isExchanging, setIsExchanging] = useState(false);
   const [showAllFields, setShowAllFields] = useState(false);
   const [successData, setSuccessData] = useState<{ id: string, erasureToken: string } | null>(null);
+  const [hasCheckedProfiles, setHasCheckedProfiles] = useState(false);
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -71,7 +72,7 @@ export function ExchangeDetailsDrawer({
   });
 
   useEffect(() => {
-    if (open && isLoggedIn && profiles.length === 0 && !exchangeStatus) {
+    if (open && isLoggedIn && profiles.length === 0 && !exchangeStatus && !hasCheckedProfiles) {
       setLoadingProfiles(true);
       fetch('/api/profiles')
         .then((res) => res.json())
@@ -87,17 +88,24 @@ export function ExchangeDetailsDrawer({
           }
         })
         .catch(() => toast.error('Failed to load your profiles'))
-        .finally(() => setLoadingProfiles(false));
+        .finally(() => {
+          setLoadingProfiles(false);
+          setHasCheckedProfiles(true);
+        });
+    } else if (open && !isLoggedIn) {
+      setHasCheckedProfiles(true);
     }
-  }, [open, isLoggedIn, profiles.length, exchangeStatus]);
+  }, [open, isLoggedIn, profiles.length, exchangeStatus, hasCheckedProfiles]);
+
+  const isSubmittingAsGuest = !isLoggedIn || (hasCheckedProfiles && profiles.length === 0);
 
   async function handleExchange() {
-    if (isLoggedIn && !selectedProfileId) {
+    if (!isSubmittingAsGuest && !selectedProfileId) {
       toast.error('Please select a profile to share');
       return;
     }
 
-    if (!isLoggedIn) {
+    if (isSubmittingAsGuest) {
       if (!formData.firstName) {
         toast.error('First name is required');
         return;
@@ -119,8 +127,8 @@ export function ExchangeDetailsDrawer({
     setIsExchanging(true);
 
     try {
-      const endpoint = isLoggedIn ? '/api/exchange' : '/api/exchange/anonymous';
-      const payload = isLoggedIn 
+      const endpoint = !isSubmittingAsGuest ? '/api/exchange' : '/api/exchange/anonymous';
+      const payload = !isSubmittingAsGuest 
         ? {
             type: 'anoya_profile',
             targetProfileId,
@@ -250,7 +258,7 @@ export function ExchangeDetailsDrawer({
         </DrawerHeader>
 
         <div className="p-4 pb-0 max-h-[60vh] overflow-y-auto">
-          {isLoggedIn ? (
+          {!isSubmittingAsGuest ? (
             <div className="space-y-4">
               <h4 className="text-sm font-medium">Select a profile to share</h4>
               {loadingProfiles ? (
