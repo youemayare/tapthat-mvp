@@ -30,6 +30,7 @@ interface ExchangeDetailsDrawerProps {
   cardUid?: string;
   exchangeStatus: 'pending' | 'accepted' | null;
   sourceChannel?: 'nfc' | 'qr' | 'direct_link';
+  onGuestFlowComplete?: (wasSubmitted: boolean, successData?: { id: string, erasureToken: string }) => void;
 }
 
 type Profile = {
@@ -51,6 +52,7 @@ export function ExchangeDetailsDrawer({
   cardUid,
   exchangeStatus,
   sourceChannel = 'direct_link',
+  onGuestFlowComplete,
 }: ExchangeDetailsDrawerProps) {
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [loadingProfiles, setLoadingProfiles] = useState(false);
@@ -199,7 +201,11 @@ export function ExchangeDetailsDrawer({
       <Drawer open={open} onOpenChange={(val) => {
         if (!val) {
           onExchangeSuccess();
-          onOpenChange(false);
+          if (onGuestFlowComplete) {
+            onGuestFlowComplete(true, successData);
+          } else {
+            onOpenChange(false);
+          }
           setSuccessData(null);
         }
       }}>
@@ -238,7 +244,11 @@ export function ExchangeDetailsDrawer({
           <DrawerFooter>
             <Button onClick={() => {
               onExchangeSuccess();
-              onOpenChange(false);
+              if (onGuestFlowComplete) {
+                onGuestFlowComplete(true, successData);
+              } else {
+                onOpenChange(false);
+              }
               setSuccessData(null);
             }}>Done</Button>
           </DrawerFooter>
@@ -248,7 +258,17 @@ export function ExchangeDetailsDrawer({
   }
 
   return (
-    <Drawer open={open} onOpenChange={onOpenChange}>
+    <Drawer open={open} onOpenChange={(val) => {
+      if (!val) {
+        if (onGuestFlowComplete) {
+          onGuestFlowComplete(false);
+        } else {
+          onOpenChange(false);
+        }
+      } else {
+        onOpenChange(val);
+      }
+    }}>
       <DrawerContent className="mx-auto max-w-lg">
         <DrawerHeader>
           <DrawerTitle>Share your details with {targetProfileName}</DrawerTitle>
@@ -404,7 +424,13 @@ export function ExchangeDetailsDrawer({
               <a href="/dashboard/profile" className="underline hover:text-foreground">Create an Anoya profile</a> to exchange in one tap.
             </div>
           )}
-          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button variant="outline" onClick={() => {
+            if (onGuestFlowComplete) {
+              onGuestFlowComplete(false);
+            } else {
+              onOpenChange(false);
+            }
+          }}>Cancel</Button>
         </DrawerFooter>
       </DrawerContent>
     </Drawer>

@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import { useGuestExchangeFlow } from '@/hooks/use-guest-exchange';
 import type { Profile } from '@/lib/db/schema';
 
-export function useProfileActions(profile: Partial<Profile> & { id: string; userId: string }, cardUid: string) {
+export function useProfileActions(profile: Partial<Profile> & { id: string; userId: string; slug?: string | null }, cardUid: string) {
   const fullName = [profile.firstName, profile.lastName].filter(Boolean).join(' ');
 
   const [viewerState, setViewerState] = useState<{
@@ -13,12 +14,17 @@ export function useProfileActions(profile: Partial<Profile> & { id: string; user
     resolved: boolean;
   }>({ isOwner: false, alreadySaved: false, isLoggedIn: false, exchangeStatus: null, resolved: false });
 
+  const guestFlow = useGuestExchangeFlow({
+    isLoggedIn: viewerState.isLoggedIn,
+    isResolved: viewerState.resolved,
+    profileSlug: profile.slug || profile.id,
+  });
+
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [showNoteModal, setShowNoteModal] = useState(false);
   const [noteContent, setNoteContent] = useState('');
   const [savingNote, setSavingNote] = useState(false);
-  const [showExchangeDrawer, setShowExchangeDrawer] = useState(false);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -143,6 +149,9 @@ export function useProfileActions(profile: Partial<Profile> & { id: string; user
       document.body.removeChild(a);
 
       toast.success('Contact downloaded!');
+      
+      // Trigger the guest conversion prompt if applicable
+      guestFlow.triggerGuestExchange();
     } catch (error) {
       console.error('vCard error:', error);
       toast.error('Failed to download contact');
@@ -155,8 +164,7 @@ export function useProfileActions(profile: Partial<Profile> & { id: string; user
     saving,
     showNoteModal,
     setShowNoteModal,
-    showExchangeDrawer,
-    setShowExchangeDrawer,
+    guestFlow,
     noteContent,
     setNoteContent,
     savingNote,
@@ -166,4 +174,3 @@ export function useProfileActions(profile: Partial<Profile> & { id: string; user
     sourceChannel
   };
 }
-

@@ -16,6 +16,7 @@ import { useProfileActions } from '@/components/profile/use-profile-actions';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { toast } from 'sonner';
 import { ExchangeDetailsDrawer } from '../exchange-details-drawer';
+import { GuestConversionDrawer } from '../guest-conversion-drawer';
 
 interface Props {
   profile: Partial<Profile> & { id: string; userId: string };
@@ -27,8 +28,7 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
     viewerState,
     saved,
     savingNote,
-    showExchangeDrawer,
-    setShowExchangeDrawer,
+    guestFlow,
     showNoteModal,
     noteContent,
     setNoteContent,
@@ -247,7 +247,7 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
                   </button>
                 </div>
                 <button
-                  onClick={() => setShowExchangeDrawer(true)}
+                  onClick={() => guestFlow.handleManualExchangeClick()}
                   disabled={viewerState.exchangeStatus === 'pending' || viewerState.exchangeStatus === 'accepted'}
                   aria-label="Exchange Details"
                   className="relative overflow-hidden group flex items-center justify-center gap-1.5 w-full px-4 py-2 rounded-full border border-white/20 bg-black/20 backdrop-blur-sm hover:bg-black/40 transition-colors text-white text-xs font-semibold"
@@ -278,7 +278,7 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
                     </span>
                   </button>
                   <button
-                    onClick={() => setShowExchangeDrawer(true)}
+                    onClick={() => guestFlow.handleManualExchangeClick()}
                     disabled={viewerState.exchangeStatus === 'pending' || viewerState.exchangeStatus === 'accepted'}
                     aria-label="Exchange Details"
                     className="relative overflow-hidden group flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-full border border-white/20 bg-black/20 backdrop-blur-sm hover:bg-black/40 transition-colors text-white text-xs font-semibold"
@@ -366,8 +366,8 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
       </Dialog>
       
       <ExchangeDetailsDrawer
-        open={showExchangeDrawer}
-        onOpenChange={setShowExchangeDrawer}
+        open={guestFlow.showExchange}
+        onOpenChange={guestFlow.setShowExchange}
         targetProfileId={profile.id}
         targetProfileName={fullName}
         isLoggedIn={viewerState.isLoggedIn}
@@ -377,6 +377,16 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
         cardUid={cardUid}
         exchangeStatus={viewerState.exchangeStatus}
         sourceChannel={sourceChannel}
+        onGuestFlowComplete={guestFlow.handleGuestFlowComplete}
+      />
+
+      <GuestConversionDrawer
+        open={guestFlow.showConversion}
+        onOpenChange={guestFlow.setShowConversion}
+        targetProfileName={fullName}
+        targetProfileHandle={profile.slug || profile.id}
+        erasureToken={guestFlow.guestSuccessData?.erasureToken}
+        exchangeId={guestFlow.guestSuccessData?.id}
       />
     </div>
   );

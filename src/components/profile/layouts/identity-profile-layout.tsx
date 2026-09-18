@@ -17,6 +17,7 @@ import { useProfileActions } from '@/components/profile/use-profile-actions';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { toast } from 'sonner';
 import { ExchangeDetailsDrawer } from '../exchange-details-drawer';
+import { GuestConversionDrawer } from '../guest-conversion-drawer';
 
 interface Props {
   profile: Partial<Profile> & { id: string; userId: string };
@@ -58,8 +59,7 @@ export function IdentityProfileLayout({ profile, cardUid }: Props) {
     saving,
     showNoteModal,
     setShowNoteModal,
-    showExchangeDrawer,
-    setShowExchangeDrawer,
+    guestFlow,
     noteContent,
     setNoteContent,
     savingNote,
@@ -212,7 +212,7 @@ hover:bg-primary/90 transition-colors"
               )}
 
                 <button
-                  onClick={() => setShowExchangeDrawer(true)}
+                  onClick={() => guestFlow.handleManualExchangeClick()}
                   disabled={viewerState.exchangeStatus === 'pending' || viewerState.exchangeStatus === 'accepted'}
                   className="relative overflow-hidden group w-full flex items-center justify-center gap-2 h-14 border-2 border-brand-500/20 hover:border-brand-500/40 hover:bg-brand-500/5 active:scale-95 text-foreground font-semibold text-sm rounded-2xl transition-all duration-200"
                 >
@@ -343,8 +343,8 @@ hover:bg-primary/90 transition-colors"
       </Dialog>
       
       <ExchangeDetailsDrawer
-        open={showExchangeDrawer}
-        onOpenChange={setShowExchangeDrawer}
+        open={guestFlow.showExchange}
+        onOpenChange={guestFlow.setShowExchange}
         targetProfileId={profile.id}
         targetProfileName={fullName}
         isLoggedIn={viewerState.isLoggedIn}
@@ -354,6 +354,16 @@ hover:bg-primary/90 transition-colors"
         cardUid={cardUid}
         exchangeStatus={viewerState.exchangeStatus}
         sourceChannel={sourceChannel}
+        onGuestFlowComplete={guestFlow.handleGuestFlowComplete}
+      />
+
+      <GuestConversionDrawer
+        open={guestFlow.showConversion}
+        onOpenChange={guestFlow.setShowConversion}
+        targetProfileName={fullName}
+        targetProfileHandle={profile.slug || profile.id}
+        erasureToken={guestFlow.guestSuccessData?.erasureToken}
+        exchangeId={guestFlow.guestSuccessData?.id}
       />
     </div>
   );

@@ -11,6 +11,7 @@ import { useProfileActions } from '@/components/profile/use-profile-actions';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { toast } from 'sonner';
 import { ExchangeDetailsDrawer } from '../exchange-details-drawer';
+import { GuestConversionDrawer } from '../guest-conversion-drawer';
 
 interface Props {
   profile: Partial<Profile> & { id: string; userId: string };
@@ -22,8 +23,7 @@ export function ProfessionalProfileLayout({ profile, cardUid }: Props) {
     viewerState,
     saved,
     savingNote,
-    showExchangeDrawer,
-    setShowExchangeDrawer,
+    guestFlow,
     showNoteModal,
     noteContent,
     setNoteContent,
@@ -217,7 +217,7 @@ export function ProfessionalProfileLayout({ profile, cardUid }: Props) {
               )}
 
               <button
-                onClick={() => setShowExchangeDrawer(true)}
+                onClick={() => guestFlow.handleManualExchangeClick()}
                 disabled={viewerState.exchangeStatus === 'pending' || viewerState.exchangeStatus === 'accepted'}
                 className="relative overflow-hidden group w-full h-12 rounded-full flex items-center justify-center font-medium text-[15px] tracking-wide transition-all bg-transparent border-2 border-[#C9A45D]/40 text-[#1A1A1A] dark:text-[#F6F1E6] hover:bg-[#C9A45D]/5 active:scale-[0.98]"
               >
@@ -324,8 +324,8 @@ export function ProfessionalProfileLayout({ profile, cardUid }: Props) {
       </Dialog>
       
       <ExchangeDetailsDrawer
-        open={showExchangeDrawer}
-        onOpenChange={setShowExchangeDrawer}
+        open={guestFlow.showExchange}
+        onOpenChange={guestFlow.setShowExchange}
         targetProfileId={profile.id}
         targetProfileName={fullName}
         isLoggedIn={viewerState.isLoggedIn}
@@ -335,6 +335,16 @@ export function ProfessionalProfileLayout({ profile, cardUid }: Props) {
         cardUid={cardUid}
         exchangeStatus={viewerState.exchangeStatus}
         sourceChannel={sourceChannel}
+        onGuestFlowComplete={guestFlow.handleGuestFlowComplete}
+      />
+
+      <GuestConversionDrawer
+        open={guestFlow.showConversion}
+        onOpenChange={guestFlow.setShowConversion}
+        targetProfileName={fullName}
+        targetProfileHandle={profile.slug || profile.id}
+        erasureToken={guestFlow.guestSuccessData?.erasureToken}
+        exchangeId={guestFlow.guestSuccessData?.id}
       />
     </div>
   );
