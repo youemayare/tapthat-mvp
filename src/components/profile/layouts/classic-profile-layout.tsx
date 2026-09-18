@@ -434,6 +434,8 @@ export function ClassicProfileLayout({ profile, cardUid }: Props) {
         onOpenChange={guestFlow.setShowConversion}
         targetProfileName={fullName}
         targetProfileHandle={profile.slug || profile.id}
+        targetProfilePhotoUrl={profile.profilePhotoUrl}
+        targetProfileInitials={initials}
         erasureToken={guestFlow.guestSuccessData?.erasureToken}
         exchangeId={guestFlow.guestSuccessData?.id}
       />
