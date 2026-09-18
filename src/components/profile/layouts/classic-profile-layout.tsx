@@ -420,8 +420,9 @@ export function ClassicProfileLayout({ profile, cardUid }: Props) {
         targetProfileName={fullName}
         isLoggedIn={viewerState.isLoggedIn}
         onExchangeSuccess={() => {
-          // Temporarily reload or we can just fetch viewer state again
-          window.location.reload();
+          if (viewerState.isLoggedIn) {
+            window.location.reload();
+          }
         }}
         cardUid={cardUid}
         exchangeStatus={viewerState.exchangeStatus}

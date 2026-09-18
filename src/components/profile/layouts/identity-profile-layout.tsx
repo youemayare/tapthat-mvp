@@ -349,7 +349,9 @@ hover:bg-primary/90 transition-colors"
         targetProfileName={fullName}
         isLoggedIn={viewerState.isLoggedIn}
         onExchangeSuccess={() => {
-          window.location.reload();
+          if (viewerState.isLoggedIn) {
+            window.location.reload();
+          }
         }}
         cardUid={cardUid}
         exchangeStatus={viewerState.exchangeStatus}

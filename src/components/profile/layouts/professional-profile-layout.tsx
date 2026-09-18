@@ -330,7 +330,9 @@ export function ProfessionalProfileLayout({ profile, cardUid }: Props) {
         targetProfileName={fullName}
         isLoggedIn={viewerState.isLoggedIn}
         onExchangeSuccess={() => {
-          window.location.reload();
+          if (viewerState.isLoggedIn) {
+            window.location.reload();
+          }
         }}
         cardUid={cardUid}
         exchangeStatus={viewerState.exchangeStatus}
