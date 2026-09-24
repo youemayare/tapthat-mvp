@@ -14,8 +14,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const sanitizedUid = uid.toUpperCase();
   if (!/^[A-Z0-9-]{8,64}$/.test(sanitizedUid)) {
     return {
-      title: 'Anoya — Claim Your Card',
-      description: 'Set up your professional profile on Anoya.',
+      title: 'Tayz — Claim Your Card',
+      description: 'Set up your professional profile on Tayz.',
     };
   }
 
@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     // Revoked cards: completely dead, don't show any profile info
     if (row?.card.status === 'revoked') {
       return {
-        title: 'Anoya — Card Unavailable',
+        title: 'Tayz — Card Unavailable',
         description: 'This card has been permanently revoked and is no longer usable.',
       };
     }
@@ -33,7 +33,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     // Deactivated cards: temporarily unavailable
     if (row?.card.status === 'deactivated') {
       return {
-        title: 'Anoya — Card Unavailable',
+        title: 'Tayz — Card Unavailable',
         description: 'This card is temporarily unavailable.',
       };
     }
@@ -42,7 +42,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       const name = [row.profile.firstName, row.profile.lastName].filter(Boolean).join(' ');
       return {
         title: `${name} — ${row.profile.jobTitle ?? 'Professional Profile'}`,
-        description: row.profile.bio ?? `Connect with ${name} on Anoya`,
+        description: row.profile.bio ?? `Connect with ${name} on Tayz`,
         openGraph: {
           title: name,
           description: row.profile.jobTitle ?? '',
@@ -55,8 +55,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   return {
-    title: 'Anoya — Claim Your Card',
-    description: 'Set up your professional profile on Anoya.',
+    title: 'Tayz — Claim Your Card',
+    description: 'Set up your professional profile on Tayz.',
   };
 }
 

@@ -53,7 +53,7 @@ function buildWalletObjectPayload(
   classId: string,
   objectId: string
 ): Record<string, unknown> {
-  const appUrl     = process.env.NEXT_PUBLIC_APP_URL || 'https://anoya.com';
+  const appUrl     = process.env.NEXT_PUBLIC_APP_URL || 'https://tayz.com';
   const profileUrl = `${appUrl}/p/${profile.slug || profile.id}`;
 
   let displayLogo = 'https://i.imgur.com/4tGqO5C.png';
@@ -68,7 +68,7 @@ function buildWalletObjectPayload(
     classId,
     genericType: 'GENERIC_TYPE_UNSPECIFIED',
     logo: { sourceUri: { uri: displayLogo } },
-    cardTitle: { defaultValue: { language: 'en', value: 'Anoya Digital Business Card' } },
+    cardTitle: { defaultValue: { language: 'en', value: 'Tayz Digital Business Card' } },
     header: { defaultValue: { language: 'en', value: profile.name || 'Anonymous' } },
     subheader: {
       defaultValue: {
@@ -95,7 +95,7 @@ function buildWalletObjectPayload(
 }
 
 function getIds(issuerId: string, profileId: string) {
-  const classId  = `${issuerId}.anoya_business_card_v2`;
+  const classId  = `${issuerId}.tayz_business_card_v2`;
   const objectId = `${issuerId}.${profileId.replace(/-/g, '')}_v2`;
   return { classId, objectId };
 }

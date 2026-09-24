@@ -151,7 +151,7 @@ export default function LandingPage() {
 
       {/* ── Footer ── */}
       <footer className="py-10 px-6 border-t border-border text-center text-muted-foreground text-sm">
-        <p>© {new Date().getFullYear()} Anoya. Built with ❤️ for GCC professionals.</p>
+        <p>© {new Date().getFullYear()} Tayz. Built with ❤️ for GCC professionals.</p>
       </footer>
     </main>
   );

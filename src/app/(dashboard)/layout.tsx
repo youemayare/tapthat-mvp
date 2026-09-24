@@ -7,7 +7,7 @@ import { SwipeContainer } from '@/components/dashboard/swipe-container';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: { default: 'Dashboard | Anoya', template: '%s | Anoya' },
+  title: { default: 'Dashboard | Tayz', template: '%s | Tayz' },
   robots: { index: false },
 };
 

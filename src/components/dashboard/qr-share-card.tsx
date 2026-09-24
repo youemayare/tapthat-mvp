@@ -47,7 +47,7 @@ export function QrShareCard({ cardUid }: Props) {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: 'My Anoya Profile',
+          title: 'My Tayz Profile',
           text: 'Check out my digital business card!',
           url: profileUrl,
         });

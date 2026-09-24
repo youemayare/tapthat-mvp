@@ -49,7 +49,7 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: fullName || 'Anoya Profile',
+          title: fullName || 'Tayz Profile',
           url,
         });
       } catch (err) {
@@ -327,7 +327,7 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
           href="/"
           className="inline-flex items-center gap-1.5 px-4 py-1.5 bg-black/30 backdrop-blur-md hover:bg-black/50 text-white/60 hover:text-white text-xs font-medium rounded-full transition-all duration-200 border border-white/10"
         >
-          Want your own custom card? <span className="text-white ml-0.5 font-semibold">Get Anoya</span>
+          Want your own custom card? <span className="text-white ml-0.5 font-semibold">Get Tayz</span>
         </Link>
 
       </div>
@@ -338,7 +338,7 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
           <DialogHeader>
             <DialogTitle>Save to My Connections</DialogTitle>
             <DialogDescription className="text-zinc-400">
-              Add {profile.firstName || 'this person'} to your personal Anoya CRM. You can add a private note below (optional).
+              Add {profile.firstName || 'this person'} to your personal Tayz CRM. You can add a private note below (optional).
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">

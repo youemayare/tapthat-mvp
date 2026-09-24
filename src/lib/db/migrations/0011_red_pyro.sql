@@ -38,7 +38,7 @@ ALTER TABLE "connections" ADD CONSTRAINT "uq_connections_viewer_profile" UNIQUE(
 -- source_type enumeration
 ALTER TABLE contact_exchanges
   ADD CONSTRAINT ce_source_type_check
-  CHECK (source_type IN ('anoya_profile', 'manual'));
+  CHECK (source_type IN ('tayz_profile', 'manual'));
 --> statement-breakpoint
 
 -- status enumeration
@@ -53,11 +53,11 @@ ALTER TABLE contact_exchanges
   CHECK (source_channel IN ('nfc', 'qr', 'direct_link', 'unknown'));
 --> statement-breakpoint
 
--- Shape integrity: anoya_profile exchanges must have source ids; manual must not
+-- Shape integrity: tayz_profile exchanges must have source ids; manual must not
 ALTER TABLE contact_exchanges
   ADD CONSTRAINT ce_source_shape_check
   CHECK (
-    (source_type = 'anoya_profile'
+    (source_type = 'tayz_profile'
       AND source_user_id IS NOT NULL
       AND source_profile_id IS NOT NULL
       AND name IS NULL AND email IS NULL AND phone IS NULL)
@@ -103,11 +103,11 @@ CREATE TRIGGER trg_check_exchange_recipient
   FOR EACH ROW EXECUTE FUNCTION check_exchange_recipient_consistency();
 --> statement-breakpoint
 
--- Trigger 2: source_profile_id must belong to source_user_id (for anoya_profile type)
+-- Trigger 2: source_profile_id must belong to source_user_id (for tayz_profile type)
 CREATE OR REPLACE FUNCTION check_exchange_source_consistency()
 RETURNS TRIGGER AS $$
 BEGIN
-  IF NEW.source_type = 'anoya_profile' AND NOT EXISTS (
+  IF NEW.source_type = 'tayz_profile' AND NOT EXISTS (
     SELECT 1 FROM profiles
     WHERE id = NEW.source_profile_id
       AND user_id = NEW.source_user_id
@@ -139,7 +139,7 @@ CREATE INDEX idx_ce_phone_hash       ON contact_exchanges(recipient_user_id, pho
 --> statement-breakpoint
 
 -- One pending/accepted exchange per logged-in user pair
-CREATE UNIQUE INDEX uq_ce_anoya_pair
+CREATE UNIQUE INDEX uq_ce_tayz_pair
   ON contact_exchanges(recipient_user_id, source_user_id)
   WHERE source_user_id IS NOT NULL AND status IN ('pending', 'accepted');
 --> statement-breakpoint

@@ -3,8 +3,8 @@ import { escapeHtml } from '@/lib/security';
 
 export const resend = new Resend(process.env.RESEND_API_KEY!);
 
-const FROM    = process.env.RESEND_FROM_EMAIL ?? 'noreply@anoya.app';
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://anoya.app';
+const FROM    = process.env.RESEND_FROM_EMAIL ?? 'noreply@tayz.app';
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://tayz.app';
 
 /** Send welcome email after signup */
 export async function sendWelcomeEmail(to: string, name: string) {
@@ -12,12 +12,12 @@ export async function sendWelcomeEmail(to: string, name: string) {
   return resend.emails.send({
     from: FROM,
     to,
-    subject: 'Welcome to Anoya 👋',
+    subject: 'Welcome to Tayz 👋',
     html: `
       <div style="font-family: system-ui, sans-serif; max-width: 600px; margin: 0 auto; padding: 32px;">
         <h1 style="color: #0f172a; font-size: 24px; margin-bottom: 8px;">Welcome, ${safeName}! 🎉</h1>
         <p style="color: #475569; font-size: 16px; line-height: 1.6;">
-          Your Anoya account is ready. Set up your profile and start sharing your professional identity with one tap.
+          Your Tayz account is ready. Set up your profile and start sharing your professional identity with one tap.
         </p>
         <a href="${APP_URL}/dashboard/profile"
            style="display: inline-block; margin-top: 24px; padding: 12px 24px;
@@ -26,11 +26,11 @@ export async function sendWelcomeEmail(to: string, name: string) {
           Set Up Your Profile →
         </a>
         <p style="color: #94a3b8; font-size: 14px; margin-top: 32px;">
-          Anoya — Professional Identity, One Tap Away
+          Tayz — Professional Identity, One Tap Away
         </p>
       </div>
     `,
-    text: `Welcome, ${name}!\n\nYour Anoya account is ready. Visit ${APP_URL}/dashboard/profile to set up your profile.\n\nAnoya — Professional Identity, One Tap Away`,
+    text: `Welcome, ${name}!\n\nYour Tayz account is ready. Visit ${APP_URL}/dashboard/profile to set up your profile.\n\nTayz — Professional Identity, One Tap Away`,
   });
 }
 
@@ -41,12 +41,12 @@ export async function sendCardRegisteredEmail(to: string, name: string, cardUid:
   return resend.emails.send({
     from: FROM,
     to,
-    subject: 'Your Anoya card is active! 🎴',
+    subject: 'Your Tayz card is active! 🎴',
     html: `
       <div style="font-family: system-ui, sans-serif; max-width: 600px; margin: 0 auto; padding: 32px;">
         <h1 style="color: #0f172a; font-size: 24px; margin-bottom: 8px;">Card Activated! ✅</h1>
         <p style="color: #475569; font-size: 16px; line-height: 1.6;">
-          Hey ${safeName}, your Anoya card (<code style="background: #f1f5f9; padding: 2px 6px; border-radius: 4px;">${safeCardUid}</code>)
+          Hey ${safeName}, your Tayz card (<code style="background: #f1f5f9; padding: 2px 6px; border-radius: 4px;">${safeCardUid}</code>)
           is now linked to your profile and ready to use.
         </p>
         <a href="${APP_URL}/dashboard"
@@ -57,6 +57,6 @@ export async function sendCardRegisteredEmail(to: string, name: string, cardUid:
         </a>
       </div>
     `,
-    text: `Hey ${name},\n\nYour Anoya card (${cardUid}) is now linked to your profile and ready to use.\n\nVisit ${APP_URL}/dashboard to manage it.`,
+    text: `Hey ${name},\n\nYour Tayz card (${cardUid}) is now linked to your profile and ready to use.\n\nVisit ${APP_URL}/dashboard to manage it.`,
   });
 }

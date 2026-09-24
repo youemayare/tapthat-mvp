@@ -113,12 +113,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: true });
   }
 
-  // Insert with source_type = 'anoya_profile'
+  // Insert with source_type = 'tayz_profile'
   try {
     await db.insert(contactExchanges).values({
       recipientUserId: targetProfile.userId,
       recipientProfileId: targetProfile.id,
-      sourceType: 'anoya_profile',
+      sourceType: 'tayz_profile',
       sourceUserId: user.id,
       sourceProfileId: sourceProfile.id,
       sourceChannel,

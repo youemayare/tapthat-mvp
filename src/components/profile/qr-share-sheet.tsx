@@ -61,7 +61,7 @@ export function QRShareSheet({ open, onOpenChange, profile, handle }: QRShareShe
       try {
         await navigator.share({
           title: `Connect with ${displayName}`,
-          text: `Check out my Anoya profile!`,
+          text: `Check out my Tayz profile!`,
           url: profileUrl,
         });
       } catch (err) {
@@ -106,7 +106,7 @@ export function QRShareSheet({ open, onOpenChange, profile, handle }: QRShareShe
           ctx.roundRect(cx - 10, cy - 10, logoWidth + 20, logoHeight + 20, 20);
           ctx.fill();
           
-          // Draw Text "Anoya"
+          // Draw Text "Tayz"
           ctx.font = 'bold 64px sans-serif';
           ctx.fillStyle = '#000000';
           ctx.fillText('Ano', cx + 15, cy + 58);
@@ -116,7 +116,7 @@ export function QRShareSheet({ open, onOpenChange, profile, handle }: QRShareShe
         }
         
         const link = document.createElement('a');
-        link.download = `anoya-qr-${mode}.png`;
+        link.download = `tayz-qr-${mode}.png`;
         link.href = downloadCanvas.toDataURL('image/png');
         link.click();
         toast.success('QR Code saved!');

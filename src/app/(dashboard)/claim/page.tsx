@@ -3,8 +3,8 @@ import { notFound } from 'next/navigation';
 import { ClaimForm } from './claim-form';
 
 export const metadata: Metadata = {
-  title: 'Activate Card | Anoya',
-  description: 'Link a physical NFC card to your Anoya account.',
+  title: 'Activate Card | Tayz',
+  description: 'Link a physical NFC card to your Tayz account.',
 };
 
 interface Props {

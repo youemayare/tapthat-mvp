@@ -1,8 +1,8 @@
-# Anoya Smart & Digital Business Card Platform
+# Tayz Smart & Digital Business Card Platform
 
-Anoya is a full-stack web application built to manage physical NFC-enabled & digital-only smart business cards. It provides users with a web dashboard to customize their public profiles, configure their Google Wallet passes, and track real-time analytics.
+Tayz is a full-stack web application built to manage physical NFC-enabled & digital-only smart business cards. It provides users with a web dashboard to customize their public profiles, configure their Google Wallet passes, and track real-time analytics.
 
-*(Note: The platform was developed under the working title "TapThat" during the prototyping phase and is now officially named Anoya.)*
+*(Note: The platform was developed under the working title "TapThat" during the prototyping phase and is now officially named Tayz.)*
 
 This repository demonstrates modern frontend engineering practices, modular component architecture, and practical API integration.
 

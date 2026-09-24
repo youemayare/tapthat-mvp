@@ -74,9 +74,9 @@ export function GuestConversionDrawer({
 
             {/* Visuals */}
             <div className="flex flex-row items-center justify-center gap-6 py-10 w-full">
-              {/* Left (Guest / Generic Anoya User) */}
+              {/* Left (Guest / Generic Tayz User) */}
               <div className="w-[88px] h-[88px] rounded-full bg-muted/30 border border-border/50 flex flex-col items-center justify-center relative overflow-hidden shadow-sm">
-                <span className="absolute top-3 text-[10px] font-bold text-muted-foreground/30 tracking-widest z-10">ANOYA</span>
+                <span className="absolute top-3 text-[10px] font-bold text-muted-foreground/30 tracking-widest z-10">TAYZ</span>
                 <User className="w-12 h-12 text-muted-foreground/20 mt-3" strokeWidth={1.5} />
               </div>
 
@@ -103,7 +103,7 @@ export function GuestConversionDrawer({
                 <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-white/10 pointer-events-none" />
                 <div className="absolute inset-0 translate-x-[-100%] group-hover:animate-[shimmer_1.5s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
                 <span className="relative z-10 text-[17px] font-semibold flex items-center gap-2">
-                  Get Anoya for Free <span className="text-xl leading-none">&rarr;</span>
+                  Get Tayz for Free <span className="text-xl leading-none">&rarr;</span>
                 </span>
               </Button>
             </Link>

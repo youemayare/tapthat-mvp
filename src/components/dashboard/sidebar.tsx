@@ -69,7 +69,7 @@ export function SidebarContent({ pathname, onItemClick }: { pathname: string, on
 
       {/* Footer */}
       <div className="px-6 py-4 border-t border-border">
-        <p className="text-xs text-zinc-600">Anoya MVP · v0.1.0</p>
+        <p className="text-xs text-zinc-600">Tayz MVP · v0.1.0</p>
       </div>
     </>
   );

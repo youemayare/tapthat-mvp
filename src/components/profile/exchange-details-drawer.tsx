@@ -132,7 +132,7 @@ export function ExchangeDetailsDrawer({
       const endpoint = !isSubmittingAsGuest ? '/api/exchange' : '/api/exchange/anonymous';
       const payload = !isSubmittingAsGuest 
         ? {
-            type: 'anoya_profile',
+            type: 'tayz_profile',
             targetProfileId,
             sourceProfileId: selectedProfileId,
             sourceCardUid: cardUid,
@@ -273,7 +273,7 @@ export function ExchangeDetailsDrawer({
         <DrawerHeader>
           <DrawerTitle>Share your details with {targetProfileName}</DrawerTitle>
           <DrawerDescription>
-            They'll receive your information in their private Anoya requests.
+            They'll receive your information in their private Tayz requests.
           </DrawerDescription>
         </DrawerHeader>
 
@@ -416,12 +416,12 @@ export function ExchangeDetailsDrawer({
           </Button>
           {!isLoggedIn && (
             <div className="text-center text-sm text-muted-foreground mt-2">
-              Have an Anoya account? <a href={`/login?redirect=/p/${targetProfileId}`} className="underline hover:text-foreground">Sign in</a> to exchange in one tap.
+              Have an Tayz account? <a href={`/login?redirect=/p/${targetProfileId}`} className="underline hover:text-foreground">Sign in</a> to exchange in one tap.
             </div>
           )}
           {isLoggedIn && isSubmittingAsGuest && (
             <div className="text-center text-sm text-muted-foreground mt-2">
-              <a href="/dashboard/profile" className="underline hover:text-foreground">Create an Anoya profile</a> to exchange in one tap.
+              <a href="/dashboard/profile" className="underline hover:text-foreground">Create an Tayz profile</a> to exchange in one tap.
             </div>
           )}
           <Button variant="outline" onClick={() => {

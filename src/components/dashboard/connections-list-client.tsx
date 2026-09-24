@@ -125,7 +125,7 @@ export function ConnectionsListClient({ initialItems }: Props) {
         </div>
         <h3 className="text-xl font-bold text-foreground mb-2">No connections yet</h3>
         <p className="text-muted-foreground max-w-sm mx-auto">
-          When you tap someone's Anoya card and hit "Save to My Connections", they'll appear here.
+          When you tap someone's Tayz card and hit "Save to My Connections", they'll appear here.
         </p>
       </div>
     );

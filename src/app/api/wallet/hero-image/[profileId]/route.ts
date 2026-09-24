@@ -3,7 +3,7 @@
  *
  * Public endpoint — Google Wallet fetches this to display the pass hero image.
  * Dynamically composites the user's wallet banner + circular profile photo
- * into a single 1032x812 PNG (matching the Anoya profile card visual style).
+ * into a single 1032x812 PNG (matching the Tayz profile card visual style).
  *
  * Auth: none required (Google Wallet fetches without credentials).
  * Caching: Cache-Control header + versioned ?v= query param for cache busting.

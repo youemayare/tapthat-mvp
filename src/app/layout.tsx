@@ -46,26 +46,26 @@ const allura = Allura({
 
 export const metadata: Metadata = {
   title: {
-    default: 'Anoya — Professional Identity, One Tap Away',
-    template: '%s | Anoya',
+    default: 'Tayz — Professional Identity, One Tap Away',
+    template: '%s | Tayz',
   },
   description:
     'Premium NFC business cards with editable profiles, instant vCard download, and built-in analytics. One tap to share your professional identity.',
   keywords: ['NFC business card', 'digital business card', 'professional profile', 'networking', 'UAE', 'GCC'],
-  authors: [{ name: 'Anoya' }],
-  creator: 'Anoya',
+  authors: [{ name: 'Tayz' }],
+  creator: 'Tayz',
   openGraph: {
     type: 'website',
     locale: 'en_US',
     url: process.env.NEXT_PUBLIC_APP_URL ?? 'https://tapthat.vercel.app',
-    siteName: 'Anoya',
-    title: 'Anoya — Professional Identity, One Tap Away',
+    siteName: 'Tayz',
+    title: 'Tayz — Professional Identity, One Tap Away',
     description:
       'Premium NFC business cards. One tap to share your professional identity — no app required.',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Anoya — Professional Identity, One Tap Away',
+    title: 'Tayz — Professional Identity, One Tap Away',
     description: 'Premium NFC business cards with editable profiles and analytics.',
   },
   robots: {

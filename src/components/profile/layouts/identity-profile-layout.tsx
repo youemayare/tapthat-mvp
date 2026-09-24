@@ -40,7 +40,7 @@ export function IdentityProfileLayout({ profile, cardUid }: Props) {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: fullName || 'Anoya Profile',
+          title: fullName || 'Tayz Profile',
           url,
         });
       } catch (err) {
@@ -301,10 +301,10 @@ hover:bg-primary/90 transition-colors"
             href="/"
             className="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-card hover:bg-accent text-muted-foreground text-xs font-medium rounded-full transition-all duration-200 border border-border"
           >
-            Want your own custom card? <span className="text-foreground ml-0.5">Get Anoya</span>
+            Want your own custom card? <span className="text-foreground ml-0.5">Get Tayz</span>
           </Link>
           <p className="text-xs text-muted-foreground/80 font-medium">
-            Powered by <Link href="/" className="hover:text-foreground transition-colors">Anoya</Link>
+            Powered by <Link href="/" className="hover:text-foreground transition-colors">Tayz</Link>
           </p>
         </div>
       </div>
@@ -315,7 +315,7 @@ hover:bg-primary/90 transition-colors"
           <DialogHeader>
             <DialogTitle>Save to My Connections</DialogTitle>
             <DialogDescription className="text-muted-foreground">
-              Add {profile.firstName || 'this person'} to your personal Anoya CRM. You can add a private note below (optional).
+              Add {profile.firstName || 'this person'} to your personal Tayz CRM. You can add a private note below (optional).
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">

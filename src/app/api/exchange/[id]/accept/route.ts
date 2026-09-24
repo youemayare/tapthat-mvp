@@ -36,8 +36,8 @@ export async function POST(req: Request, props: { params: Promise<{ id: string }
         .set({ status: 'accepted' })
         .where(eq(contactExchanges.id, exchangeId));
 
-      // 2. If it's an anoya profile, add to connections
-      if (exchange.sourceType === 'anoya_profile' && exchange.sourceProfileId) {
+      // 2. If it's an tayz profile, add to connections
+      if (exchange.sourceType === 'tayz_profile' && exchange.sourceProfileId) {
         await tx.insert(connections).values({
           viewerUserId: user.id,
           profileId: exchange.sourceProfileId

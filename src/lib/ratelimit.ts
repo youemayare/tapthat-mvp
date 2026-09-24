@@ -91,29 +91,29 @@ function makeRatelimit(
 
 /** Tap analytics logging — 30 taps/min per IP */
 export const tapRatelimit = hasRedis
-  ? makeRatelimit(Ratelimit.slidingWindow(RATE_LIMITS.TAP_LIMIT, '60 s'), 'anoya:tap')
+  ? makeRatelimit(Ratelimit.slidingWindow(RATE_LIMITS.TAP_LIMIT, '60 s'), 'tayz:tap')
   : failOpen;
 
 /** Public profile page hits — 60/min per IP */
 export const publicProfileRatelimit = hasRedis
-  ? makeRatelimit(Ratelimit.slidingWindow(RATE_LIMITS.PUBLIC_PROFILE_LIMIT, '60 s'), 'anoya:pub_profile')
+  ? makeRatelimit(Ratelimit.slidingWindow(RATE_LIMITS.PUBLIC_PROFILE_LIMIT, '60 s'), 'tayz:pub_profile')
   : failOpen;
 
 // ─── Sensitive routes (fail closed) ──────────────────────────────────────────
 
 /** File uploads — 10/min per IP (fail closed) */
 export const uploadRatelimit = hasRedis
-  ? makeRatelimit(Ratelimit.slidingWindow(RATE_LIMITS.UPLOAD_LIMIT, '60 s'), 'anoya:upload')
+  ? makeRatelimit(Ratelimit.slidingWindow(RATE_LIMITS.UPLOAD_LIMIT, '60 s'), 'tayz:upload')
   : failClosed;
 
 /** Card claim attempts — 5 per 15 min per IP (fail closed) */
 export const claimRatelimit = hasRedis
-  ? makeRatelimit(Ratelimit.slidingWindow(RATE_LIMITS.CLAIM_LIMIT, '15 m'), 'anoya:claim')
+  ? makeRatelimit(Ratelimit.slidingWindow(RATE_LIMITS.CLAIM_LIMIT, '15 m'), 'tayz:claim')
   : failClosed;
 
 /** Auth endpoints — 10/min per IP (fail closed) */
 export const authRouteRatelimit = hasRedis
-  ? makeRatelimit(Ratelimit.slidingWindow(RATE_LIMITS.AUTH_ROUTE_LIMIT, '60 s'), 'anoya:auth')
+  ? makeRatelimit(Ratelimit.slidingWindow(RATE_LIMITS.AUTH_ROUTE_LIMIT, '60 s'), 'tayz:auth')
   : failClosed;
 
 /**
@@ -122,7 +122,7 @@ export const authRouteRatelimit = hasRedis
  * Fail closed in production without Redis.
  */
 export const mutationRatelimit = hasRedis
-  ? makeRatelimit(Ratelimit.slidingWindow(RATE_LIMITS.MUTATION_LIMIT, '60 s'), 'anoya:mutation')
+  ? makeRatelimit(Ratelimit.slidingWindow(RATE_LIMITS.MUTATION_LIMIT, '60 s'), 'tayz:mutation')
   : failClosed;
 
 /**
@@ -130,19 +130,19 @@ export const mutationRatelimit = hasRedis
  * Applied before the profile query so enumeration attempts are limited.
  */
 export const vcardRatelimit = hasRedis
-  ? makeRatelimit(Ratelimit.slidingWindow(RATE_LIMITS.VCARD_LIMIT, '60 s'), 'anoya:vcard')
+  ? makeRatelimit(Ratelimit.slidingWindow(RATE_LIMITS.VCARD_LIMIT, '60 s'), 'tayz:vcard')
   : failClosed;
 
 /** Exchange limits — all fail closed */
 export const exchangeIpRatelimit = hasRedis
-  ? makeRatelimit(Ratelimit.slidingWindow(5, '60 s'), 'anoya:exch_ip')
+  ? makeRatelimit(Ratelimit.slidingWindow(5, '60 s'), 'tayz:exch_ip')
   : failClosed;
 
 export const exchangeRecipientRatelimit = hasRedis
-  ? makeRatelimit(Ratelimit.slidingWindow(20, '3600 s'), 'anoya:exch_recip')
+  ? makeRatelimit(Ratelimit.slidingWindow(20, '3600 s'), 'tayz:exch_recip')
   : failClosed;
 
 export const exchangeIpRecipientRatelimit = hasRedis
-  ? makeRatelimit(Ratelimit.slidingWindow(3, '3600 s'), 'anoya:exch_ip_recip')
+  ? makeRatelimit(Ratelimit.slidingWindow(3, '3600 s'), 'tayz:exch_ip_recip')
   : failClosed;
 

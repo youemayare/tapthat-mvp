@@ -223,7 +223,7 @@ export type NewConnectionNote = typeof connectionNotes.$inferInsert;
 export const contactExchanges = pgTable('contact_exchanges', {
   id: uuid('id').defaultRandom().primaryKey(),
 
-  // Who receives this exchange (Person A — always an Anoya user)
+  // Who receives this exchange (Person A — always an Tayz user)
   recipientUserId: uuid('recipient_user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
   recipientProfileId: uuid('recipient_profile_id').notNull().references(() => profiles.id, { onDelete: 'cascade' }),
 

@@ -234,7 +234,7 @@ export default async function AnalyticsPage(
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold text-foreground">{totalSaves}</div>
-            <p className="text-xs text-muted-foreground mt-1">Times your profile was saved to another Anoya user’s Connections</p>
+            <p className="text-xs text-muted-foreground mt-1">Times your profile was saved to another Tayz user’s Connections</p>
           </CardContent>
         </Card>
         <Card className="border-border bg-card">
@@ -254,7 +254,7 @@ export default async function AnalyticsPage(
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold text-foreground">{connectionsSaved}</div>
-            <p className="text-xs text-muted-foreground mt-1">Profiles you&apos;ve saved to your Anoya connections</p>
+            <p className="text-xs text-muted-foreground mt-1">Profiles you&apos;ve saved to your Tayz connections</p>
           </CardContent>
         </Card>
         <Card className="border-border bg-card">

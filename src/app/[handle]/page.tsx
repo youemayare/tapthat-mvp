@@ -18,18 +18,18 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { handle } = await params;
-  if (RESERVED_SLUGS.has(handle.toLowerCase())) return { title: 'Anoya' };
+  if (RESERVED_SLUGS.has(handle.toLowerCase())) return { title: 'Tayz' };
 
   const profile = await getCachedProfileBySlug(handle);
 
   if (!profile || !profile.isPublished) {
-    return { title: 'Anoya - Profile Unavailable' };
+    return { title: 'Tayz - Profile Unavailable' };
   }
 
   const name = [profile.firstName, profile.lastName].filter(Boolean).join(' ');
   return {
     title: `${name} - ${profile.jobTitle ?? 'Professional Profile'}`,
-    description: profile.bio ?? `Connect with ${name} on Anoya`,
+    description: profile.bio ?? `Connect with ${name} on Tayz`,
     openGraph: {
       title: name,
       description: profile.jobTitle ?? '',

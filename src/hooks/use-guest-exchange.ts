@@ -22,12 +22,12 @@ export function useGuestExchangeFlow({ isLoggedIn, isResolved, profileSlug }: Us
   // Check if they've already seen it this session
   const getHasSeenPrompt = useCallback(() => {
     if (typeof window === 'undefined') return true;
-    return sessionStorage.getItem(`anoya_guest_prompt_${profileSlug}`) === 'true';
+    return sessionStorage.getItem(`tayz_guest_prompt_${profileSlug}`) === 'true';
   }, [profileSlug]);
 
   const setHasSeenPrompt = useCallback(() => {
     if (typeof window === 'undefined') return;
-    sessionStorage.setItem(`anoya_guest_prompt_${profileSlug}`, 'true');
+    sessionStorage.setItem(`tayz_guest_prompt_${profileSlug}`, 'true');
     hasTriggeredRef.current = true;
   }, [profileSlug]);
 

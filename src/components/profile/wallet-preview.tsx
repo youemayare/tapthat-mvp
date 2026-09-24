@@ -72,7 +72,7 @@ export function WalletPreview({
             <div className="w-8 h-8 rounded-full bg-white/20 flex-shrink-0" />
           )}
           <span className="text-xs font-medium leading-tight opacity-90">
-            [TEST ONLY] Anoya Digital Business Card
+            [TEST ONLY] Tayz Digital Business Card
           </span>
         </div>
 

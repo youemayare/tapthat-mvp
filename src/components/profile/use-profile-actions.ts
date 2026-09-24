@@ -86,7 +86,7 @@ export function useProfileActions(profile: Partial<Profile> & { id: string; user
       });
       if (res.ok) {
         setSaved(true);
-        toast.success('Saved to My Anoya! 🎉', {
+        toast.success('Saved to My Tayz! 🎉', {
           description: `${fullName} is now in your My Connections list.`,
         });
         setShowNoteModal(false);

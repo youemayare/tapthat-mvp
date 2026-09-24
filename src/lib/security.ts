@@ -1,5 +1,5 @@
 /**
- * Shared security utilities for the Anoya application.
+ * Shared security utilities for the Tayz application.
  *
  * Provides:
  *  - escapeHtml       — safe HTML interpolation for email templates

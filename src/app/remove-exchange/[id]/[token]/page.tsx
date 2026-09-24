@@ -58,7 +58,7 @@ export default function RemoveExchangePage({ params }: { params: Promise<{ id: s
         <div>
           <h1 className="text-2xl font-bold text-foreground mb-2">Revoke Access</h1>
           <p className="text-muted-foreground text-sm leading-relaxed">
-            Are you sure you want to remove your shared contact details? This will permanently delete your information from the recipient's Anoya inbox.
+            Are you sure you want to remove your shared contact details? This will permanently delete your information from the recipient's Tayz inbox.
           </p>
         </div>
 

@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Sign In',
-  description: 'Sign in to your Anoya account to manage your profile and analytics.',
+  description: 'Sign in to your Tayz account to manage your profile and analytics.',
 };
 
 import Link from 'next/link';

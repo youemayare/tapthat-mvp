@@ -458,7 +458,7 @@ export function ProfileForm({ initialData, isMultiProfile, handle }: ProfileForm
           </div>
           <div className="space-y-2">
             <Label htmlFor="companyName">Company Name</Label>
-            <Input id="companyName" {...register('companyName')} placeholder="Anoya" />
+            <Input id="companyName" {...register('companyName')} placeholder="Tayz" />
             {errors.companyName && <p className="text-sm text-red-500">{errors.companyName.message}</p>}
           </div>
         </div>
@@ -538,7 +538,7 @@ export function ProfileForm({ initialData, isMultiProfile, handle }: ProfileForm
                   />
                 </div>
               </div>
-              <Input id="websiteUrl" type="url" {...register('websiteUrl')} placeholder="https://anoya.ae" />
+              <Input id="websiteUrl" type="url" {...register('websiteUrl')} placeholder="https://tayz.ae" />
               {errors.websiteUrl && <p className="text-sm text-red-500">{errors.websiteUrl.message}</p>}
             </div>
           </div>
@@ -571,7 +571,7 @@ export function ProfileForm({ initialData, isMultiProfile, handle }: ProfileForm
                   />
                 </div>
               </div>
-              <Input id="instagramUrl" type="url" {...register('instagramUrl')} placeholder="https://instagram.com/anoya" />
+              <Input id="instagramUrl" type="url" {...register('instagramUrl')} placeholder="https://instagram.com/tayz" />
               {errors.instagramUrl && <p className="text-sm text-red-500">{errors.instagramUrl.message}</p>}
             </div>
           </div>

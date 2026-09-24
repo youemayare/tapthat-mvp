@@ -57,7 +57,7 @@ export function ProfessionalProfileLayout({ profile, cardUid }: Props) {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: fullName || 'Anoya Profile',
+          title: fullName || 'Tayz Profile',
           url,
         });
       } catch (err) {
@@ -286,10 +286,10 @@ export function ProfessionalProfileLayout({ profile, cardUid }: Props) {
             href="/"
             className="inline-flex items-center justify-center gap-1.5 px-5 py-2.5 bg-[#C9A45D]/10 hover:bg-[#C9A45D]/20 border border-[#C9A45D]/20 text-[#B98A3D] dark:text-[#C9A45D] text-[13px] font-medium rounded-full transition-all duration-300"
           >
-            Want your own custom card? <span className="text-[#1A1A1A] dark:text-[#F6F1E6] ml-0.5">Get Anoya</span>
+            Want your own custom card? <span className="text-[#1A1A1A] dark:text-[#F6F1E6] ml-0.5">Get Tayz</span>
           </Link>
           <p className="text-[10px] text-[#A9ADB2] dark:text-[#B8B0A2]/50 uppercase tracking-widest font-semibold">
-            Powered by <Link href="/" className="hover:text-[#C9A45D] transition-colors">Anoya</Link>
+            Powered by <Link href="/" className="hover:text-[#C9A45D] transition-colors">Tayz</Link>
           </p>
         </div>
       </div>
