@@ -16,20 +16,20 @@ export default function FoundingCirclePage() {
         <Link href="/" className="font-bold text-xl tracking-tight text-white hover:opacity-80 transition-opacity">
           Tay<span className="text-brand-400">z</span>
         </Link>
+        <div className="inline-block px-3 py-1 rounded-full border border-white/10 bg-white/5 text-[11px] font-bold tracking-widest text-brand-300 uppercase">
+          Founding Circle
+        </div>
       </header>
 
       {/* Split Layout: Content (Left) + Funnel (Right) */}
       <div className="flex flex-col lg:flex-row min-h-screen">
         
         {/* Left Content Area */}
-        <div className="flex-1 flex flex-col justify-center p-8 lg:p-20 relative overflow-hidden">
+        <div className="flex-1 flex flex-col justify-center p-8 pt-24 lg:p-20 relative overflow-hidden">
           {/* Subtle glow effect */}
           <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-brand-600/20 rounded-full blur-[120px] pointer-events-none" />
           
           <div className="relative z-10 max-w-xl">
-            <div className="inline-block px-3 py-1 mb-8 rounded-full border border-white/10 bg-white/5 text-[11px] font-bold tracking-widest text-brand-300 uppercase">
-              Tayz Founding Circle
-            </div>
 
             <h1 className="text-5xl lg:text-7xl font-extrabold tracking-tight leading-[1.1] mb-8">
               Your identity.<br />
