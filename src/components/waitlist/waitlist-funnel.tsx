@@ -112,7 +112,7 @@ export function WaitlistFunnel() {
           Choose your preferred metal finish.
         </p>
 
-        <div className="relative w-full aspect-[1.58] mb-8 select-none">
+        <div className="relative w-[calc(100%+3rem)] -mx-6 sm:w-[calc(100%+4rem)] sm:-mx-8 aspect-[1.58] mb-10 select-none">
           <AnimatePresence initial={false} custom={direction}>
             <motion.div
               key={page}
@@ -136,14 +136,14 @@ export function WaitlistFunnel() {
                   paginate(-1);
                 }
               }}
-              className="absolute inset-0 cursor-grab active:cursor-grabbing w-full h-full"
+              className="absolute inset-0 cursor-grab active:cursor-grabbing w-full h-full rounded-[20px] overflow-hidden drop-shadow-2xl border border-white/10"
             >
               <Image 
                 src={CARDS[imageIndex].src}
                 alt={CARDS[imageIndex].id}
                 fill
-                className="object-contain drop-shadow-2xl"
-                sizes="(max-width: 768px) 100vw, 400px"
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, 500px"
                 priority
                 draggable={false}
               />
