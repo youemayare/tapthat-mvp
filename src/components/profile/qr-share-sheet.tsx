@@ -157,7 +157,7 @@ export function QRShareSheet({ open, onOpenChange, profile, handle }: QRShareShe
             {mode === 'online' && qrDataUrl && (
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-3 py-1.5 rounded-lg shadow-sm border border-black/5 flex items-center justify-center">
                 <span className="text-xl font-bold text-black leading-none tracking-tight">
-                  Ano<span className="text-brand-400">ya</span>
+                  Tay<span className="text-brand-400">z</span>
                 </span>
               </div>
             )}

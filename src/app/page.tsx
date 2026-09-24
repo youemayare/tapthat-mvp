@@ -7,7 +7,7 @@ export default function LandingPage() {
       {/* ── Nav ── */}
       <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4 backdrop-blur-md border-b border-border">
         <span className="text-xl font-bold tracking-tight">
-          Ano<span className="text-brand-400">ya</span>
+          Tay<span className="text-brand-400">z</span>
         </span>
         <div className="flex items-center gap-4">
           <Link

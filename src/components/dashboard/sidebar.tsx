@@ -40,7 +40,7 @@ export function SidebarContent({ pathname, onItemClick }: { pathname: string, on
       {/* Logo */}
       <div className="flex items-center gap-2 px-6 h-[72px] border-b border-border shrink-0">
         <Link href="/" className="text-xl font-bold text-foreground tracking-tight" onClick={onItemClick}>
-          Ano<span className="text-brand-400">ya</span>
+          Tay<span className="text-brand-400">z</span>
         </Link>
       </div>
 
