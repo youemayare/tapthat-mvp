@@ -17,7 +17,7 @@ export default function LandingPage() {
             Sign in
           </Link>
           <Link
-            href="/signup"
+            href="/founding-circle"
             className="text-sm bg-primary text-primary-foreground font-semibold px-4 py-2 rounded-full hover:bg-zinc-200 transition-colors"
           >
             Get Your Card
@@ -50,7 +50,7 @@ export default function LandingPage() {
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Link
-              href="/signup"
+              href="/founding-circle"
               className="group inline-flex justify-center items-center gap-2 px-8 py-4 bg-brand-600 hover:bg-brand-500 text-white font-semibold rounded-2xl transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-brand-500/25 w-56"
             >
               Get Your Card
@@ -125,7 +125,7 @@ export default function LandingPage() {
 
           <div className="inline-flex items-center gap-3 px-6 py-4 rounded-2xl border border-brand-500/30 bg-brand-500/10 text-brand-200 text-lg font-medium">
             <Zap className="w-5 h-5" />
-            Pricing coming soon — <Link href="/signup" className="underline underline-offset-4 hover:text-foreground transition-colors">join the waitlist</Link>
+            Pricing coming soon — <Link href="/founding-circle" className="underline underline-offset-4 hover:text-foreground transition-colors">join the waitlist</Link>
           </div>
         </div>
       </section>
@@ -140,7 +140,7 @@ export default function LandingPage() {
             Join professionals across the UAE who&apos;ve upgraded from paper cards.
           </p>
           <Link
-            href="/signup"
+            href="/founding-circle"
             className="group inline-flex items-center gap-2 px-10 py-5 bg-brand-600 hover:bg-brand-500 text-foreground font-bold text-lg rounded-2xl transition-all duration-200 hover:scale-105 hover:shadow-xl hover:shadow-brand-500/30"
           >
             Get Your Card
