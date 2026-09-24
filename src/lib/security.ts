@@ -183,3 +183,36 @@ export function logError({ operation, requestId, error }: LogErrorOptions): void
 export function generateRequestId(): string {
   return crypto.randomUUID().replace(/-/g, '').slice(0, 12);
 }
+
+// ?? Turnstile Verification ??
+
+/**
+ * Verifies a Cloudflare Turnstile token with the siteverify API.
+ */
+export async function verifyTurnstileToken(token: string): Promise<boolean> {
+  const secret = process.env.TURNSTILE_SECRET_KEY;
+  if (!secret) {
+    console.warn('TURNSTILE_SECRET_KEY is not set. Bypassing check in development.');
+    return process.env.NODE_ENV === 'development';
+  }
+
+  try {
+    const res = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        secret,
+        response: token,
+      }),
+    });
+
+    const data = await res.json();
+    return data.success === true;
+  } catch (error) {
+    console.error('Turnstile verification failed', error);
+    return false;
+  }
+}
+

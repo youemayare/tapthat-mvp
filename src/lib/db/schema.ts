@@ -268,3 +268,54 @@ export const contactExchanges = pgTable('contact_exchanges', {
 
 export type ContactExchange = typeof contactExchanges.$inferSelect;
 export type NewContactExchange = typeof contactExchanges.$inferInsert;
+
+// ?? TAYZ FOUNDING CIRCLE WAITLIST ??
+export const waitlistEntries = pgTable('waitlist_entries', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  
+  // Basic Info
+  firstName: text('first_name').notNull(),
+  email: text('email').notNull().unique(),
+  whatsappNumber: text('whatsapp_number'),
+  whatsappMarketingConsent: boolean('whatsapp_marketing_consent').default(false).notNull(),
+  
+  profession: text('profession').notNull(),
+  city: text('city'),
+  companyName: text('company_name'),
+  
+  // Survey Info
+  preferredCardColor: text('preferred_card_color'),
+  preferredCardFinish: text('preferred_card_finish'),
+  primaryUseCases: jsonb('primary_use_cases').$type<string[]>(),
+  priorityBenefits: jsonb('priority_benefits').$type<string[]>(),
+  purchaseIntent: text('purchase_intent'),
+  priceValuePerception: text('price_value_perception'),
+  feedback: text('feedback'),
+  
+  researchCallOptIn: boolean('research_call_opt_in').default(false).notNull(),
+  preferredContactMethod: text('preferred_contact_method'), // 'email', 'whatsapp', 'phone'
+  
+  // Launch metadata
+  foundingPrice: text('founding_price').notNull().default('299'),
+  standardPrice: text('standard_price').notNull().default('499'),
+  discountPercent: text('discount_percent').notNull().default('40'),
+  waitlistStatus: text('waitlist_status').$type<'joined' | 'survey_skipped' | 'survey_completed' | 'invited' | 'ordered'>().notNull().default('joined'),
+  
+  referralCode: text('referral_code').notNull().unique(),
+  referredByCode: text('referred_by_code'),
+  
+  // UTM / Analytics
+  source: text('source'),
+  utmSource: text('utm_source'),
+  utmMedium: text('utm_medium'),
+  utmCampaign: text('utm_campaign'),
+  
+  emailMarketingConsent: boolean('email_marketing_consent').default(true).notNull(),
+  
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+});
+
+export type WaitlistEntry = typeof waitlistEntries.$inferSelect;
+export type NewWaitlistEntry = typeof waitlistEntries.$inferInsert;
+

@@ -85,6 +85,13 @@
       "when": 1789502078306,
       "tag": "0011_red_pyro",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1790248972325,
+      "tag": "0012_flat_thor",
+      "breakpoints": true
     }
   ]
 }
