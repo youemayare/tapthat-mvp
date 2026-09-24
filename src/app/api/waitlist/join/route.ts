@@ -18,6 +18,7 @@ const joinSchema = z.object({
   utmMedium: z.string().optional(),
   utmCampaign: z.string().optional(),
   referredByCode: z.string().optional(),
+  preferredCardColor: z.string().optional(),
 });
 
 function generateReferralCode() {
@@ -61,6 +62,7 @@ export async function POST(req: Request) {
       whatsappMarketingConsent: validatedData.whatsappMarketingConsent,
       referralCode: generateReferralCode(),
       referredByCode: validatedData.referredByCode,
+      preferredCardColor: validatedData.preferredCardColor,
       source: validatedData.source,
       utmSource: validatedData.utmSource,
       utmMedium: validatedData.utmMedium,

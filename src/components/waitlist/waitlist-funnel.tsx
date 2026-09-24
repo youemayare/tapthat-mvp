@@ -1,21 +1,64 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Turnstile } from '@marsidev/react-turnstile';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
+import { motion, AnimatePresence } from 'framer-motion';
+import Image from 'next/image';
 
-type FunnelState = 'idle' | 'submitting_join' | 'success_intro' | 'survey_active' | 'submitting_survey' | 'completed';
+type FunnelState = 'color_selection' | 'email_form' | 'submitting_join' | 'success_intro' | 'completed';
+
+const CARDS = [
+  { id: 'Matte Black', src: '/cards/black.png', hex: '#1c1c1c' },
+  { id: 'Silver', src: '/cards/silver.jpg', hex: '#d1d5db' },
+  { id: 'Gold', src: '/cards/gold.png', hex: '#d4af37' },
+  { id: 'Rose Gold', src: '/cards/rose.jpg', hex: '#b76e79' },
+  { id: 'Navy Blue', src: '/cards/navy.png', hex: '#1d2951' },
+  { id: 'Cherry Red', src: '/cards/cherry.png', hex: '#990000' }
+];
+
+const variants = {
+  enter: (direction: number) => ({
+    x: direction > 0 ? 300 : -300,
+    opacity: 0
+  }),
+  center: {
+    zIndex: 1,
+    x: 0,
+    opacity: 1
+  },
+  exit: (direction: number) => ({
+    zIndex: 0,
+    x: direction < 0 ? 300 : -300,
+    opacity: 0
+  })
+};
+
+const swipeConfidenceThreshold = 10000;
+const swipePower = (offset: number, velocity: number) => {
+  return Math.abs(offset) * velocity;
+};
 
 export function WaitlistFunnel() {
-  const [state, setState] = useState<FunnelState>('idle');
-  const [waitlistId, setWaitlistId] = useState<string | null>(null);
+  const [state, setState] = useState<FunnelState>('color_selection');
   const [referralCode, setReferralCode] = useState<string | null>(null);
   const searchParams = useSearchParams();
   const turnstileRef = useRef<any>(null);
+
+  const [[page, direction], setPage] = useState([0, 0]);
+  const imageIndex = ((page % CARDS.length) + CARDS.length) % CARDS.length;
+
+  const paginate = (newDirection: number) => {
+    setPage([page + newDirection, newDirection]);
+  };
+
+  const selectColor = (index: number) => {
+    setPage([index, index > imageIndex ? 1 : -1]);
+  };
 
   const [formData, setFormData] = useState({
     firstName: '',
@@ -40,6 +83,7 @@ export function WaitlistFunnel() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...formData,
+          preferredCardColor: CARDS[imageIndex].id,
           referredByCode: searchParams.get('ref') || undefined,
         }),
       });
@@ -51,35 +95,92 @@ export function WaitlistFunnel() {
         toast.success('You are already in the Tayz Founding Circle!');
       }
 
-      setWaitlistId(data.waitlistId);
+      setReferralCode(data.referralCode || data.waitlistId);
       setState('success_intro');
     } catch (err: any) {
       toast.error(err.message);
-      setState('idle');
+      setState('email_form');
       turnstileRef.current?.reset();
     }
   };
 
-  const handleSkipSurvey = async () => {
-    if (!waitlistId) return;
-    try {
-      await fetch(`/api/waitlist/${waitlistId}/survey`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ skipped: true }),
-      });
-    } catch (e) {
-      // Background fail is fine
-    }
-    setState('completed');
-  };
+  if (state === 'color_selection') {
+    return (
+      <div className="w-full max-w-md mx-auto p-8 rounded-3xl bg-zinc-950 border border-white/10 shadow-2xl overflow-hidden flex flex-col items-center">
+        <h2 className="text-2xl font-bold text-white mb-2 text-center">Design your Tayz card.</h2>
+        <p className="text-zinc-400 mb-6 text-sm text-center">
+          Choose your preferred metal finish.
+        </p>
 
-  if (state === 'idle' || state === 'submitting_join') {
+        <div className="relative w-full aspect-[1.58] mb-8 select-none">
+          <AnimatePresence initial={false} custom={direction}>
+            <motion.div
+              key={page}
+              custom={direction}
+              variants={variants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{
+                x: { type: "spring", stiffness: 300, damping: 30 },
+                opacity: { duration: 0.2 }
+              }}
+              drag="x"
+              dragConstraints={{ left: 0, right: 0 }}
+              dragElastic={1}
+              onDragEnd={(e, { offset, velocity }) => {
+                const swipe = swipePower(offset.x, velocity.x);
+                if (swipe < -swipeConfidenceThreshold) {
+                  paginate(1);
+                } else if (swipe > swipeConfidenceThreshold) {
+                  paginate(-1);
+                }
+              }}
+              className="absolute inset-0 cursor-grab active:cursor-grabbing w-full h-full"
+            >
+              <Image 
+                src={CARDS[imageIndex].src}
+                alt={CARDS[imageIndex].id}
+                fill
+                className="object-contain drop-shadow-2xl"
+                sizes="(max-width: 768px) 100vw, 400px"
+                priority
+                draggable={false}
+              />
+            </motion.div>
+          </AnimatePresence>
+        </div>
+
+        <div className="flex items-center justify-center gap-3 mb-4">
+          {CARDS.map((card, idx) => (
+            <button
+              key={card.id}
+              onClick={() => selectColor(idx)}
+              className={`w-8 h-8 rounded-full border-2 transition-transform ${idx === imageIndex ? 'border-brand-500 scale-110' : 'border-transparent hover:scale-105'}`}
+              style={{ backgroundColor: card.hex }}
+              aria-label={`Select ${card.id}`}
+            />
+          ))}
+        </div>
+        
+        <p className="text-white font-medium mb-8 text-center">{CARDS[imageIndex].id}</p>
+
+        <Button 
+          onClick={() => setState('email_form')} 
+          className="w-full bg-brand-600 hover:bg-brand-500 text-white py-6 text-lg"
+        >
+          Reserve this color
+        </Button>
+      </div>
+    );
+  }
+
+  if (state === 'email_form' || state === 'submitting_join') {
     return (
       <div className="w-full max-w-md mx-auto p-8 rounded-3xl bg-zinc-950 border border-white/10 shadow-2xl">
-        <h2 className="text-2xl font-bold text-white mb-2">Reserve your access.</h2>
+        <h2 className="text-2xl font-bold text-white mb-2">Almost there.</h2>
         <p className="text-zinc-400 mb-8 text-sm">
-          Join the list to unlock the AED 299 founding price and help shape the first Tayz Metal Card collection.
+          Lock in your {CARDS[imageIndex].id} card at the AED 299 founding price.
         </p>
 
         <form onSubmit={handleJoin} className="space-y-4">
@@ -125,7 +226,7 @@ export function WaitlistFunnel() {
             </select>
           </div>
 
-          <div className="pt-4">
+          <div className="pt-4 flex justify-center">
             <Turnstile
               ref={turnstileRef}
               siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || '1x00000000000000000000AA'}
@@ -142,15 +243,20 @@ export function WaitlistFunnel() {
             {state === 'submitting_join' ? 'Reserving...' : 'Unlock AED 299 Access'}
           </Button>
 
-          <p className="text-[11px] text-zinc-500 text-center mt-4">
-            By joining, you agree to receive Tayz launch updates by email. You can unsubscribe anytime.
-          </p>
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={() => setState('color_selection')}
+            className="w-full text-zinc-400 hover:text-white mt-2"
+          >
+            Back to colors
+          </Button>
         </form>
       </div>
     );
   }
 
-  if (state === 'success_intro') {
+  if (state === 'success_intro' || state === 'completed') {
     return (
       <div className="w-full max-w-md mx-auto p-8 rounded-3xl bg-zinc-950 border border-brand-500/30 shadow-2xl shadow-brand-500/10 text-center">
         <div className="w-16 h-16 bg-brand-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -160,106 +266,22 @@ export function WaitlistFunnel() {
         </div>
         <h2 className="text-2xl font-bold text-white mb-4">You’re in the Tayz Founding Circle.</h2>
         <p className="text-zinc-400 mb-8 leading-relaxed">
-          Your AED 299 founding access is reserved. Help us shape the first Metal Card collection in under one minute.
+          Your AED 299 founding access for the {CARDS[imageIndex].id} card is reserved. Keep an eye on your inbox.
         </p>
 
-        <div className="space-y-3">
-          <Button 
-            onClick={() => setState('survey_active')}
-            className="w-full bg-white text-black hover:bg-zinc-200 py-6 text-lg font-semibold"
-          >
-            Help shape the first cards
-          </Button>
-          <Button 
-            variant="ghost" 
-            onClick={handleSkipSurvey}
-            className="w-full text-zinc-400 hover:text-white"
-          >
-            Skip for now
-          </Button>
-        </div>
+        {referralCode && (
+          <div className="bg-zinc-900 p-4 rounded-xl border border-white/5 mb-6">
+            <p className="text-xs text-zinc-500 mb-2 font-semibold uppercase tracking-wider">Your Invite Link</p>
+            <code className="text-brand-400 text-sm">tapthat.vercel.app/founding-circle?ref={referralCode}</code>
+          </div>
+        )}
+
+        <Button onClick={() => window.location.href = '/'} variant="outline" className="w-full border-white/10 text-white hover:bg-white/5">
+          Return to Home
+        </Button>
       </div>
     );
   }
 
-  if (state === 'survey_active' || state === 'submitting_survey') {
-    return <SurveyForm waitlistId={waitlistId!} onComplete={(code) => { setReferralCode(code); setState('completed'); }} />;
-  }
-
-  return (
-    <div className="w-full max-w-md mx-auto p-8 rounded-3xl bg-zinc-950 border border-white/10 shadow-2xl text-center">
-      <h2 className="text-2xl font-bold text-white mb-4">Thank you!</h2>
-      <p className="text-zinc-400 mb-8 leading-relaxed">
-        You’re on the Founding Circle list and eligible for the AED 299 Metal Card launch price. Keep an eye on your inbox.
-      </p>
-      
-      {referralCode && (
-        <div className="bg-zinc-900 p-4 rounded-xl border border-white/5 mb-6">
-          <p className="text-xs text-zinc-500 mb-2 font-semibold uppercase tracking-wider">Your Invite Link</p>
-          <code className="text-brand-400 text-sm">tapthat.vercel.app/founding-circle?ref={referralCode}</code>
-        </div>
-      )}
-
-      <Button onClick={() => window.location.href = '/'} variant="outline" className="w-full border-white/10 text-white hover:bg-white/5">
-        Return to Home
-      </Button>
-    </div>
-  );
-}
-
-function SurveyForm({ waitlistId, onComplete }: { waitlistId: string, onComplete: (refCode: string) => void }) {
-  const [color, setColor] = useState('');
-  const [submitting, setSubmitting] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmitting(true);
-    try {
-      const res = await fetch(`/api/waitlist/${waitlistId}/survey`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ preferredCardColor: color }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-      onComplete(data.referralCode);
-    } catch (err: any) {
-      toast.error(err.message);
-      setSubmitting(false);
-    }
-  };
-
-  const colors = ['Matte Black', 'Gunmetal', 'Brushed Silver', 'Midnight Blue'];
-
-  return (
-    <div className="w-full max-w-md mx-auto p-8 rounded-3xl bg-zinc-950 border border-white/10 shadow-2xl">
-      <div className="text-xs text-zinc-500 font-bold uppercase tracking-wider mb-6">Step 2 of 2 · 30 Seconds</div>
-      <h2 className="text-xl font-bold text-white mb-6">Which Tayz Metal Card colour would you choose first?</h2>
-      
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="space-y-3">
-          {colors.map(c => (
-            <button
-              key={c}
-              type="button"
-              onClick={() => setColor(c)}
-              className={`w-full text-left px-5 py-4 rounded-xl border transition-all ${
-                color === c ? 'bg-brand-500/20 border-brand-500 text-white' : 'bg-zinc-900 border-white/5 text-zinc-400 hover:bg-zinc-800'
-              }`}
-            >
-              {c}
-            </button>
-          ))}
-        </div>
-
-        <Button 
-          type="submit" 
-          disabled={!color || submitting}
-          className="w-full bg-white text-black hover:bg-zinc-200 py-6 text-lg font-semibold"
-        >
-          {submitting ? 'Saving...' : 'Finish'}
-        </Button>
-      </form>
-    </div>
-  );
+  return null;
 }
