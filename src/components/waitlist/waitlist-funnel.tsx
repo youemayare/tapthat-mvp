@@ -112,7 +112,7 @@ export function WaitlistFunnel() {
           Choose your preferred metal finish.
         </p>
 
-        <div className="relative w-[calc(100%+3rem)] -mx-6 sm:w-[calc(100%+4rem)] sm:-mx-8 aspect-[1.58] mb-10 select-none">
+        <div className="relative w-[calc(100%+3rem)] -mx-6 sm:w-[calc(100%+4rem)] sm:-mx-8 aspect-square mb-10 select-none">
           <AnimatePresence initial={false} custom={direction}>
             <motion.div
               key={page}
@@ -142,7 +142,7 @@ export function WaitlistFunnel() {
                 src={CARDS[imageIndex].src}
                 alt={CARDS[imageIndex].id}
                 fill
-                className="object-cover"
+                className="object-contain"
                 sizes="(max-width: 768px) 100vw, 500px"
                 priority
                 draggable={false}
