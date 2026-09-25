@@ -52,7 +52,7 @@ export function DashboardHeader({ user }: Props) {
         {/* Mobile Logo */}
         <div className="flex items-center gap-3 lg:hidden">
           <Link href="/" className="text-xl font-bold text-foreground">
-            Tay<span className="text-brand-400">z</span>
+            Tayz
           </Link>
         </div>
 
