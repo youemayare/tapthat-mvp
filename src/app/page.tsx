@@ -182,7 +182,7 @@ function StoryboardHero() {
               </h1>
             </FadeIn>
             <FadeIn delay={0.1}>
-              <p className="text-xl text-muted mb-10 leading-relaxed">
+              <p className="text-xl text-[#52525b] dark:text-[#a1a1aa] mb-10 leading-relaxed">
                 A premium metal card that opens your live professional profile with a tap or scan. Share who you are, stay up to date, and make every introduction count.
               </p>
             </FadeIn>
@@ -194,7 +194,7 @@ function StoryboardHero() {
                 >
                   Get Founding Circle access
                 </CtaButton>
-                <p className="text-sm text-secondary font-medium">Exclusive early-bird pricing</p>
+                <p className="text-sm text-[#71717a] font-medium">Exclusive early-bird pricing</p>
               </div>
             </FadeIn>
           </div>
@@ -228,10 +228,10 @@ function StoryboardCards() {
           </h2>
         </FadeIn>
         <FadeIn delay={0.1}>
-          <p className="text-xl text-muted max-w-2xl mx-auto">
+          <p className="text-xl text-[#52525b] dark:text-[#a1a1aa] max-w-2xl mx-auto">
             Choose from our collection of premium finishes. We recommend keeping it simple with just your name - so your card stays relevant even if your company or role changes. 
           </p>
-          <p className="text-sm mt-4 text-secondary">
+          <p className="text-sm mt-4 text-[#71717a]">
             Looking for custom company logos, colors or designs? Contact our team for custom orders.
           </p>
         </FadeIn>
@@ -247,7 +247,7 @@ function StoryboardCards() {
               <div className="relative w-full aspect-square rounded-2xl overflow-hidden shadow-[0_20px_40px_rgba(0,0,0,0.5)] border border-border-medium group-hover/card:shadow-[0_0_60px_rgba(255,255,255,0.1)] group-hover/card:border-border-strong transition-all duration-500 select-none">
                 <Image src={card.src} alt={card.name} fill className="object-cover group-hover/card:scale-105 transition-transform duration-1000 pointer-events-none" draggable={false} />
               </div>
-              <div className="text-lg font-medium text-muted group-hover/card:text-foreground transition-colors duration-300">
+              <div className="text-lg font-medium text-[#52525b] dark:text-[#a1a1aa] group-hover/card:text-foreground transition-colors duration-300">
                 {card.name}
               </div>
             </div>
@@ -269,7 +269,7 @@ function StoryboardStyles() {
             </h2>
           </FadeIn>
           <FadeIn delay={0.1}>
-            <p className="text-xl text-muted max-w-2xl mx-auto">
+            <p className="text-xl text-[#52525b] dark:text-[#a1a1aa] max-w-2xl mx-auto">
               Choose from structurally distinct layouts and unlock deep customizability. Mix fonts, structures & styles to find one that matches your vibe.
             </p>
           </FadeIn>
@@ -301,7 +301,7 @@ function StoryboardEditor() {
               </h2>
             </FadeIn>
             <FadeIn direction="left" delay={0.1}>
-              <p className="text-xl text-muted leading-relaxed">
+              <p className="text-xl text-[#52525b] dark:text-[#a1a1aa] leading-relaxed">
                 Refine your digital presence in seconds. Change your bio, update your contact details, and swap layouts effortlessly. Every change you make in the editor reflects instantly on your live profile.
               </p>
             </FadeIn>
@@ -322,13 +322,13 @@ function StoryboardUpdate() {
           </h2>
         </FadeIn>
         <FadeIn delay={0.1}>
-          <p className="text-xl text-muted max-w-2xl mx-auto mb-16">
+          <p className="text-xl text-[#52525b] dark:text-[#a1a1aa] max-w-2xl mx-auto mb-16">
             Got promoted? Change your title in the dashboard. The next person who taps your card sees the update instantly.
           </p>
         </FadeIn>
         <div className="flex flex-col md:flex-row justify-center items-center gap-8 md:gap-12">
           <FadeIn direction="right" delay={0.2} className="relative w-full max-w-[240px] lg:max-w-[260px] aspect-[9/19.5] rounded-2xl border border-border-medium overflow-hidden shadow-2xl">
-            <div className="absolute top-4 left-4 bg-zinc-900/80 backdrop-blur px-3 py-1 rounded-full text-xs font-semibold text-muted z-10 border border-border-medium">Before</div>
+            <div className="absolute top-4 left-4 bg-zinc-900/80 backdrop-blur px-3 py-1 rounded-full text-xs font-semibold text-[#52525b] dark:text-[#a1a1aa] z-10 border border-border-medium">Before</div>
             <Image src="/storyboard/hero.png" alt="Before update" fill className="object-cover object-top grayscale-[30%] opacity-80" />
           </FadeIn>
 
@@ -380,7 +380,7 @@ function StoryboardCompatibility() {
               </h2>
             </FadeIn>
             <FadeIn delay={0.1}>
-              <p className="text-xl text-muted max-w-sm mx-auto">
+              <p className="text-xl text-[#52525b] dark:text-[#a1a1aa] max-w-sm mx-auto">
                 Tayz works instantly out of the box. Just tap an iPhone or Android to share your profile. No app installation needed.
               </p>
             </FadeIn>
@@ -416,7 +416,7 @@ function StoryboardShare() {
           </h2>
         </FadeIn>
         <FadeIn delay={0.1}>
-          <p className="text-xl text-muted mb-12">
+          <p className="text-xl text-[#52525b] dark:text-[#a1a1aa] mb-12">
             Whether you are in a boardroom, at a conference, or networking online, Tayz adapts to how you introduce yourself.
           </p>
         </FadeIn>
@@ -424,7 +424,7 @@ function StoryboardShare() {
           {methods.map((method, i) => (
             <FadeIn key={method.title} delay={0.2 + (i * 0.1)} direction="up" className="p-8 rounded-3xl bg-section-alt border border-border-subtle hover:border-border-strong transition-colors duration-300 group">
               <h3 className="text-xl font-bold text-foreground mb-2 group-hover:text-[#0071e3] transition-colors">{method.title}</h3>
-              <p className="text-muted">{method.desc}</p>
+              <p className="text-[#52525b] dark:text-[#a1a1aa]">{method.desc}</p>
             </FadeIn>
           ))}
         </div>
@@ -445,7 +445,7 @@ function StoryboardConnections() {
               </h2>
             </FadeIn>
             <FadeIn direction="right" delay={0.1}>
-              <p className="text-xl text-muted leading-relaxed mb-6">
+              <p className="text-xl text-[#52525b] dark:text-[#a1a1aa] leading-relaxed mb-6">
                 When you exchange details, their information is saved directly to your Connections dashboard. Never lose track of a meaningful encounter again. You can add notes, collect leads & more.
               </p>
             </FadeIn>
@@ -474,7 +474,7 @@ function StoryboardAnalytics() {
               </h2>
             </FadeIn>
             <FadeIn direction="left" delay={0.1}>
-              <p className="text-xl text-muted leading-relaxed">
+              <p className="text-xl text-[#52525b] dark:text-[#a1a1aa] leading-relaxed">
                 See profile visits and link activity in your dashboard. Understand unique views and where your connections are happening in real-time. Make every interaction measurable.
               </p>
             </FadeIn>
@@ -512,7 +512,7 @@ function PricingOffer() {
               </motion.div>
             </div>
 
-            <p className="text-muted leading-relaxed mb-8">
+            <p className="text-[#52525b] dark:text-[#a1a1aa] leading-relaxed mb-8">
               Join the Founding Circle for early access to the Tayz Metal Card at an exclusive discounted price. We'll notify you when Tayz is ready to launch. Joining is free, and you can decide whether to order then.
             </p>
 
@@ -539,7 +539,7 @@ function FinalCTA() {
           </h2>
         </FadeIn>
         <FadeIn delay={0.1}>
-          <p className="text-lg md:text-xl text-muted mb-12 max-w-2xl mx-auto">
+          <p className="text-lg md:text-xl text-[#52525b] dark:text-[#a1a1aa] mb-12 max-w-2xl mx-auto">
             Join the Tayz Founding Circle for access to the Metal Card at an exclusive early-bird discount of approximately 40% off the planned regular price.
           </p>
         </FadeIn>
@@ -551,7 +551,7 @@ function FinalCTA() {
             >
               Join the Founding Circle
             </CtaButton>
-            <p className="text-sm text-secondary max-w-sm mx-auto">
+            <p className="text-sm text-[#71717a] max-w-sm mx-auto">
               Free to join. We'll notify you when Tayz launches. No payment today and no obligation to buy.
             </p>
           </div>
@@ -574,7 +574,7 @@ function FaqItem({ question, answer }: { question: string, answer: string }) {
         <motion.div 
           animate={{ rotate: isOpen ? 180 : 0 }} 
           transition={{ duration: 0.3, ease: "easeInOut" }}
-          className="flex-shrink-0 text-muted"
+          className="flex-shrink-0 text-[#52525b] dark:text-[#a1a1aa]"
         >
           <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -590,7 +590,7 @@ function FaqItem({ question, answer }: { question: string, answer: string }) {
             transition={{ duration: 0.3, ease: "easeInOut" }}
           >
             <div className="px-6 pb-6 pt-0">
-              <p className="text-muted leading-relaxed">{answer}</p>
+              <p className="text-[#52525b] dark:text-[#a1a1aa] leading-relaxed">{answer}</p>
             </div>
           </motion.div>
         )}
@@ -653,7 +653,7 @@ function Footer() {
     <footer className="py-12 border-t border-border-subtle bg-background">
       <div className="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
         <div className="text-xl font-bold tracking-tight text-foreground">TAYZ</div>
-        <div className="flex gap-6 text-sm text-secondary">
+        <div className="flex gap-6 text-sm text-[#71717a]">
           {/* Privacy Policy and Terms will go here when ready */}
         </div>
         <div className="text-sm text-zinc-600">
@@ -666,7 +666,7 @@ function Footer() {
 
 export default function Home() {
   return (
-    <main className="flex flex-col min-h-screen bg-background selection:bg-[#0071e3]/30">
+    <main className="landing-page flex flex-col min-h-screen bg-background text-foreground selection:bg-[#0071e3]/30">
       <Header />
       <StoryboardHero />
       <StoryboardCards />
