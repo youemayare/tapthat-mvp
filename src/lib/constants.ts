@@ -1,0 +1,1 @@
+﻿export const WAITLIST_URL = 'https://tally.so/r/xXKlLk';

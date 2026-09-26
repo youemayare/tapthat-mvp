@@ -28,6 +28,8 @@
     "cn": "^0.3.0",
     "date-fns": "^4.4.0",
     "drizzle-orm": "^0.45.2",
+    "embla-carousel-react": "^8.6.0",
+    "embla-carousel-wheel-gestures": "^8.1.0",
     "file-type": "^22.0.1",
     "framer-motion": "^13.1.1",
     "google-auth-library": "^11.0.2",

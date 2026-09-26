@@ -208,3 +208,32 @@
 .animate-shimmer {
   animation: shimmer 5s linear infinite;
 }
+:root {
+  --section-alt: #f9fafb;
+  --border-subtle: rgba(0, 0, 0, 0.05);
+  --border-medium: rgba(0, 0, 0, 0.1);
+  --border-strong: rgba(0, 0, 0, 0.2);
+  --gradient-overlay: rgba(255, 255, 255, 0.9);
+  --nav-bg: rgba(255, 255, 255, 0.8);
+  --shadow-glow: rgba(0, 0, 0, 0.05);
+}
+
+.dark {
+  --section-alt: #141414;
+  --border-subtle: rgba(255, 255, 255, 0.05);
+  --border-medium: rgba(255, 255, 255, 0.1);
+  --border-strong: rgba(255, 255, 255, 0.2);
+  --gradient-overlay: rgba(0, 0, 0, 0.9);
+  --nav-bg: rgba(10, 10, 10, 0.8);
+  --shadow-glow: rgba(255, 255, 255, 0.1);
+}
+
+@theme inline {
+  --color-section-alt: var(--section-alt);
+  --color-border-subtle: var(--border-subtle);
+  --color-border-medium: var(--border-medium);
+  --color-border-strong: var(--border-strong);
+  --color-gradient-overlay: var(--gradient-overlay);
+  --color-nav-bg: var(--nav-bg);
+  --color-shadow-glow: var(--shadow-glow);
+}
