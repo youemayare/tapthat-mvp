@@ -30,6 +30,8 @@ function CtaButton({ children, href, className = "" }: { children: React.ReactNo
   return (
     <motion.a
       href={href}
+        target="_blank"
+        rel="noopener noreferrer"
       className={`relative inline-flex items-center justify-center overflow-hidden font-semibold text-white bg-[#0071e3] transition-colors hover:bg-[#005bb8] shadow-[0_0_40px_rgba(0,113,227,0.2)] hover:shadow-[0_0_60px_rgba(0,113,227,0.4)] ${className}`}
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
