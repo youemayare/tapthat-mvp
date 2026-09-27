@@ -72,10 +72,15 @@ export function generateSlimVCard(profile: VCardProfile, profileUrl?: string): s
     lines.push(`EMAIL;TYPE=WORK:${email}`);
   }
 
-  // Prefer specific website URL, fallback to profile URL
-  const url = escapeVCardValue(profile.websiteUrl || profile.website_url) || (profileUrl ? escapeVCardValue(profileUrl) : '');
-  if (url) {
-    lines.push(`URL:${url}`);
+  // Include custom website if available
+  const customUrl = escapeVCardValue(profile.websiteUrl || profile.website_url);
+  if (customUrl) {
+    lines.push(`URL:${customUrl}`);
+  }
+
+  // Always include the Tayz profile URL
+  if (profileUrl) {
+    lines.push(`URL:${escapeVCardValue(profileUrl)}`);
   }
 
   lines.push('END:VCARD');
