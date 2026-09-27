@@ -9,6 +9,8 @@ import { WAITLIST_URL } from '@/lib/constants';
 import { ThemeToggle } from '@/components/theme-toggle';
 import Link from 'next/link';
 
+const ASSET_MODE = process.env.NEXT_PUBLIC_LANDING_MODE === 'dummy' ? 'dummy' : 'real';
+
 function FadeIn({ children, delay = 0, direction = 'up', className = '' }: { children: React.ReactNode, delay?: number, direction?: 'up' | 'down' | 'left' | 'right' | 'none', className?: string }) {
   const yOffset = direction === 'up' ? 40 : direction === 'down' ? -40 : 0;
   const xOffset = direction === 'left' ? 40 : direction === 'right' ? -40 : 0;
@@ -132,7 +134,7 @@ function CtaButton({ children, href, className = "" }: { children: React.ReactNo
           initial={{ opacity: 0 }}
           animate={screenControls}
         >
-          <Image src="/storyboard/layout-canvas.png" alt="Tayz Live Profile" fill className="object-cover object-top" />
+          <Image src={`/storyboard/${ASSET_MODE}/layout-canvas.png`} alt="Tayz Live Profile" fill className="object-cover object-top" />
         </motion.div>
 
         {/* Helper text before hover */}
@@ -279,7 +281,7 @@ function StoryboardStyles() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           {['canvas', 'classic', 'identity', 'professional'].map((theme, i) => (
             <FadeIn key={theme} delay={i * 0.1} direction="up" className="relative aspect-[9/19.5] rounded-2xl overflow-hidden border border-border-medium shadow-2xl group hover:border-white/30 transition-colors duration-300">
-              <Image src={`/storyboard/layout-${theme}.png`} alt={`Tayz ${theme} layout`} fill className="object-cover object-top transition-transform duration-700 group-hover:scale-105" />
+              <Image src={`/storyboard/${ASSET_MODE}/layout-${theme}.png`} alt={`Tayz ${theme} layout`} fill className="object-cover object-top transition-transform duration-700 group-hover:scale-105" />
             </FadeIn>
           ))}
         </div>
@@ -294,7 +296,7 @@ function StoryboardEditor() {
       <div className="container mx-auto px-6 max-w-6xl">
         <div className="grid md:grid-cols-2 gap-16 items-center">
           <FadeIn direction="right" className="order-2 md:order-1 relative aspect-[9/19.5] max-w-[280px] mx-auto w-full rounded-2xl overflow-hidden border border-border-medium shadow-[0_0_50px_rgba(255,255,255,0.02)] hover:shadow-[0_0_80px_rgba(255,255,255,0.05)] transition-shadow duration-500">
-            <Image src="/storyboard/editor.png" alt="Tayz Profile Editor" fill className="object-cover object-top" />
+            <Image src={`/storyboard/${ASSET_MODE}/editor.png`} alt="Tayz Profile Editor" fill className="object-cover object-top" />
           </FadeIn>
           <div className="order-1 md:order-2">
             <FadeIn direction="left">
@@ -331,7 +333,7 @@ function StoryboardUpdate() {
         <div className="flex flex-col md:flex-row justify-center items-center gap-8 md:gap-12">
           <FadeIn direction="right" delay={0.2} className="relative w-full max-w-[240px] lg:max-w-[260px] aspect-[9/19.5] rounded-2xl border border-border-medium overflow-hidden shadow-2xl">
             <div className="absolute top-4 left-4 bg-zinc-900/80 backdrop-blur px-3 py-1 rounded-full text-xs font-semibold text-[#52525b] dark:text-[#a1a1aa] z-10 border border-border-medium">Before</div>
-            <Image src="/storyboard/hero.png" alt="Before update" fill className="object-cover object-top grayscale-[30%] opacity-80" />
+            <Image src={`/storyboard/${ASSET_MODE}/hero.png`} alt="Before update" fill className="object-cover object-top grayscale-[30%] opacity-80" />
           </FadeIn>
 
           <FadeIn delay={0.4} className="text-zinc-600 hidden md:block">
@@ -352,7 +354,7 @@ function StoryboardUpdate() {
 
           <FadeIn direction="left" delay={0.6} className="relative w-full max-w-[240px] lg:max-w-[260px] aspect-[9/19.5] rounded-2xl border border-[#0071e3]/40 overflow-hidden shadow-[0_0_80px_rgba(0,113,227,0.2)]">
             <div className="absolute top-4 left-4 bg-[#0071e3] px-3 py-1 rounded-full text-xs font-semibold text-white z-10">After</div>
-            <Image src="/storyboard/after-update.png" alt="After update" fill className="object-cover object-top" />
+            <Image src={`/storyboard/${ASSET_MODE}/after-update.png`} alt="After update" fill className="object-cover object-top" />
           </FadeIn>
         </div>
       </div>
@@ -453,7 +455,7 @@ function StoryboardConnections() {
             </FadeIn>
           </div>
           <FadeIn direction="left" delay={0.2} className="relative aspect-[9/19.5] max-w-[280px] mx-auto w-full rounded-2xl overflow-hidden border border-border-medium shadow-[0_0_50px_rgba(255,255,255,0.02)] hover:shadow-[0_0_80px_rgba(255,255,255,0.05)] transition-shadow duration-500">
-            <Image src="/storyboard/connections.png" alt="Tayz Connections" fill className="object-cover object-top" />
+            <Image src={`/storyboard/${ASSET_MODE}/connections.png`} alt="Tayz Connections" fill className="object-cover object-top" />
           </FadeIn>
         </div>
       </div>
@@ -467,7 +469,7 @@ function StoryboardAnalytics() {
       <div className="container mx-auto px-6 max-w-6xl">
         <div className="grid md:grid-cols-2 gap-16 items-center">
           <FadeIn direction="right" className="order-2 md:order-1 relative aspect-[9/19.5] max-w-[280px] mx-auto w-full rounded-2xl overflow-hidden border border-border-medium shadow-[0_0_50px_rgba(255,255,255,0.02)] hover:shadow-[0_0_80px_rgba(255,255,255,0.05)] transition-shadow duration-500">
-            <Image src="/storyboard/analytics.png" alt="Tayz Analytics" fill className="object-cover object-top" />
+            <Image src={`/storyboard/${ASSET_MODE}/analytics.png`} alt="Tayz Analytics" fill className="object-cover object-top" />
           </FadeIn>
           <div className="order-1 md:order-2">
             <FadeIn direction="left">
