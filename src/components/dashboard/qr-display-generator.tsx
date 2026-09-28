@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import QRCode from 'qrcode';
 import { toPng } from 'html-to-image';
-import { Download, Printer, Loader2, Image as ImageIcon } from 'lucide-react';
+import { Download, Printer, Loader2, Image as ImageIcon, ChevronDown } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
@@ -102,17 +102,20 @@ export function QrDisplayGenerator({ profiles, handle, initialProfileId }: { pro
 
         <div className="space-y-3">
           <label className="text-sm font-medium text-foreground">Select Profile</label>
-          <select 
-            className="w-full bg-background border border-input rounded-xl p-3 text-sm focus:ring-2 focus:ring-brand-500 outline-none"
-            value={selectedId}
-            onChange={(e) => setSelectedId(e.target.value)}
-          >
-            {profiles.map((p: any) => (
-              <option key={p.id} value={p.id}>
-                {p.label || `${p.firstName || ''} ${p.lastName || ''}`.trim()} {p.isDefault ? '(Default)' : ''}
-              </option>
-            ))}
-          </select>
+          <div className="relative">
+            <select 
+              className="w-full bg-background border border-input rounded-xl p-3 pr-10 text-sm focus:ring-2 focus:ring-brand-500 outline-none appearance-none"
+              value={selectedId}
+              onChange={(e) => setSelectedId(e.target.value)}
+            >
+              {profiles.map((p: any) => (
+                <option key={p.id} value={p.id}>
+                  {p.label || `${p.firstName || ''} ${p.lastName || ''}`.trim()} {p.isDefault ? '(Default)' : ''}
+                </option>
+              ))}
+            </select>
+            <ChevronDown className="w-4 h-4 text-muted-foreground absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" />
+          </div>
         </div>
 
         <div className="space-y-3">
@@ -122,7 +125,7 @@ export function QrDisplayGenerator({ profiles, handle, initialProfileId }: { pro
               onClick={() => setLayout('portrait')}
               className={cn("flex-1 py-2 text-sm font-medium rounded-lg transition-all", layout === 'portrait' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground')}
             >
-              Portrait (Phone)
+              Portrait
             </button>
             <button
               onClick={() => setLayout('a5')}
