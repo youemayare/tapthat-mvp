@@ -110,6 +110,13 @@ export function QrDisplayGenerator({ profiles, handle, initialProfileId }: { pro
     return url;
   };
 
+  const silverBorderMask: React.CSSProperties = {
+    background: 'linear-gradient(145deg, #e8e8e8, #a0a0a0, #d4d4d4, #888888, #c0c0c0)',
+    WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+    WebkitMaskComposite: 'xor',
+    maskComposite: 'exclude',
+  };
+
   return (
     <div className="flex flex-col lg:flex-row gap-8 items-start w-full print:bg-white print:p-0">
       
@@ -252,9 +259,12 @@ export function QrDisplayGenerator({ profiles, handle, initialProfileId }: { pro
             {/* Header: Photo and Details */}
             <div className="w-full flex flex-col items-center gap-4 mt-2 shrink-0">
               {profile.profilePhotoUrl && (
-                <div className="w-28 h-28 rounded-full border-4 border-white shadow-xl overflow-hidden shrink-0 bg-black/10">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={getProxiedUrl(profile.profilePhotoUrl)} alt="Profile" className="w-full h-full object-cover" />
+                <div className="relative w-28 h-28 rounded-full shadow-xl shrink-0">
+                  <div className="absolute inset-0 rounded-full pointer-events-none p-[2px] z-20" style={silverBorderMask} />
+                  <div className="w-full h-full rounded-full overflow-hidden bg-black/10 relative z-10">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={getProxiedUrl(profile.profilePhotoUrl)} alt="Profile" className="w-full h-full object-cover" />
+                  </div>
                 </div>
               )}
               
