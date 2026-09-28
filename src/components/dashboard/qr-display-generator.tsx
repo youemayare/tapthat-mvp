@@ -130,6 +130,9 @@ export function QrDisplayGenerator({ profiles, handle, initialProfileId }: { pro
             height: 100% !important;
             overflow: hidden !important;
           }
+          .dark {
+            color-scheme: light !important;
+          }
         }
       `}</style>
       
@@ -248,7 +251,7 @@ export function QrDisplayGenerator({ profiles, handle, initialProfileId }: { pro
         </div>
       </div>
 
-      <div className="flex-1 w-full bg-black/5 dark:bg-white/5 rounded-3xl p-4 sm:p-8 flex items-center justify-center overflow-hidden print:p-0 print:m-0 print:bg-transparent min-h-[500px] print:min-h-0 print:absolute print:inset-0 print:z-50">
+      <div className="flex-1 w-full bg-black/5 dark:bg-white/5 rounded-3xl p-4 sm:p-8 flex items-center justify-center overflow-hidden min-h-[500px] print:!bg-transparent print:!bg-none print:p-0 print:m-0 print:min-h-0 print:rounded-none print:overflow-visible">
         <div 
           ref={displayRef}
           className={cn(
