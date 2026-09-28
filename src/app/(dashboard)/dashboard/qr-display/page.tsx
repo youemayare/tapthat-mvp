@@ -39,7 +39,7 @@ export default async function QrDisplayPage({
     }
 
     return (
-      <div className="space-y-6">
+      <div className="space-y-6 print:space-y-0 print:m-0 print:p-0">
         <QrDisplayGenerator 
           profiles={profiles} 
           handle={handle} 

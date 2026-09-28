@@ -118,7 +118,18 @@ export function QrDisplayGenerator({ profiles, handle, initialProfileId }: { pro
   };
 
   return (
-    <div className="flex flex-col lg:flex-row gap-8 items-start w-full print:bg-white print:p-0">
+    <div className="flex flex-col lg:flex-row gap-8 items-start w-full print:bg-white print:p-0 print:m-0 print:block">
+      <style>{`
+        @media print {
+          @page {
+            margin: 0;
+            size: ${layout === 'a5' ? 'A5' : 'portrait'};
+          }
+          html, body {
+            background: white;
+          }
+        }
+      `}</style>
       
       <div className="w-full lg:w-80 flex flex-col gap-6 shrink-0 print:hidden bg-card border border-border p-6 rounded-2xl shadow-sm">
         <div>
@@ -235,7 +246,7 @@ export function QrDisplayGenerator({ profiles, handle, initialProfileId }: { pro
         </div>
       </div>
 
-      <div className="flex-1 w-full bg-black/5 dark:bg-white/5 rounded-3xl p-4 sm:p-8 flex items-center justify-center overflow-hidden print:p-0 print:bg-transparent min-h-[500px]">
+      <div className="flex-1 w-full bg-black/5 dark:bg-white/5 rounded-3xl p-4 sm:p-8 flex items-center justify-center overflow-hidden print:p-0 print:m-0 print:bg-transparent min-h-[500px] print:min-h-0 print:absolute print:inset-0 print:z-50">
         <div 
           ref={displayRef}
           className={cn(

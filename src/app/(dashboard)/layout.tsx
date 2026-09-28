@@ -26,18 +26,24 @@ export default async function DashboardLayout({
   }
 
   return (
-    <div className="min-h-screen bg-background flex pb-20 lg:pb-0 relative">
-      <DashboardSidebar />
-      <BottomNav />
-      <div className="flex-1 flex flex-col min-h-screen lg:ml-64 w-full overflow-hidden">
-        <DashboardHeader user={user} />
-        <main className="flex-1 flex flex-col p-6 lg:p-8 pb-32 lg:pb-8 max-w-7xl w-full mx-auto relative">
+    <div className="min-h-screen bg-background flex pb-20 lg:pb-0 relative print:pb-0 print:bg-white">
+      <div className="print:hidden contents">
+        <DashboardSidebar />
+        <BottomNav />
+      </div>
+      <div className="flex-1 flex flex-col min-h-screen lg:ml-64 w-full overflow-hidden print:ml-0 print:min-h-0">
+        <div className="print:hidden contents">
+          <DashboardHeader user={user} />
+        </div>
+        <main className="flex-1 flex flex-col p-6 lg:p-8 pb-32 lg:pb-8 max-w-7xl w-full mx-auto relative print:p-0 print:pb-0 print:m-0 print:max-w-none">
           <SwipeContainer>
             {children}
           </SwipeContainer>
         </main>
       </div>
-      <FloatingShareWrapper />
+      <div className="print:hidden contents">
+        <FloatingShareWrapper />
+      </div>
     </div>
   );
 }
