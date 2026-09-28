@@ -7,6 +7,8 @@ import { Download, Printer, Loader2, Image as ImageIcon, ChevronDown } from 'luc
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ImageUpload } from '@/components/profile/image-upload';
+import { WalletColorPicker } from '@/components/profile/wallet-color-picker';
 
 export function QrDisplayGenerator({ profiles, handle, initialProfileId }: { profiles: any[], handle: string | null, initialProfileId?: string }) {
   const [selectedId, setSelectedId] = useState(initialProfileId || (profiles[0]?.id || ''));
@@ -17,6 +19,16 @@ export function QrDisplayGenerator({ profiles, handle, initialProfileId }: { pro
 
   const profile = profiles.find((p: any) => p.id === selectedId) || profiles[0];
   const selectedLabel = profile ? (profile.label || `${profile.firstName || ''} ${profile.lastName || ''}`.trim() + (profile.isDefault ? ' (Default)' : '')) : "Select a profile";
+
+  const [localBgColor, setLocalBgColor] = useState<string>(profile?.layoutBackgroundColor || '');
+  const [localBgImageUrl, setLocalBgImageUrl] = useState<string>(profile?.layoutBackgroundImageUrl || '');
+
+  useEffect(() => {
+    if (profile) {
+      setLocalBgColor(profile.layoutBackgroundColor || '');
+      setLocalBgImageUrl(profile.layoutBackgroundImageUrl || '');
+    }
+  }, [profile?.id]);
 
   useEffect(() => {
     if (!profile) return;
@@ -86,7 +98,7 @@ export function QrDisplayGenerator({ profiles, handle, initialProfileId }: { pro
     }
   };
 
-  const bgColor = profile.layoutBackgroundColor || '#ffffff';
+  const bgColor = localBgColor || '#ffffff';
   const isDarkBg = bgColor !== '#ffffff' && bgColor !== '#f8fafc' && bgColor !== '#f1f5f9';
   const textColor = isDarkBg ? '#ffffff' : '#000000';
   const mutedColor = isDarkBg ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.6)';
@@ -143,6 +155,60 @@ export function QrDisplayGenerator({ profiles, handle, initialProfileId }: { pro
           </div>
         </div>
 
+        {/* Custom Background Options */}
+        <div className="space-y-4 pt-4 border-t border-border">
+          <h3 className="text-sm font-medium text-foreground">Background Style</h3>
+          
+          <div className="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1 snap-x custom-scrollbar">
+            {Array.from({ length: 15 }).map((_, i) => {
+              const bgUrl = `/backgrounds/bg-${i + 1}.png`;
+              const isSelected = localBgImageUrl === bgUrl;
+              return (
+                <div
+                  key={i}
+                  className={cn(
+                    "flex-shrink-0 w-20 h-32 rounded-xl overflow-hidden cursor-pointer border-2 transition-all snap-start relative",
+                    isSelected ? "border-brand-500 ring-2 ring-brand-500/20" : "border-transparent hover:border-white/20"
+                  )}
+                  onClick={() => setLocalBgImageUrl(isSelected ? '' : bgUrl)}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={bgUrl} alt={`Preset ${i + 1}`} className="w-full h-full object-cover" />
+                  {isSelected && (
+                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                      <div className="bg-brand-500 rounded-full p-1 shadow-lg">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="pt-2">
+            <ImageUpload
+              label="Upload Custom Image"
+              type="background"
+              currentUrl={
+                localBgImageUrl && !localBgImageUrl.startsWith('/backgrounds/')
+                  ? localBgImageUrl
+                  : null
+              }
+              onUploadSuccess={(url) => setLocalBgImageUrl(url)}
+              onRemove={() => setLocalBgImageUrl('')}
+            />
+          </div>
+
+          <div className="pt-2">
+            <label className="text-sm font-medium text-foreground mb-3 block">Solid Color</label>
+            <WalletColorPicker
+              value={localBgColor || ''}
+              onChange={(hex) => setLocalBgColor(hex)}
+            />
+          </div>
+        </div>
+
         <div className="flex gap-3 pt-4 border-t border-border">
           <button 
             onClick={handleDownload}
@@ -171,13 +237,13 @@ export function QrDisplayGenerator({ profiles, handle, initialProfileId }: { pro
           )}
           style={{
             backgroundColor: bgColor,
-            backgroundImage: profile.layoutBackgroundImageUrl ? `url(${getProxiedUrl(profile.layoutBackgroundImageUrl)})` : undefined,
+            backgroundImage: localBgImageUrl ? `url(${getProxiedUrl(localBgImageUrl)})` : undefined,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             color: textColor
           }}
         >
-          {profile.layoutBackgroundImageUrl && (
+          {localBgImageUrl && (
             <div className="absolute inset-0 bg-black/40 z-0" />
           )}
 
@@ -194,17 +260,17 @@ export function QrDisplayGenerator({ profiles, handle, initialProfileId }: { pro
               
               <div className="flex flex-col items-center gap-1">
                 {(profile.firstName || profile.lastName) && (
-                  <h1 className="text-3xl font-bold tracking-tight text-center" style={{ color: profile.layoutBackgroundImageUrl ? '#fff' : textColor }}>
+                  <h1 className="text-3xl font-bold tracking-tight text-center" style={{ color: localBgImageUrl ? '#fff' : textColor }}>
                     {[profile.firstName, profile.lastName].filter(Boolean).join(' ')}
                   </h1>
                 )}
                 {profile.jobTitle && (
-                  <p className="text-lg font-medium opacity-90 text-center" style={{ color: profile.layoutBackgroundImageUrl ? '#fff' : mutedColor }}>
+                  <p className="text-lg font-medium opacity-90 text-center" style={{ color: localBgImageUrl ? '#fff' : mutedColor }}>
                     {profile.jobTitle}
                   </p>
                 )}
                 {profile.companyName && (
-                  <p className="text-base font-semibold mt-1 text-center" style={{ color: profile.layoutBackgroundImageUrl ? '#fff' : textColor }}>
+                  <p className="text-base font-semibold mt-1 text-center" style={{ color: localBgImageUrl ? '#fff' : textColor }}>
                     {profile.companyName}
                   </p>
                 )}
@@ -221,7 +287,7 @@ export function QrDisplayGenerator({ profiles, handle, initialProfileId }: { pro
                   <Loader2 className="w-8 h-8 animate-spin text-zinc-400" />
                 )}
               </div>
-              <p className="text-xl font-bold uppercase tracking-wider text-center whitespace-nowrap shrink-0" style={{ color: profile.layoutBackgroundImageUrl ? '#fff' : textColor }}>
+              <p className="text-xl font-bold uppercase tracking-wider text-center whitespace-nowrap shrink-0" style={{ color: localBgImageUrl ? '#fff' : textColor }}>
                 Scan to Connect
               </p>
             </div>
