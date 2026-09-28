@@ -6,6 +6,7 @@ import { toPng } from 'html-to-image';
 import { Download, Printer, Loader2, Image as ImageIcon, ChevronDown } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 export function QrDisplayGenerator({ profiles, handle, initialProfileId }: { profiles: any[], handle: string | null, initialProfileId?: string }) {
   const [selectedId, setSelectedId] = useState(initialProfileId || (profiles[0]?.id || ''));
@@ -109,20 +110,18 @@ export function QrDisplayGenerator({ profiles, handle, initialProfileId }: { pro
 
         <div className="space-y-3">
           <label className="text-sm font-medium text-foreground">Select Profile</label>
-          <div className="relative">
-            <select 
-              className="w-full bg-background border border-input rounded-xl p-3 pr-10 text-sm focus:ring-2 focus:ring-brand-500 outline-none appearance-none"
-              value={selectedId}
-              onChange={(e) => setSelectedId(e.target.value)}
-            >
+          <Select value={selectedId} onValueChange={setSelectedId}>
+            <SelectTrigger className="w-full bg-background border border-input rounded-xl h-[48px] px-4 text-sm focus:ring-2 focus:ring-brand-500 outline-none">
+              <SelectValue placeholder="Select a profile" />
+            </SelectTrigger>
+            <SelectContent>
               {profiles.map((p: any) => (
-                <option key={p.id} value={p.id}>
+                <SelectItem key={p.id} value={p.id}>
                   {p.label || `${p.firstName || ''} ${p.lastName || ''}`.trim()} {p.isDefault ? '(Default)' : ''}
-                </option>
+                </SelectItem>
               ))}
-            </select>
-            <ChevronDown className="w-4 h-4 text-muted-foreground absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" />
-          </div>
+            </SelectContent>
+          </Select>
         </div>
 
         <div className="space-y-3">
@@ -181,9 +180,10 @@ export function QrDisplayGenerator({ profiles, handle, initialProfileId }: { pro
             <div className="absolute inset-0 bg-black/40 z-0" />
           )}
 
-          <div className={cn("relative z-10 w-full h-full flex flex-col items-center justify-between p-10", getFontClass(profile.layoutFont))}>
+          <div className={cn("relative z-10 w-full h-full flex flex-col items-center p-10", getFontClass(profile.layoutFont))}>
             
-            <div className="w-full flex flex-col items-center gap-4 mt-4">
+            {/* Header: Photo and Details */}
+            <div className="w-full flex flex-col items-center gap-4 mt-2 shrink-0">
               {profile.profilePhotoUrl && (
                 <div className="w-28 h-28 rounded-full border-4 border-white shadow-xl overflow-hidden shrink-0 bg-black/10">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -193,25 +193,26 @@ export function QrDisplayGenerator({ profiles, handle, initialProfileId }: { pro
               
               <div className="flex flex-col items-center gap-1">
                 {(profile.firstName || profile.lastName) && (
-                  <h1 className="text-3xl font-bold tracking-tight" style={{ color: profile.layoutBackgroundImageUrl ? '#fff' : textColor }}>
+                  <h1 className="text-3xl font-bold tracking-tight text-center" style={{ color: profile.layoutBackgroundImageUrl ? '#fff' : textColor }}>
                     {[profile.firstName, profile.lastName].filter(Boolean).join(' ')}
                   </h1>
                 )}
                 {profile.jobTitle && (
-                  <p className="text-lg font-medium opacity-90" style={{ color: profile.layoutBackgroundImageUrl ? '#fff' : mutedColor }}>
+                  <p className="text-lg font-medium opacity-90 text-center" style={{ color: profile.layoutBackgroundImageUrl ? '#fff' : mutedColor }}>
                     {profile.jobTitle}
                   </p>
                 )}
                 {profile.companyName && (
-                  <p className="text-base font-semibold mt-1" style={{ color: profile.layoutBackgroundImageUrl ? '#fff' : textColor }}>
+                  <p className="text-base font-semibold mt-1 text-center" style={{ color: profile.layoutBackgroundImageUrl ? '#fff' : textColor }}>
                     {profile.companyName}
                   </p>
                 )}
               </div>
             </div>
 
-            <div className="flex flex-col items-center gap-6 mb-4 w-full">
-              <div className="bg-white p-4 sm:p-5 rounded-3xl shadow-xl w-64 h-64 shrink-0 flex items-center justify-center">
+            {/* Middle: QR Code flex-centered */}
+            <div className="flex-1 flex flex-col items-center justify-center w-full min-h-[300px]">
+              <div className="bg-white p-4 sm:p-5 rounded-3xl shadow-xl w-64 h-64 shrink-0 flex items-center justify-center mb-6">
                 {qrCodeUrl ? (
                   /* eslint-disable-next-line @next/next/no-img-element */
                   <img src={qrCodeUrl} alt="QR Code" className="w-full h-full object-contain" />
@@ -219,13 +220,14 @@ export function QrDisplayGenerator({ profiles, handle, initialProfileId }: { pro
                   <Loader2 className="w-8 h-8 animate-spin text-zinc-400" />
                 )}
               </div>
-              <p className="text-xl font-bold uppercase tracking-wider" style={{ color: profile.layoutBackgroundImageUrl ? '#fff' : textColor }}>
+              <p className="text-xl font-bold uppercase tracking-wider text-center" style={{ color: profile.layoutBackgroundImageUrl ? '#fff' : textColor }}>
                 Scan to Connect
               </p>
             </div>
 
+            {/* Footer: Company Logo */}
             {profile.companyLogoUrl && (
-              <div className="h-12 w-32 mt-auto mb-2 shrink-0">
+              <div className="h-12 w-32 shrink-0 mb-2">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={getProxiedUrl(profile.companyLogoUrl)} alt="Company Logo" className="w-full h-full object-contain" />
               </div>
