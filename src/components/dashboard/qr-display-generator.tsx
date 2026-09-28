@@ -181,7 +181,7 @@ export function QrDisplayGenerator({ profiles, handle, initialProfileId }: { pro
             <div className="absolute inset-0 bg-black/40 z-0" />
           )}
 
-          <div className={cn("relative z-10 w-full h-full flex flex-col items-center p-10", getFontClass(profile.layoutFont))}>
+          <div className={cn("relative z-10 w-full h-full flex flex-col items-center p-8", getFontClass(profile.layoutFont))}>
             
             {/* Header: Photo and Details */}
             <div className="w-full flex flex-col items-center gap-4 mt-2 shrink-0">
@@ -212,8 +212,8 @@ export function QrDisplayGenerator({ profiles, handle, initialProfileId }: { pro
             </div>
 
             {/* Middle: QR Code flex-centered */}
-            <div className="flex-1 flex flex-col items-center justify-center w-full min-h-[300px]">
-              <div className="bg-white p-4 sm:p-5 rounded-3xl shadow-xl w-64 h-64 shrink-0 flex items-center justify-center mb-6">
+            <div className="flex-1 flex flex-col items-center justify-evenly w-full min-h-0 py-2">
+              <div className="bg-white p-4 sm:p-5 rounded-3xl shadow-xl w-56 h-56 sm:w-64 sm:h-64 shrink-0 flex items-center justify-center">
                 {qrCodeUrl ? (
                   /* eslint-disable-next-line @next/next/no-img-element */
                   <img src={qrCodeUrl} alt="QR Code" className="w-full h-full object-contain" />
@@ -221,16 +221,16 @@ export function QrDisplayGenerator({ profiles, handle, initialProfileId }: { pro
                   <Loader2 className="w-8 h-8 animate-spin text-zinc-400" />
                 )}
               </div>
-              <p className="text-xl font-bold uppercase tracking-wider text-center whitespace-nowrap" style={{ color: profile.layoutBackgroundImageUrl ? '#fff' : textColor }}>
+              <p className="text-xl font-bold uppercase tracking-wider text-center whitespace-nowrap shrink-0" style={{ color: profile.layoutBackgroundImageUrl ? '#fff' : textColor }}>
                 Scan to Connect
               </p>
             </div>
 
             {/* Footer: Company Logo */}
             {profile.companyLogoUrl && (
-              <div className="h-12 w-32 shrink-0 mb-2 flex items-center justify-center">
+              <div className="shrink-0 mb-2 mt-2">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={getProxiedUrl(profile.companyLogoUrl)} alt="Company Logo" className="w-full h-full object-contain rounded-xl" />
+                <img src={getProxiedUrl(profile.companyLogoUrl)} alt="Company Logo" className="h-12 w-auto max-w-[12rem] rounded-xl object-cover shadow-sm" />
               </div>
             )}
           </div>
