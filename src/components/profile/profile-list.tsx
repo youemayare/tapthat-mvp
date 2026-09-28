@@ -73,7 +73,7 @@ export function ProfileList({ profiles: initialProfiles, hasCards = true, handle
         {hasCards && (
           <button
             onClick={() => setShowCreateForm(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white text-sm font-semibold rounded-xl transition-all"
+            className="flex items-center gap-2 px-4 py-2 bg-brand-500 hover:bg-brand-600 text-white text-sm font-semibold rounded-xl transition-all"
           >
             <Plus className="w-4 h-4" /> New Profile
           </button>
@@ -103,7 +103,7 @@ export function ProfileList({ profiles: initialProfiles, hasCards = true, handle
               <button
                 onClick={handleCreate}
                 disabled={!label.trim() || creating}
-                className="flex-1 sm:flex-none flex justify-center items-center gap-2 px-4 py-2.5 bg-brand-600 hover:bg-brand-500 disabled:opacity-40 text-white text-sm font-semibold rounded-xl transition-all"
+                className="flex-1 sm:flex-none flex justify-center items-center gap-2 px-4 py-2.5 bg-brand-500 hover:bg-brand-600 disabled:opacity-40 text-white text-sm font-semibold rounded-xl transition-all"
               >
                 {creating ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Create'}
               </button>

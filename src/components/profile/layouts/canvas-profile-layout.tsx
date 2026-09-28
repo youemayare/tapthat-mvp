@@ -357,7 +357,7 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
               type="button" 
               onClick={handleSaveConnectionAndNote} 
               disabled={savingNote}
-              className="rounded-xl bg-brand-600 hover:bg-brand-500 text-white"
+              className="rounded-xl bg-brand-500 hover:bg-brand-600 text-white"
             >
               {savingNote ? 'Saving...' : 'Save Connection'}
             </Button>

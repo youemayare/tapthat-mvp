@@ -132,7 +132,7 @@ export default function LoginForm({ searchParams }: Props) {
         <button
           type="submit"
           disabled={loading}
-          className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-brand-600 hover:bg-brand-500 disabled:opacity-60 disabled:cursor-not-allowed text-foreground font-semibold rounded-xl transition-all"
+          className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-brand-500 hover:bg-brand-600 disabled:opacity-60 disabled:cursor-not-allowed text-foreground font-semibold rounded-xl transition-all"
         >
           {loading && <Loader2 className="w-4 h-4 animate-spin" />}
           Sign In

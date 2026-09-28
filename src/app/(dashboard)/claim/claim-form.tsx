@@ -52,7 +52,7 @@ export function ClaimForm({ uid }: Props) {
           </p>
           <Link
             href="/dashboard/profile"
-            className="inline-flex w-full items-center justify-center py-4 px-6 bg-brand-600 hover:bg-brand-500 text-foreground font-semibold rounded-2xl transition-all"
+            className="inline-flex w-full items-center justify-center py-4 px-6 bg-brand-500 hover:bg-brand-600 text-foreground font-semibold rounded-2xl transition-all"
           >
             Set up my profile
           </Link>
@@ -116,7 +116,7 @@ export function ClaimForm({ uid }: Props) {
           <button
             onClick={handleClaim}
             disabled={loading}
-            className="group w-full flex items-center justify-center gap-2 py-4 px-6 bg-brand-600 hover:bg-brand-500 disabled:opacity-60 text-foreground font-semibold rounded-2xl transition-transform active:scale-[0.97]"
+            className="group w-full flex items-center justify-center gap-2 py-4 px-6 bg-brand-500 hover:bg-brand-600 disabled:opacity-60 text-foreground font-semibold rounded-2xl transition-transform active:scale-[0.97]"
           >
             {loading ? (
               <Loader2 className="w-5 h-5 animate-spin" />

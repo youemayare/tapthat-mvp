@@ -65,7 +65,7 @@ export function ExchangeRequestCard({ exchange, profile, type, onAction }: Excha
               size="sm"
               variant="default"
               onClick={() => onAction?.('accept')}
-              className="rounded-full bg-brand-600 hover:bg-brand-500 text-white"
+              className="rounded-full bg-brand-500 hover:bg-brand-600 text-white"
             >
               <Check className="w-4 h-4 mr-1" />
               Accept

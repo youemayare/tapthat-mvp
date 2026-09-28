@@ -114,7 +114,7 @@ export function QrShareCard({ cardUid }: Props) {
 
                 <button
                   onClick={handleShare}
-                  className="flex-1 flex items-center justify-center gap-2 py-3 px-4 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-sm font-medium transition-colors"
+                  className="flex-1 flex items-center justify-center gap-2 py-3 px-4 bg-brand-500 hover:bg-brand-600 text-white rounded-xl text-sm font-medium transition-colors"
                 >
                   <Share2 className="w-4 h-4" />
                   Share

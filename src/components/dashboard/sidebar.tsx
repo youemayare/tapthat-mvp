@@ -56,11 +56,11 @@ export function SidebarContent({ pathname, onItemClick }: { pathname: string, on
               className={cn(
                 'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all',
                 isActive
-                  ? 'bg-brand-600/15 text-brand-300 border border-brand-500/20'
+                  ? 'bg-brand-500/15 text-brand-500 border border-brand-500/20'
                   : 'text-muted-foreground hover:text-foreground hover:bg-accent hover:text-accent-foreground'
               )}
             >
-              <Icon className={cn('w-4 h-4', isActive ? 'text-brand-400' : '')} />
+              <Icon className={cn('w-4 h-4', isActive ? 'text-brand-500' : '')} />
               {label}
             </Link>
           );

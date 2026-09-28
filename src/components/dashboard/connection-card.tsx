@@ -160,7 +160,7 @@ export function ConnectionCard({ connection, profile, note }: ConnectionCardProp
             <Button type="button" variant="ghost" onClick={() => setShowModal(false)} className="rounded-xl">
               Cancel
             </Button>
-            <Button type="button" onClick={handleSaveNote} disabled={isSaving} className="rounded-xl bg-brand-600 hover:bg-brand-500 text-white">
+            <Button type="button" onClick={handleSaveNote} disabled={isSaving} className="rounded-xl bg-brand-500 hover:bg-brand-600 text-white">
               {isSaving ? 'Saving...' : 'Save Note'}
             </Button>
           </DialogFooter>

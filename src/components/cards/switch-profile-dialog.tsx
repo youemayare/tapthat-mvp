@@ -139,7 +139,7 @@ export function SwitchProfileDialog({
               <button
                 onClick={() => setStep('confirm')}
                 disabled={!selectedProfile}
-                className="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-2xl bg-brand-600 hover:bg-brand-500 disabled:opacity-40 text-white text-sm font-semibold transition-all"
+                className="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-2xl bg-brand-500 hover:bg-brand-600 disabled:opacity-40 text-white text-sm font-semibold transition-all"
               >
                 Next <ChevronRight className="w-4 h-4" />
               </button>
@@ -185,7 +185,7 @@ export function SwitchProfileDialog({
               <button
                 onClick={handleSwitch}
                 disabled={switching}
-                className="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-2xl bg-brand-600 hover:bg-brand-500 disabled:opacity-40 text-white text-sm font-semibold transition-all"
+                className="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-2xl bg-brand-500 hover:bg-brand-600 disabled:opacity-40 text-white text-sm font-semibold transition-all"
               >
                 {switching ? (
                   <><Loader2 className="w-4 h-4 animate-spin" /> Switching…</>

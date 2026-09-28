@@ -37,7 +37,7 @@ export function FloatingShareButton({ profiles, handle }: FloatingShareButtonPro
             whileTap={{ scale: 0.95 }}
             onClick={() => setOpen(true)}
             aria-label="Share your profile"
-            className="flex items-center gap-2.5 px-6 py-3.5 bg-brand-600 hover:bg-brand-500 text-white font-semibold rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.2)] ring-1 ring-white/20 transition-colors backdrop-blur-md"
+            className="flex items-center gap-2.5 px-6 py-3.5 bg-brand-500 hover:bg-brand-600 text-white font-semibold rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.2)] ring-1 ring-white/20 transition-colors backdrop-blur-md"
           >
             <QrCode className="w-5 h-5" />
             <span>Share</span>

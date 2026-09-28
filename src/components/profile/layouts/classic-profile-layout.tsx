@@ -174,7 +174,7 @@ export function ClassicProfileLayout({ profile, cardUid }: Props) {
             <button
               onClick={handleSaveContact}
               id="save-contact-btn"
-              className="relative overflow-hidden group w-full flex items-center justify-center gap-3 py-4 px-6 bg-brand-600 hover:bg-brand-500 active:scale-95 text-white font-bold text-lg rounded-2xl transition-all duration-200 shadow-lg shadow-brand-500/25"
+              className="relative overflow-hidden group w-full flex items-center justify-center gap-3 py-4 px-6 bg-brand-500 hover:bg-brand-600 active:scale-95 text-white font-bold text-lg rounded-2xl transition-all duration-200 shadow-lg shadow-brand-500/25"
             >
               <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer pointer-events-none" />
               <span className="relative z-10 flex items-center gap-3">
@@ -242,7 +242,7 @@ export function ClassicProfileLayout({ profile, cardUid }: Props) {
         {(!resolved || isOwner) && (
           <button
             onClick={handleSaveContact}
-            className="w-full flex items-center justify-center gap-3 py-4 px-6 bg-brand-600 hover:bg-brand-500 active:scale-95 text-white font-bold text-lg rounded-2xl transition-all duration-200 shadow-lg shadow-brand-500/25"
+            className="w-full flex items-center justify-center gap-3 py-4 px-6 bg-brand-500 hover:bg-brand-600 active:scale-95 text-white font-bold text-lg rounded-2xl transition-all duration-200 shadow-lg shadow-brand-500/25"
           >
             <Contact className="w-5 h-5" />
             Save Contact
@@ -406,7 +406,7 @@ export function ClassicProfileLayout({ profile, cardUid }: Props) {
             <Button type="button" variant="ghost" onClick={() => setShowNoteModal(false)} className="rounded-xl">
               Cancel
             </Button>
-            <Button type="button" onClick={handleSaveConnectionAndNote} disabled={savingNote} className="rounded-xl bg-brand-600 hover:bg-brand-500 text-white">
+            <Button type="button" onClick={handleSaveConnectionAndNote} disabled={savingNote} className="rounded-xl bg-brand-500 hover:bg-brand-600 text-white">
               {savingNote ? 'Saving...' : 'Save'}
             </Button>
           </DialogFooter>
