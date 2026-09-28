@@ -251,7 +251,7 @@ export function QrDisplayGenerator({ profiles, handle, initialProfileId }: { pro
         </div>
       </div>
 
-      <div className="flex-1 w-full bg-black/5 dark:bg-white/5 rounded-3xl p-4 sm:p-8 flex items-center justify-center overflow-hidden min-h-[500px] print:!bg-transparent print:!bg-none print:p-0 print:m-0 print:min-h-0 print:rounded-none print:overflow-visible">
+      <div className="flex-1 w-full bg-black/5 dark:bg-white/5 rounded-3xl p-4 sm:p-8 flex items-center justify-center overflow-hidden min-h-[500px] print:!bg-transparent print:!bg-none print:p-0 print:m-0 print:min-h-0 print:rounded-none print:overflow-visible print:block">
         <div 
           ref={displayRef}
           className={cn(
@@ -259,7 +259,7 @@ export function QrDisplayGenerator({ profiles, handle, initialProfileId }: { pro
             layout === 'portrait' 
               ? "w-[360px] h-[640px] rounded-3xl print:rounded-none" 
               : "w-[148mm] h-[210mm] sm:w-[420px] sm:h-[595px] rounded-sm",
-            "print:w-full print:h-full print:max-w-none print:max-h-none print:rounded-none"
+            "print:!fixed print:!inset-0 print:!w-[100vw] print:!h-[100vh] print:!max-w-none print:!max-h-none print:!rounded-none print:!m-0"
           )}
           style={{
             backgroundColor: bgColor,
