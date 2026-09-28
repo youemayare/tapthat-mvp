@@ -26,7 +26,7 @@ export default async function DashboardLayout({
   }
 
   return (
-    <div className="min-h-screen bg-background flex pb-20 lg:pb-0 relative print:pb-0 print:bg-white">
+    <div className="min-h-screen bg-background flex pb-20 lg:pb-0 relative print:pb-0 print:bg-white print:min-h-0 print:h-auto print:block">
       <div className="print:hidden contents">
         <DashboardSidebar />
         <BottomNav />

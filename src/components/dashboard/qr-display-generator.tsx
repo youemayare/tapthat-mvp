@@ -110,23 +110,25 @@ export function QrDisplayGenerator({ profiles, handle, initialProfileId }: { pro
     return url;
   };
 
-  const silverBorderMask: React.CSSProperties = {
-    background: 'linear-gradient(145deg, #e8e8e8, #a0a0a0, #d4d4d4, #888888, #c0c0c0)',
-    WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
-    WebkitMaskComposite: 'xor',
-    maskComposite: 'exclude',
-  };
-
   return (
     <div className="flex flex-col lg:flex-row gap-8 items-start w-full print:bg-white print:p-0 print:m-0 print:block">
       <style>{`
         @media print {
+          * {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
           @page {
             margin: 0;
             size: ${layout === 'a5' ? 'A5' : 'portrait'};
           }
           html, body {
-            background: white;
+            background: white !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            overflow: hidden !important;
           }
         }
       `}</style>
@@ -251,7 +253,10 @@ export function QrDisplayGenerator({ profiles, handle, initialProfileId }: { pro
           ref={displayRef}
           className={cn(
             "relative shadow-2xl print:shadow-none overflow-hidden flex flex-col items-center justify-center text-center",
-            layout === 'portrait' ? "w-[360px] h-[640px] rounded-3xl print:rounded-none" : "w-[148mm] h-[210mm] sm:w-[420px] sm:h-[595px] rounded-sm print:w-[148mm] print:h-[210mm]"
+            layout === 'portrait' 
+              ? "w-[360px] h-[640px] rounded-3xl print:rounded-none" 
+              : "w-[148mm] h-[210mm] sm:w-[420px] sm:h-[595px] rounded-sm",
+            "print:w-full print:h-full print:max-w-none print:max-h-none print:rounded-none"
           )}
           style={{
             backgroundColor: bgColor,
@@ -270,9 +275,11 @@ export function QrDisplayGenerator({ profiles, handle, initialProfileId }: { pro
             {/* Header: Photo and Details */}
             <div className="w-full flex flex-col items-center gap-4 mt-2 shrink-0">
               {profile.profilePhotoUrl && (
-                <div className="relative w-28 h-28 rounded-full shadow-xl shrink-0">
-                  <div className="absolute inset-0 rounded-full pointer-events-none p-[2px] z-20" style={silverBorderMask} />
-                  <div className="w-full h-full rounded-full overflow-hidden bg-black/10 relative z-10">
+                <div 
+                  className="relative w-28 h-28 rounded-full shadow-xl shrink-0 flex items-center justify-center overflow-hidden"
+                  style={{ background: 'linear-gradient(145deg, #e8e8e8, #a0a0a0, #d4d4d4, #888888, #c0c0c0)' }}
+                >
+                  <div className="w-[calc(100%-3.5px)] h-[calc(100%-3.5px)] rounded-full overflow-hidden bg-black/10 relative z-10">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={getProxiedUrl(profile.profilePhotoUrl)} alt="Profile" className="w-full h-full object-cover" />
                   </div>
