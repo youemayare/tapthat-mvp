@@ -89,6 +89,13 @@ export function QrDisplayGenerator({ profiles, handle, initialProfileId }: { pro
   const textColor = isDarkBg ? '#ffffff' : '#000000';
   const mutedColor = isDarkBg ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.6)';
 
+  // Use the local proxy to bypass CORS issues for canvas export and browser rendering
+  const getProxiedUrl = (url?: string | null) => {
+    if (!url) return '';
+    if (url.startsWith('http')) return `/api/proxy-image?url=${encodeURIComponent(url)}`;
+    return url;
+  };
+
   return (
     <div className="flex flex-col lg:flex-row gap-8 items-start w-full print:bg-white print:p-0">
       
@@ -164,7 +171,7 @@ export function QrDisplayGenerator({ profiles, handle, initialProfileId }: { pro
           )}
           style={{
             backgroundColor: bgColor,
-            backgroundImage: profile.layoutBackgroundImageUrl ? `url(${profile.layoutBackgroundImageUrl})` : undefined,
+            backgroundImage: profile.layoutBackgroundImageUrl ? `url(${getProxiedUrl(profile.layoutBackgroundImageUrl)})` : undefined,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             color: textColor
@@ -178,9 +185,9 @@ export function QrDisplayGenerator({ profiles, handle, initialProfileId }: { pro
             
             <div className="w-full flex flex-col items-center gap-4 mt-4">
               {profile.profilePhotoUrl && (
-                <div className="w-28 h-28 rounded-full border-4 border-white shadow-xl overflow-hidden shrink-0">
+                <div className="w-28 h-28 rounded-full border-4 border-white shadow-xl overflow-hidden shrink-0 bg-black/10">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={profile.profilePhotoUrl} alt="Profile" className="w-full h-full object-cover" crossOrigin="anonymous" />
+                  <img src={getProxiedUrl(profile.profilePhotoUrl)} alt="Profile" className="w-full h-full object-cover" />
                 </div>
               )}
               
@@ -207,7 +214,7 @@ export function QrDisplayGenerator({ profiles, handle, initialProfileId }: { pro
               <div className="bg-white p-4 sm:p-5 rounded-3xl shadow-xl w-64 h-64 shrink-0 flex items-center justify-center">
                 {qrCodeUrl ? (
                   /* eslint-disable-next-line @next/next/no-img-element */
-                  <img src={qrCodeUrl} alt="QR Code" className="w-full h-full object-contain" crossOrigin="anonymous" />
+                  <img src={qrCodeUrl} alt="QR Code" className="w-full h-full object-contain" />
                 ) : (
                   <Loader2 className="w-8 h-8 animate-spin text-zinc-400" />
                 )}
@@ -220,7 +227,7 @@ export function QrDisplayGenerator({ profiles, handle, initialProfileId }: { pro
             {profile.companyLogoUrl && (
               <div className="h-12 w-32 mt-auto mb-2 shrink-0">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={profile.companyLogoUrl} alt="Company Logo" className="w-full h-full object-contain" crossOrigin="anonymous" />
+                <img src={getProxiedUrl(profile.companyLogoUrl)} alt="Company Logo" className="w-full h-full object-contain" />
               </div>
             )}
           </div>
