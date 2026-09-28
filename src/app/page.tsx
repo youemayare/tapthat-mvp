@@ -306,7 +306,7 @@ function StoryboardEditor() {
             </FadeIn>
             <FadeIn direction="left" delay={0.1}>
               <p className="text-xl text-[#52525b] dark:text-[#a1a1aa] leading-relaxed">
-                Refine your digital presence in seconds. Change your bio, update your contact details, and swap layouts effortlessly. Every change you make in the editor reflects instantly on your live profile.
+                Refine your digital presence in seconds. Change your bio, update your contact details, and swap layouts effortlessly.
               </p>
             </FadeIn>
           </div>
