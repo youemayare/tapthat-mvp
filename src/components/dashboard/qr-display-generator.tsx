@@ -16,6 +16,7 @@ export function QrDisplayGenerator({ profiles, handle, initialProfileId }: { pro
   const displayRef = useRef<HTMLDivElement>(null);
 
   const profile = profiles.find((p: any) => p.id === selectedId) || profiles[0];
+  const selectedLabel = profile ? (profile.label || `${profile.firstName || ''} ${profile.lastName || ''}`.trim() + (profile.isDefault ? ' (Default)' : '')) : "Select a profile";
 
   useEffect(() => {
     if (!profile) return;
@@ -112,7 +113,7 @@ export function QrDisplayGenerator({ profiles, handle, initialProfileId }: { pro
           <label className="text-sm font-medium text-foreground">Select Profile</label>
           <Select value={selectedId} onValueChange={setSelectedId}>
             <SelectTrigger className="w-full bg-background border border-input rounded-xl h-[48px] px-4 text-sm focus:ring-2 focus:ring-brand-500 outline-none">
-              <SelectValue placeholder="Select a profile" />
+              <SelectValue placeholder="Select a profile">{selectedLabel}</SelectValue>
             </SelectTrigger>
             <SelectContent>
               {profiles.map((p: any) => (
@@ -220,16 +221,16 @@ export function QrDisplayGenerator({ profiles, handle, initialProfileId }: { pro
                   <Loader2 className="w-8 h-8 animate-spin text-zinc-400" />
                 )}
               </div>
-              <p className="text-xl font-bold uppercase tracking-wider text-center" style={{ color: profile.layoutBackgroundImageUrl ? '#fff' : textColor }}>
+              <p className="text-xl font-bold uppercase tracking-wider text-center whitespace-nowrap" style={{ color: profile.layoutBackgroundImageUrl ? '#fff' : textColor }}>
                 Scan to Connect
               </p>
             </div>
 
             {/* Footer: Company Logo */}
             {profile.companyLogoUrl && (
-              <div className="h-12 w-32 shrink-0 mb-2">
+              <div className="h-12 w-32 shrink-0 mb-2 flex items-center justify-center">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={getProxiedUrl(profile.companyLogoUrl)} alt="Company Logo" className="w-full h-full object-contain" />
+                <img src={getProxiedUrl(profile.companyLogoUrl)} alt="Company Logo" className="w-full h-full object-contain rounded-xl" />
               </div>
             )}
           </div>
