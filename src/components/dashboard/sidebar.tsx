@@ -18,7 +18,6 @@ export const navItems = [
   { href: '/dashboard/profile', label: 'Profiles', icon: User },
   { href: '/dashboard/connections', label: 'Connections', icon: UserCheck },
   { href: '/dashboard/analytics', label: 'Analytics', icon: BarChart3 },
-  { href: '/dashboard/qr-display', label: 'QR Display', icon: QrCode },
   { href: '/dashboard/cards', label: 'Cards', icon: CreditCard },
   { href: '/dashboard/settings', label: 'Settings', icon: Settings },
 ];

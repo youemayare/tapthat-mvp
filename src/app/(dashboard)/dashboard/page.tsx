@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server';
 import { withRlsUser } from '@/lib/db/auth-wrapper';
 import { cards, tapEvents, profiles } from '@/lib/db/schema';
 import { eq, count, or, inArray } from 'drizzle-orm';
-import { BarChart3, CreditCard, Eye, Users, Wallet } from 'lucide-react';
+import { BarChart3, CreditCard, Eye, Users, Wallet, QrCode } from 'lucide-react';
 import { getGoogleWalletSaveUrl } from '@/lib/wallet/google';
 import { QrShareCard } from '@/components/dashboard/qr-share-card';
 
@@ -154,6 +154,15 @@ export default async function DashboardPage() {
             <BarChart3 className="w-6 h-6 text-brand-400 mb-3 group-hover:scale-110 transition-transform" />
             <h3 className="text-foreground font-semibold mb-1">View Analytics</h3>
             <p className="text-muted-foreground text-sm">See who tapped your card and from where.</p>
+          </a>
+
+          <a
+            href="/dashboard/qr-display"
+            className="group bg-card text-card-foreground border border-border rounded-2xl p-5 hover:bg-primary/8 hover:border-brand-500/30 transition-all"
+          >
+            <QrCode className="w-6 h-6 text-brand-400 mb-3 group-hover:scale-110 transition-transform" />
+            <h3 className="text-foreground font-semibold mb-1">Create QR Display</h3>
+            <p className="text-muted-foreground text-sm">Download or print a QR poster for your spaces.</p>
           </a>
 
           {/* QR Share Modal Component */}
