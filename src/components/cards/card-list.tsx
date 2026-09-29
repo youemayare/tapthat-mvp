@@ -209,35 +209,35 @@ export function CardList({ initialCards, profiles = [], multiProfileEnabled = fa
           return (
             <div key={card.id} className="bg-card border border-border rounded-xl p-5 flex flex-col justify-between">
               <div>
-                <div className="flex justify-between items-start mb-4">
-                  <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-primary/10 rounded-lg">
+                <div className="flex justify-between items-start mb-4 gap-3">
+                  <div className="flex items-start space-x-3 min-w-0">
+                    <div className="p-2 bg-primary/10 rounded-lg shrink-0 mt-0.5">
                       <CreditCard className="w-5 h-5 text-primary" />
                     </div>
-                    <div className="flex flex-col">
+                    <div className="flex flex-col min-w-0">
                       {renamingCardId === card.id ? (
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1">
                           <input
                             type="text"
                             value={editLabelValue}
                             onChange={(e) => setEditLabelValue(e.target.value)}
-                            className="bg-background border border-border rounded px-2 py-0.5 text-sm font-semibold focus:outline-none focus:ring-1 focus:ring-primary w-40"
+                            className="bg-background border border-border rounded px-2 py-0.5 text-sm font-semibold focus:outline-none focus:ring-1 focus:ring-primary min-w-0 w-28 sm:w-40"
                             autoFocus
                             onKeyDown={(e) => {
                               if (e.key === 'Enter') saveCardLabel(card.id);
                               if (e.key === 'Escape') setRenamingCardId(null);
                             }}
                           />
-                          <button onClick={() => saveCardLabel(card.id)} className="p-1 hover:bg-black/5 dark:hover:bg-white/10 rounded" title="Save">
+                          <button onClick={() => saveCardLabel(card.id)} className="p-1 hover:bg-black/5 dark:hover:bg-white/10 rounded shrink-0" title="Save">
                             <Check className="w-4 h-4 text-green-500" />
                           </button>
-                          <button onClick={() => setRenamingCardId(null)} className="p-1 hover:bg-black/5 dark:hover:bg-white/10 rounded" title="Cancel">
+                          <button onClick={() => setRenamingCardId(null)} className="p-1 hover:bg-black/5 dark:hover:bg-white/10 rounded shrink-0" title="Cancel">
                             <X className="w-4 h-4 text-red-500" />
                           </button>
                         </div>
                       ) : (
-                        <div className="flex items-center gap-2 group">
-                          <h3 className="font-semibold text-foreground capitalize">
+                        <div className="flex items-center gap-1.5">
+                          <h3 className="font-semibold text-foreground capitalize truncate">
                             {card.label || (card.cardType === 'metal' ? 'Premium Metal Card' : `${card.cardType || 'Standard'} Card`)}
                           </h3>
                           <button 
@@ -245,7 +245,7 @@ export function CardList({ initialCards, profiles = [], multiProfileEnabled = fa
                               setRenamingCardId(card.id);
                               setEditLabelValue(card.label || (card.cardType === 'metal' ? 'Premium Metal Card' : `${card.cardType || 'Standard'} Card`));
                             }}
-                            className="opacity-0 group-hover:opacity-100 p-1 hover:bg-black/5 dark:hover:bg-white/10 rounded transition-opacity"
+                            className="p-1 hover:bg-black/5 dark:hover:bg-white/10 rounded transition-colors shrink-0"
                             title="Rename Card"
                           >
                             <Pencil className="w-3.5 h-3.5 text-muted-foreground" />
@@ -255,7 +255,7 @@ export function CardList({ initialCards, profiles = [], multiProfileEnabled = fa
                       <p className="text-sm text-muted-foreground font-mono mt-0.5">UID: {maskedUid}</p>
                     </div>
                   </div>
-                  <span className={`px-2.5 py-1 rounded-full text-xs font-medium capitalize ${statusBadgeColor}`}>
+                  <span className={`shrink-0 px-2.5 py-1 rounded-full text-xs font-medium capitalize ${statusBadgeColor}`}>
                     {card.status}
                   </span>
                 </div>
