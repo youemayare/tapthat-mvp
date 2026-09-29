@@ -138,7 +138,7 @@ function CtaButton({ children, href, className = "" }: { children: React.ReactNo
 
       const loop = async () => {
         while (mounted) {
-          await new Promise(r => setTimeout(r, 1000));
+          await new Promise(r => setTimeout(r, 500));
           if (!mounted) break;
           
           await playTapSequence();
@@ -148,7 +148,7 @@ function CtaButton({ children, href, className = "" }: { children: React.ReactNo
           
           await playResetSequence();
           
-          await new Promise(r => setTimeout(r, 3000));
+          await new Promise(r => setTimeout(r, 1500));
         }
       };
 
