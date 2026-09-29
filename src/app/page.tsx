@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { motion, useAnimation, AnimatePresence } from 'framer-motion';
 import useEmblaCarousel from 'embla-carousel-react';
 import { WheelGesturesPlugin } from 'embla-carousel-wheel-gestures';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { WAITLIST_URL } from '@/lib/constants';
 import { ThemeToggle } from '@/components/theme-toggle';
 import Link from 'next/link';
@@ -76,51 +76,91 @@ function CtaButton({ children, href, className = "" }: { children: React.ReactNo
   }
 
   function HeroVisual() {
-  const cardControls = useAnimation();
-  const screenControls = useAnimation();
-  const [isTapped, setIsTapped] = useState(false);
+    const cardControls = useAnimation();
+    const screenControls = useAnimation();
+    const [isTapped, setIsTapped] = useState(false);
+    const isAutoPlaying = useRef(false);
+    const [isTouch, setIsTouch] = useState(false);
 
-  const handleHover = async () => {
-    if (isTapped) return;
-    setIsTapped(true);
-    // 1. Card moves in to tap the screen
-    await cardControls.start({
-      y: "-50%",
-      x: "-50%",
-      z: 0,
-      rotateX: 0,
-      rotateY: 0,
-      rotateZ: 0,
-      scale: 1,
-      transition: { duration: 0.4, ease: "easeOut" }
-    });
-    // 2. Screen lights up
-    screenControls.start({ opacity: 1, transition: { duration: 0.3 } });
-    // 3. Card slides away (down) to reveal the profile
-    await cardControls.start({
-      y: "100%",
-      opacity: 0,
-      transition: { duration: 0.6, delay: 0.2, ease: "easeInOut" }
-    });
-  };
+    const playTapSequence = useCallback(async () => {
+      setIsTapped(true);
+      await cardControls.start({
+        y: "-50%",
+        x: "-50%",
+        z: 0,
+        rotateX: 0,
+        rotateY: 0,
+        rotateZ: 0,
+        scale: 1,
+        transition: { duration: 0.4, ease: "easeOut" }
+      });
+      screenControls.start({ opacity: 1, transition: { duration: 0.3 } });
+      await cardControls.start({
+        y: "100%",
+        opacity: 0,
+        transition: { duration: 0.6, delay: 0.2, ease: "easeInOut" }
+      });
+    }, [cardControls, screenControls]);
 
-  const handleMouseLeave = async () => {
-    setIsTapped(false);
-    screenControls.start({ opacity: 0, transition: { duration: 0.3 } });
-    cardControls.start({
-      y: "-80%",
-      x: "-35%",
-      z: 50,
-      rotateX: 25,
-      rotateY: -15,
-      rotateZ: -10,
-      scale: 1.1,
-      opacity: 1,
-      transition: { duration: 0.5, ease: "backOut" }
-    });
-  };
+    const playResetSequence = useCallback(async () => {
+      setIsTapped(false);
+      screenControls.start({ opacity: 0, transition: { duration: 0.3 } });
+      await cardControls.start({
+        y: "-80%",
+        x: "-35%",
+        z: 50,
+        rotateX: 25,
+        rotateY: -15,
+        rotateZ: -10,
+        scale: 1.1,
+        opacity: 1,
+        transition: { duration: 0.5, ease: "backOut" }
+      });
+    }, [cardControls, screenControls]);
 
-  return (
+    const handleHover = async () => {
+      if (isAutoPlaying.current || isTapped) return;
+      await playTapSequence();
+    };
+  
+    const handleMouseLeave = async () => {
+      if (isAutoPlaying.current) return;
+      await playResetSequence();
+    };
+
+    useEffect(() => {
+      const isTouchDevice = window.matchMedia("(pointer: coarse)").matches;
+      setIsTouch(isTouchDevice);
+      if (!isTouchDevice) return;
+
+      isAutoPlaying.current = true;
+      let mounted = true;
+
+      const loop = async () => {
+        while (mounted) {
+          await new Promise(r => setTimeout(r, 1000));
+          if (!mounted) break;
+          
+          await playTapSequence();
+          
+          await new Promise(r => setTimeout(r, 2000));
+          if (!mounted) break;
+          
+          await playResetSequence();
+          
+          await new Promise(r => setTimeout(r, 3000));
+        }
+      };
+
+      loop();
+
+      return () => {
+        mounted = false;
+        isAutoPlaying.current = false;
+      };
+    }, [playTapSequence, playResetSequence]);
+
+    return (
     <div
       className="relative w-full max-w-[260px] mx-auto sm:max-w-[280px] lg:max-w-[300px] aspect-[9/19.5] [perspective:1200px] cursor-pointer group"
       onMouseEnter={handleHover}
@@ -144,7 +184,7 @@ function CtaButton({ children, href, className = "" }: { children: React.ReactNo
             animate={{ opacity: isTapped ? 0 : 1 }}
             className="absolute inset-0 flex items-center justify-center pointer-events-none"
           >
-            <span className="text-zinc-600 text-sm font-medium tracking-widest uppercase animate-pulse">Hover to Tap</span>
+            <span className="text-zinc-600 text-sm font-medium tracking-widest uppercase animate-pulse">{isTouch ? 'Tap to Connect' : 'Hover to Tap'}</span>
           </motion.div>
         )}
       </div>
