@@ -50,12 +50,16 @@ export function VoiceRecorder({ onRecordingComplete, onClear, existingAudioUrl }
 
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       
-      let mimeType = 'audio/webm';
-      if (!MediaRecorder.isTypeSupported('audio/webm') && MediaRecorder.isTypeSupported('audio/mp4')) {
+      let mimeType = '';
+      if (MediaRecorder.isTypeSupported('audio/webm')) {
+        mimeType = 'audio/webm';
+      } else if (MediaRecorder.isTypeSupported('audio/mp4')) {
         mimeType = 'audio/mp4';
+      } else if (MediaRecorder.isTypeSupported('audio/ogg')) {
+        mimeType = 'audio/ogg';
       }
 
-      const mediaRecorder = new MediaRecorder(stream, { mimeType });
+      const mediaRecorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
       mediaRecorderRef.current = mediaRecorder;
       audioChunksRef.current = [];
 
@@ -66,7 +70,7 @@ export function VoiceRecorder({ onRecordingComplete, onClear, existingAudioUrl }
       };
 
       mediaRecorder.onstop = () => {
-        const audioBlob = new Blob(audioChunksRef.current, { type: mimeType });
+        const audioBlob = new Blob(audioChunksRef.current, { type: mediaRecorder.mimeType || 'audio/webm' });
         const url = URL.createObjectURL(audioBlob);
         setAudioBlobUrl(url);
         onRecordingComplete(audioBlob, recordingTime);
@@ -89,8 +93,9 @@ export function VoiceRecorder({ onRecordingComplete, onClear, existingAudioUrl }
 
     } catch (err: any) {
       console.error('Microphone error:', err);
-      setError('Microphone access denied or unsupported.');
-      toast.error('Could not access microphone.');
+      const errorMessage = err?.message || err?.name || 'Unknown error occurred.';
+      setError(`Mic error: ${errorMessage}`);
+      toast.error(`Recording failed: ${errorMessage}`);
     }
   };
 
