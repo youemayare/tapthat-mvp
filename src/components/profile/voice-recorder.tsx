@@ -41,6 +41,13 @@ export function VoiceRecorder({ onRecordingComplete, onClear, existingAudioUrl }
   const startRecording = async () => {
     try {
       setError(null);
+      
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        setError('Microphone access requires a secure (HTTPS) connection or localhost.');
+        toast.error('Microphone access unavailable.');
+        return;
+      }
+
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       
       let mimeType = 'audio/webm';
