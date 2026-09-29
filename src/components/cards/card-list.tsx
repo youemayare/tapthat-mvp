@@ -2,12 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
-import { ZapOff, Play, ShieldAlert, CreditCard, RefreshCw, User } from 'lucide-react';
+import { ZapOff, Play, ShieldAlert, CreditCard, RefreshCw, User, Pencil, Check, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { SwitchProfileDialog } from './switch-profile-dialog';
 
 interface Card {
   id: string;
+  label?: string | null;
   cardType: string | null;
   cardUid: string;
   status: string;
@@ -55,6 +56,10 @@ export function CardList({ initialCards, profiles = [], multiProfileEnabled = fa
 
   // Profile switch dialog
   const [switchingCard, setSwitchingCard] = useState<Card | null>(null);
+
+  // Rename state
+  const [renamingCardId, setRenamingCardId] = useState<string | null>(null);
+  const [editLabelValue, setEditLabelValue] = useState('');
 
   // ─── Status Change ──────────────────────────────────────────────────────────
 
@@ -130,6 +135,31 @@ export function CardList({ initialCards, profiles = [], multiProfileEnabled = fa
     router.refresh();
   }
 
+  async function saveCardLabel(cardId: string) {
+    const newLabel = editLabelValue.trim();
+    if (!newLabel) return;
+    setIsUpdatingId(cardId);
+    setRenamingCardId(null);
+    try {
+      const res = await fetch(`/api/cards/${cardId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ label: newLabel }),
+      });
+      if (!res.ok) throw new Error('Failed to update card name');
+      
+      setCards(current =>
+        current.map(card => card.id === cardId ? { ...card, label: newLabel } : card)
+      );
+      toast.success('Card renamed successfully');
+    } catch (error) {
+      console.error(error);
+      toast.error('Could not rename card');
+    } finally {
+      setIsUpdatingId(null);
+    }
+  }
+
   // ─── Helpers ───────────────────────────────────────────────────────────────
 
   function getActiveProfileLabel(profileId: string | null): string {
@@ -184,10 +214,44 @@ export function CardList({ initialCards, profiles = [], multiProfileEnabled = fa
                     <div className="p-2 bg-primary/10 rounded-lg">
                       <CreditCard className="w-5 h-5 text-primary" />
                     </div>
-                    <div>
-                      <h3 className="font-semibold text-foreground capitalize">
-                        {card.cardType === 'metal' ? 'Premium Metal Card' : `${card.cardType || 'Standard'} Card`}
-                      </h3>
+                    <div className="flex flex-col">
+                      {renamingCardId === card.id ? (
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="text"
+                            value={editLabelValue}
+                            onChange={(e) => setEditLabelValue(e.target.value)}
+                            className="bg-background border border-border rounded px-2 py-0.5 text-sm font-semibold focus:outline-none focus:ring-1 focus:ring-primary w-40"
+                            autoFocus
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') saveCardLabel(card.id);
+                              if (e.key === 'Escape') setRenamingCardId(null);
+                            }}
+                          />
+                          <button onClick={() => saveCardLabel(card.id)} className="p-1 hover:bg-black/5 dark:hover:bg-white/10 rounded" title="Save">
+                            <Check className="w-4 h-4 text-green-500" />
+                          </button>
+                          <button onClick={() => setRenamingCardId(null)} className="p-1 hover:bg-black/5 dark:hover:bg-white/10 rounded" title="Cancel">
+                            <X className="w-4 h-4 text-red-500" />
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-2 group">
+                          <h3 className="font-semibold text-foreground capitalize">
+                            {card.label || (card.cardType === 'metal' ? 'Premium Metal Card' : `${card.cardType || 'Standard'} Card`)}
+                          </h3>
+                          <button 
+                            onClick={() => {
+                              setRenamingCardId(card.id);
+                              setEditLabelValue(card.label || (card.cardType === 'metal' ? 'Premium Metal Card' : `${card.cardType || 'Standard'} Card`));
+                            }}
+                            className="opacity-0 group-hover:opacity-100 p-1 hover:bg-black/5 dark:hover:bg-white/10 rounded transition-opacity"
+                            title="Rename Card"
+                          >
+                            <Pencil className="w-3.5 h-3.5 text-muted-foreground" />
+                          </button>
+                        </div>
+                      )}
                       <p className="text-sm text-muted-foreground font-mono mt-0.5">UID: {maskedUid}</p>
                     </div>
                   </div>

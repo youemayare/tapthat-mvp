@@ -65,6 +65,10 @@ export async function PATCH(
       return response;
     }
 
+    if ('label' in body && Object.keys(body).length === 1) {
+      return await withRlsUser(user, (tx) => handleLabelChange(tx, cardId, body.label, user.id));
+    }
+
     // ── Branch: Status change (existing behavior, unchanged) ──────────────────
     return await withRlsUser(user, (tx) => handleStatusChange(tx, cardId, body.status, user.id));
   } catch (error: unknown) {
@@ -206,3 +210,29 @@ async function handleProfileSwitch(tx: Transaction, cardId: string, profileId: s
 
   return NextResponse.json({ success: true, card: updatedCard });
 }
+
+async function handleLabelChange(tx: Transaction, cardId: string, requestedLabel: string | null, userId: string) {
+  const currentCard = await tx.query.cards.findFirst({
+    where: and(eq(cards.id, cardId), eq(cards.userId, userId)),
+  });
+  if (!currentCard) {
+    return NextResponse.json({ error: 'Card not found or unauthorized' }, { status: 404 });
+  }
+  if (currentCard.status === 'revoked') {
+    return NextResponse.json({ error: 'Card is permanently revoked and cannot be changed' }, { status: 403 });
+  }
+  const [updatedCard] = await tx
+    .update(cards)
+    .set({ label: requestedLabel, updatedAt: new Date() })
+    .where(and(eq(cards.id, cardId), eq(cards.userId, userId)))
+    .returning({
+      id: cards.id,
+      label: cards.label,
+      cardType: cards.cardType,
+      cardUid: cards.cardUid,
+      status: cards.status,
+      activatedAt: cards.activatedAt,
+    });
+  return NextResponse.json({ success: true, card: updatedCard });
+}
+

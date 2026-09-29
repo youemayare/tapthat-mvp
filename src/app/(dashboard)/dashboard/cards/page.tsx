@@ -21,6 +21,7 @@ export default async function CardsPage() {
   const [userCards, userProfiles] = await Promise.all([
     db.select({
       id: cards.id,
+      label: cards.label,
       cardType: cards.cardType,
       cardUid: cards.cardUid,
       status: cards.status,

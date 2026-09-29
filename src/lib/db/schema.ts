@@ -100,6 +100,9 @@ export const cards = pgTable('cards', {
   // "pvc" | "metal" | "wood"
   cardType: text('card_type').default('pvc'),
 
+  // User-facing custom name (e.g. "Office Card", "Conference Card")
+  label: text('label'),
+
   // "unclaimed" | "active" | "deactivated" | "replaced" | "revoked"
   status: text('status').default('unclaimed').notNull(),
 
