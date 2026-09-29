@@ -23,5 +23,16 @@ export async function FloatingShareWrapper() {
 
   if (!profiles || profiles.length === 0) return null;
 
-  return <FloatingShareButton profiles={profiles} handle={userData?.handle} />;
+  // Fetch active card to determine the preferred profile to share
+  const { data: activeCards } = await supabase
+    .from('cards')
+    .select('profile_id')
+    .eq('user_id', user.id)
+    .eq('status', 'active')
+    .order('activated_at', { ascending: false })
+    .limit(1);
+
+  const activeProfileId = activeCards?.[0]?.profile_id || profiles.find(p => p.is_default)?.id || profiles[0].id;
+
+  return <FloatingShareButton profiles={profiles} handle={userData?.handle} activeProfileId={activeProfileId} />;
 }

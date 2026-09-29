@@ -9,9 +9,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 interface FloatingShareButtonProps {
   profiles: any[]; // The published profiles
   handle?: string | null;
+  activeProfileId?: string;
 }
 
-export function FloatingShareButton({ profiles, handle }: FloatingShareButtonProps) {
+export function FloatingShareButton({ profiles, handle, activeProfileId }: FloatingShareButtonProps) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
 
@@ -25,8 +26,10 @@ export function FloatingShareButton({ profiles, handle }: FloatingShareButtonPro
     return null;
   }
 
-  // Determine active profile (use default if available, otherwise first)
-  const activeProfile = profiles.find((p) => p.is_default) || profiles[0];
+  // Determine active profile (use activeProfileId if provided, else default)
+  const activeProfile = activeProfileId 
+    ? profiles.find((p) => p.id === activeProfileId) || profiles[0]
+    : profiles.find((p) => p.is_default) || profiles[0];
 
   return (
     <>

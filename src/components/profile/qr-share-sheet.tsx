@@ -155,10 +155,8 @@ export function QRShareSheet({ open, onOpenChange, profile, handle }: QRShareShe
             )}
             {/* Center Logo for Online Mode */}
             {mode === 'online' && qrDataUrl && (
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-3 py-1.5 rounded-lg shadow-sm border border-black/5 flex items-center justify-center">
-                <span className="text-xl font-bold text-black leading-none tracking-tight">
-                  Tay<span className="text-brand-400">z</span>
-                </span>
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-black px-2 py-1 rounded-lg shadow-md border border-white/20 flex items-center justify-center overflow-hidden">
+                <img src="/tayz-logo-qr.png" alt="Tayz" className="h-6 w-auto object-contain" />
               </div>
             )}
           </div>
