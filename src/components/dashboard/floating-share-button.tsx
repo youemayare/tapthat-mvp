@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { usePathname } from 'next/navigation';
 import { Share, QrCode } from 'lucide-react';
 import { QRShareSheet } from '@/components/profile/qr-share-sheet';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -12,6 +13,12 @@ interface FloatingShareButtonProps {
 
 export function FloatingShareButton({ profiles, handle }: FloatingShareButtonProps) {
   const [open, setOpen] = useState(false);
+  const pathname = usePathname();
+
+  // Only show on the main dashboard tab
+  if (pathname !== '/dashboard') {
+    return null;
+  }
 
   // Do not render the button if there are no published profiles
   if (!profiles || profiles.length === 0) {

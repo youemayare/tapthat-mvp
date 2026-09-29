@@ -14,7 +14,7 @@ import {
 import { cn } from '@/lib/utils';
 
 export const navItems = [
-  { href: '/dashboard', label: 'Overview', icon: LayoutDashboard, exact: true },
+  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, exact: true },
   { href: '/dashboard/profile', label: 'Profiles', icon: User },
   { href: '/dashboard/connections', label: 'Connections', icon: UserCheck },
   { href: '/dashboard/analytics', label: 'Analytics', icon: BarChart3 },
