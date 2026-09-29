@@ -24,7 +24,7 @@ export function VoiceRecorder({ onRecordingComplete, onClear, existingAudioUrl }
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   
-  const MAX_DURATION = 120; // 2 minutes
+  const MAX_DURATION = 30; // 30 seconds
 
   useEffect(() => {
     return () => {
@@ -176,7 +176,7 @@ export function VoiceRecorder({ onRecordingComplete, onClear, existingAudioUrl }
       </div>
       
       {!isRecording && !audioBlobUrl && !error && (
-        <p className="text-[11px] text-zinc-500">Private to you. Max 2 mins.</p>
+        <p className="text-[11px] text-zinc-500">Private to you. Max 30 seconds.</p>
       )}
       {error && (
         <div className="flex items-center gap-1.5 text-[11px] text-red-400 mt-1">

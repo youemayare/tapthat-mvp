@@ -6,7 +6,7 @@ import { resolve, dirname } from 'path';
 import crypto from 'crypto';
 import { fileTypeFromBuffer } from 'file-type';
 
-const MAX_AUDIO_SIZE = 10 * 1024 * 1024; // 10MB limit for 2min audio
+const MAX_AUDIO_SIZE = 5 * 1024 * 1024; // 5MB limit for 30s audio
 
 export async function POST(req: Request) {
   const requestId = crypto.randomUUID();
@@ -41,12 +41,12 @@ export async function POST(req: Request) {
     }
 
     if (file.size > MAX_AUDIO_SIZE) {
-      return NextResponse.json({ error: `File exceeds 10MB limit` }, { status: 400 });
+      return NextResponse.json({ error: `File exceeds 5MB limit` }, { status: 400 });
     }
 
     const duration = durationStr ? parseInt(durationStr, 10) : 0;
-    if (duration > 120) {
-      return NextResponse.json({ error: `Audio exceeds 2 minutes limit` }, { status: 400 });
+    if (duration > 30) {
+      return NextResponse.json({ error: `Audio exceeds 30 seconds limit` }, { status: 400 });
     }
 
     const rawBuffer = Buffer.from(await file.arrayBuffer());
