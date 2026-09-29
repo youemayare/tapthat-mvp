@@ -52,12 +52,19 @@ export async function POST(req: Request) {
     const rawBuffer = Buffer.from(await file.arrayBuffer());
 
     const fileTypeResult = await fileTypeFromBuffer(rawBuffer);
-    if (!fileTypeResult || !fileTypeResult.mime.startsWith('audio/')) {
-      return NextResponse.json({ error: 'Only audio files are allowed' }, { status: 400 });
+    const mime = fileTypeResult?.mime || '';
+    
+    // MediaRecorder often creates files classified as video/webm or video/mp4 by file-type library 
+    // even though they contain only audio.
+    const isAudioOrVideoContainer = mime.startsWith('audio/') || mime === 'video/webm' || mime === 'video/mp4' || mime === 'application/ogg';
+
+    if (!fileTypeResult || !isAudioOrVideoContainer) {
+      return NextResponse.json({ error: `Only audio files are allowed. Got ${mime}` }, { status: 400 });
     }
 
-    const finalMime = fileTypeResult.mime;
-    const finalExt = fileTypeResult.ext;
+    // Force it to be considered audio if it was a video container from MediaRecorder
+    const finalMime = mime.replace('video/', 'audio/');
+    const finalExt = fileTypeResult.ext === 'mp4' ? 'mp4' : fileTypeResult.ext === 'webm' ? 'webm' : fileTypeResult.ext;
 
     // Save in private-audio/user_id/random.ext
     const safeFilename = `${crypto.randomBytes(16).toString('hex')}.${finalExt}`;
