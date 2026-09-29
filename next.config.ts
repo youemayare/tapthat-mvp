@@ -81,7 +81,7 @@ const nextConfig: NextConfig = {
           // Permissions: disable browser features not used by this app
           {
             key: 'Permissions-Policy',
-            value: 'camera=(), microphone=(), geolocation=(), interest-cohort=()',
+            value: 'camera=(), geolocation=(), interest-cohort=()',
           },
 
           // HSTS: only emit over production HTTPS (Vercel sets NODE_ENV=production)
