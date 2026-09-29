@@ -189,14 +189,27 @@ export function ConnectionCard({ connection, profile, note }: ConnectionCardProp
               This note is only visible to you.
             </DialogDescription>
           </DialogHeader>
-          <div className="py-4">
-            <Textarea 
-              placeholder="Where did you meet? What should you follow up on?"
-              value={noteContent}
-              onChange={(e) => setNoteContent(e.target.value)}
-              className="min-h-[120px] resize-none rounded-xl"
-            />
-          </div>
+          <div className="py-2 flex flex-col gap-3">
+              <Textarea 
+                placeholder="Where did you meet? What should you follow up on?"
+                value={noteContent}
+                onChange={(e) => setNoteContent(e.target.value)}
+                className="min-h-[100px] resize-none rounded-xl"
+              />
+              <VoiceRecorder 
+                onRecordingComplete={(blob, duration) => {
+                  setAudioBlob(blob);
+                  setAudioDuration(duration);
+                  setRemoveAudio(false);
+                }}
+                onClear={() => {
+                  setAudioBlob(null);
+                  setAudioDuration(0);
+                  setRemoveAudio(true);
+                }}
+                existingAudioUrl={!removeAudio && !audioBlob && note?.audioStoragePath ? `/api/audio/${note.audioStoragePath.split('/').slice(1).join('/')}` : undefined}
+              />
+            </div>
           <DialogFooter className="sm:justify-between flex-row gap-2">
             <Button type="button" variant="ghost" onClick={() => setShowModal(false)} className="rounded-xl">
               Cancel
