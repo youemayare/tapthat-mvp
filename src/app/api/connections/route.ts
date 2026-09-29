@@ -4,6 +4,7 @@ import { db } from '@/lib/db';
 import { withRlsUser } from '@/lib/db/auth-wrapper';
 import { connections, connectionNotes, profiles } from '@/lib/db/schema';
 import { and, eq } from 'drizzle-orm';
+import { deleteAudioFromStorage } from '@/lib/audio-storage';
 
 export async function POST(req: NextRequest) {
   const supabase = await createClient();
@@ -55,16 +56,39 @@ export async function POST(req: NextRequest) {
         connectionId = inserted.id;
       }
 
-      if (note && typeof note === 'string' && connectionId) {
+      const hasNoteText = typeof note === 'string';
+      const audio = body.audio;
+      const hasAudio = audio && typeof audio === 'object' && audio.audioStoragePath;
+
+      if ((hasNoteText || hasAudio) && connectionId) {
+        const updateData: any = { updatedAt: new Date() };
+        const insertData: any = {
+          connectionId: connectionId,
+          ownerUserId: user.id,
+          content: hasNoteText ? note : ''
+        };
+
+        if (hasNoteText) {
+          updateData.content = note;
+        }
+
+        if (hasAudio) {
+          insertData.audioStoragePath = audio.audioStoragePath;
+          insertData.audioMimeType = audio.audioMimeType;
+          insertData.audioSize = audio.audioSize;
+          insertData.audioDuration = audio.audioDuration;
+          
+          updateData.audioStoragePath = audio.audioStoragePath;
+          updateData.audioMimeType = audio.audioMimeType;
+          updateData.audioSize = audio.audioSize;
+          updateData.audioDuration = audio.audioDuration;
+        }
+
         await tx.insert(connectionNotes)
-          .values({
-            connectionId: connectionId,
-            ownerUserId: user.id,
-            content: note
-          })
+          .values(insertData)
           .onConflictDoUpdate({
             target: [connectionNotes.connectionId, connectionNotes.ownerUserId],
-            set: { content: note, updatedAt: new Date() }
+            set: updateData
           });
       }
 

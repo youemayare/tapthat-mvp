@@ -9,7 +9,7 @@ import {
   BookmarkPlus, BookmarkCheck, UserPlus, Home, Share
 } from 'lucide-react';
 import { FaWhatsapp } from 'react-icons/fa';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { ConnectionNoteModal } from '../connection-note-modal';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { FaLinkedin, FaInstagram } from 'react-icons/fa';
@@ -77,6 +77,8 @@ export function ClassicProfileLayout({ profile, cardUid }: Props) {
     handleSaveContact,
     handleToggleSave,
     handleSaveConnectionAndNote,
+    setAudioBlob,
+    setAudioDuration,
     sourceChannel,
   } = useProfileActions(profile, cardUid);
 
@@ -386,32 +388,17 @@ export function ClassicProfileLayout({ profile, cardUid }: Props) {
       </div>
     
       {/* Note Modal */}
-      <Dialog open={showNoteModal} onOpenChange={setShowNoteModal}>
-        <DialogContent className="sm:max-w-md bg-background border-border" style={{ borderRadius: '1.5rem' }}>
-          <DialogHeader>
-            <DialogTitle>Add a private note?</DialogTitle>
-            <DialogDescription>
-              Keep track of where you met or what you discussed. This is completely private and only visible to you.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="py-4">
-            <Textarea 
-              placeholder="e.g., Met at the AI summit, follow up next week about the new project..."
-              value={noteContent}
-              onChange={(e) => setNoteContent(e.target.value)}
-              className="min-h-[100px] resize-none rounded-xl"
-            />
-          </div>
-          <DialogFooter className="sm:justify-between flex-row gap-2">
-            <Button type="button" variant="ghost" onClick={() => setShowNoteModal(false)} className="rounded-xl">
-              Cancel
-            </Button>
-            <Button type="button" onClick={handleSaveConnectionAndNote} disabled={savingNote} className="rounded-xl bg-brand-500 hover:bg-brand-600 text-white">
-              {savingNote ? 'Saving...' : 'Save'}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <ConnectionNoteModal
+        open={showNoteModal}
+        onOpenChange={setShowNoteModal}
+        profile={profile}
+        noteContent={noteContent}
+        setNoteContent={setNoteContent}
+        setAudioBlob={setAudioBlob}
+        setAudioDuration={setAudioDuration}
+        savingNote={savingNote}
+        onSave={handleSaveConnectionAndNote}
+      />
       
       <ExchangeDetailsDrawer
         open={guestFlow.showExchange}

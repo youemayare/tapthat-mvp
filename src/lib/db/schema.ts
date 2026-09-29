@@ -1,4 +1,4 @@
-import { pgTable, uuid, text, boolean, timestamp, jsonb, index, unique } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, text, boolean, timestamp, jsonb, index, unique, integer } from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
 
 // ─── Users ───────────────────────────────────────────────────────────────────
@@ -210,7 +210,11 @@ export const connectionNotes = pgTable('connection_notes', {
   id: uuid('id').defaultRandom().primaryKey(),
   connectionId: uuid('connection_id').notNull().references(() => connections.id, { onDelete: 'cascade' }),
   ownerUserId: uuid('owner_user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
-  content: text('content').notNull(),
+  content: text('content').default(''),
+  audioStoragePath: text('audio_storage_path'),
+  audioMimeType: text('audio_mime_type'),
+  audioSize: integer('audio_size'),
+  audioDuration: integer('audio_duration'),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 }, (t) => [

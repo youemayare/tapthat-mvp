@@ -8,7 +8,7 @@ import {
   FileText,
   UserPlus, UserCheck, Home, Share, MessageCircle, BookmarkPlus
 } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { ConnectionNoteModal } from '../connection-note-modal';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { FaLinkedin, FaInstagram, FaWhatsapp } from 'react-icons/fa';
@@ -36,6 +36,8 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
     handleSaveContact,
     handleToggleSave,
     handleSaveConnectionAndNote,
+    setAudioBlob,
+    setAudioDuration,
     sourceChannel,
   } = useProfileActions(profile, cardUid);
 
@@ -333,37 +335,17 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
       </div>
 
       {/* Connection Note Modal */}
-      <Dialog open={showNoteModal} onOpenChange={setShowNoteModal}>
-        <DialogContent className="sm:max-w-md bg-zinc-900 text-white border-zinc-800">
-          <DialogHeader>
-            <DialogTitle>Save to My Connections</DialogTitle>
-            <DialogDescription className="text-zinc-400">
-              Add {profile.firstName || 'this person'} to your personal Tayz CRM. You can add a private note below (optional).
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <Textarea
-              placeholder="E.g., Met at the AI summit, talked about partnership..."
-              value={noteContent}
-              onChange={(e) => setNoteContent(e.target.value)}
-              className="resize-none h-24 bg-zinc-950 border-zinc-800 text-white placeholder:text-zinc-600 focus-visible:ring-zinc-700"
-            />
-          </div>
-          <DialogFooter className="flex-col sm:flex-row gap-2">
-            <Button type="button" variant="ghost" onClick={() => setShowNoteModal(false)} className="rounded-xl text-zinc-300 hover:text-white hover:bg-zinc-800">
-              Cancel
-            </Button>
-            <Button 
-              type="button" 
-              onClick={handleSaveConnectionAndNote} 
-              disabled={savingNote}
-              className="rounded-xl bg-brand-500 hover:bg-brand-600 text-white"
-            >
-              {savingNote ? 'Saving...' : 'Save Connection'}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <ConnectionNoteModal
+        open={showNoteModal}
+        onOpenChange={setShowNoteModal}
+        profile={profile}
+        noteContent={noteContent}
+        setNoteContent={setNoteContent}
+        setAudioBlob={setAudioBlob}
+        setAudioDuration={setAudioDuration}
+        savingNote={savingNote}
+        onSave={handleSaveConnectionAndNote}
+      />
       
       <ExchangeDetailsDrawer
         open={guestFlow.showExchange}

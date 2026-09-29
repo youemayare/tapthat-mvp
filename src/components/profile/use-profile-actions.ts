@@ -25,6 +25,9 @@ export function useProfileActions(profile: Partial<Profile> & { id: string; user
   const [showNoteModal, setShowNoteModal] = useState(false);
   const [noteContent, setNoteContent] = useState('');
   const [savingNote, setSavingNote] = useState(false);
+  
+  const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
+  const [audioDuration, setAudioDuration] = useState<number>(0);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -79,10 +82,39 @@ export function useProfileActions(profile: Partial<Profile> & { id: string; user
   async function handleSaveConnectionAndNote() {
     setSavingNote(true);
     try {
+      let audioMetadata = null;
+
+      if (audioBlob) {
+        const formData = new FormData();
+        formData.append('file', audioBlob);
+        formData.append('duration', audioDuration.toString());
+
+        const uploadRes = await fetch('/api/audio/upload', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!uploadRes.ok) {
+          throw new Error('Failed to upload audio');
+        }
+
+        const uploadData = await uploadRes.json();
+        audioMetadata = {
+          audioStoragePath: uploadData.key,
+          audioMimeType: uploadData.mime,
+          audioSize: uploadData.size,
+          audioDuration: uploadData.duration,
+        };
+      }
+
       const res = await fetch('/api/connections', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ profileId: profile.id, note: noteContent.trim() || null }),
+        body: JSON.stringify({ 
+          profileId: profile.id, 
+          note: noteContent.trim() || null,
+          audio: audioMetadata
+        }),
       });
       if (res.ok) {
         setSaved(true);
@@ -167,6 +199,10 @@ export function useProfileActions(profile: Partial<Profile> & { id: string; user
     guestFlow,
     noteContent,
     setNoteContent,
+    audioBlob,
+    setAudioBlob,
+    audioDuration,
+    setAudioDuration,
     savingNote,
     handleSaveConnectionAndNote,
     handleToggleSave,

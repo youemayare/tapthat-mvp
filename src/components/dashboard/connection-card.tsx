@@ -2,10 +2,11 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { StickyNote, UserMinus } from 'lucide-react';
+import { StickyNote, UserMinus, Mic } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
+import { VoiceRecorder } from '@/components/profile/voice-recorder';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 
@@ -28,23 +29,63 @@ export function ConnectionCard({ connection, profile, note }: ConnectionCardProp
   const fullName = [profile.firstName, profile.lastName].filter(Boolean).join(' ') || 'Unknown';
   const href = `/p/${profile.slug || profile.id}`;
 
+  const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
+  const [audioDuration, setAudioDuration] = useState<number>(0);
+  const [removeAudio, setRemoveAudio] = useState(false);
+
   async function handleSaveNote() {
     setIsSaving(true);
     try {
+      let audioMetadata: any = undefined;
+
+      if (removeAudio) {
+        audioMetadata = null;
+      } else if (audioBlob) {
+        const formData = new FormData();
+        formData.append('file', audioBlob);
+        formData.append('duration', audioDuration.toString());
+
+        const uploadRes = await fetch('/api/audio/upload', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!uploadRes.ok) {
+          throw new Error('Failed to upload audio');
+        }
+
+        const uploadData = await uploadRes.json();
+        audioMetadata = {
+          audioStoragePath: uploadData.key,
+          audioMimeType: uploadData.mime,
+          audioSize: uploadData.size,
+          audioDuration: uploadData.duration,
+        };
+      }
+
       const res = await fetch(`/api/connections/${connection.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ note: noteContent.trim() || null }),
+        body: JSON.stringify({ 
+          note: noteContent.trim() || null,
+          ...(audioMetadata !== undefined && { audio: audioMetadata })
+        }),
       });
       if (res.ok) {
         setCurrentNote(noteContent.trim() || null);
-        toast.success(noteContent.trim() ? 'Note saved.' : 'Note removed.');
+        toast.success(noteContent.trim() || audioMetadata ? 'Note saved.' : 'Note removed.');
         setShowModal(false);
+        setAudioBlob(null);
+        setAudioDuration(0);
+        setRemoveAudio(false);
+        if (audioMetadata !== undefined) {
+          note.audioStoragePath = audioMetadata ? audioMetadata.audioStoragePath : null;
+        }
       } else {
         toast.error('Failed to save note.');
       }
     } catch {
-      toast.error('Network error.');
+      toast.error('Network error or upload failed.');
     } finally {
       setIsSaving(false);
     }
@@ -106,7 +147,7 @@ export function ConnectionCard({ connection, profile, note }: ConnectionCardProp
           <div className="flex items-center gap-2 pointer-events-auto shrink-0">
             <button 
               onClick={(e) => { e.preventDefault(); setShowModal(true); }}
-              className={`w-9 h-9 rounded-full flex items-center justify-center transition-colors ${currentNote ? 'bg-amber-500/20 text-amber-400 hover:bg-amber-500/30' : 'bg-muted text-muted-foreground hover:bg-accent hover:text-foreground'}`}
+              className={`w-9 h-9 rounded-full flex items-center justify-center transition-colors ${(currentNote || note?.audioStoragePath) ? 'bg-amber-500/20 text-amber-400 hover:bg-amber-500/30' : 'bg-muted text-muted-foreground hover:bg-accent hover:text-foreground'}`}
               title={currentNote ? 'Edit private note' : 'Add private note'}
             >
               <StickyNote className="w-4 h-4" />

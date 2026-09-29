@@ -4,7 +4,7 @@ import Link from 'next/link';
 import type { Profile } from '@/lib/db/schema';
 import { buildWhatsAppUrl } from '@/lib/utils';
 import { Share, Home, BookmarkPlus } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { ConnectionNoteModal } from '../connection-note-modal';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { useProfileActions } from '@/components/profile/use-profile-actions';
@@ -30,6 +30,8 @@ export function ProfessionalProfileLayout({ profile, cardUid }: Props) {
     setShowNoteModal,
     handleSaveContact,
     handleSaveConnectionAndNote,
+    setAudioBlob,
+    setAudioDuration,
     handleToggleSave,
     sourceChannel
   } = useProfileActions(profile, cardUid);
@@ -295,33 +297,17 @@ export function ProfessionalProfileLayout({ profile, cardUid }: Props) {
       </div>
 
       {/* Save Connection Note Modal */}
-      <Dialog open={showNoteModal} onOpenChange={setShowNoteModal}>
-        <DialogContent className="sm:max-w-md bg-[#F7F7F5] dark:bg-[#15130F] border-[#C9A45D]/30 text-[#1A1A1A] dark:text-[#F6F1E6]">
-          <DialogHeader>
-            <DialogTitle className="font-playfair text-2xl font-medium">Add a Note</DialogTitle>
-            <DialogDescription className="text-[#62666B] dark:text-[#B8B0A2]">
-              Add context on how you met or what you discussed.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="py-4">
-            <Textarea
-              value={noteContent}
-              onChange={(e) => setNoteContent(e.target.value)}
-              placeholder="e.g., Met at the real estate summit..."
-              className="resize-none bg-transparent border-[#C9A45D]/30 placeholder:text-[#A9ADB2] dark:placeholder:text-[#B8B0A2]/50 focus-visible:ring-[#C9A45D]"
-              rows={4}
-            />
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowNoteModal(false)} className="border-[#C9A45D]/30 text-[#1A1A1A] dark:text-[#F6F1E6] hover:bg-[#C9A45D]/10">
-              Cancel
-            </Button>
-            <Button onClick={handleSaveConnectionAndNote} disabled={savingNote} className="bg-gradient-to-r from-[#C9A45D] to-[#B98A3D] text-white dark:text-[#0B0A08] hover:opacity-90 border-0">
-              {savingNote ? 'Saving...' : 'Save Connection'}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <ConnectionNoteModal
+        open={showNoteModal}
+        onOpenChange={setShowNoteModal}
+        profile={profile}
+        noteContent={noteContent}
+        setNoteContent={setNoteContent}
+        setAudioBlob={setAudioBlob}
+        setAudioDuration={setAudioDuration}
+        savingNote={savingNote}
+        onSave={handleSaveConnectionAndNote}
+      />
       
       <ExchangeDetailsDrawer
         open={guestFlow.showExchange}
