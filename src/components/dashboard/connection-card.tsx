@@ -167,11 +167,22 @@ export function ConnectionCard({ connection, profile, note }: ConnectionCardProp
           <p className="text-sm text-muted-foreground truncate relative z-10 pointer-events-none">{profile.companyName}</p>
         )}
 
-        {/* Note Preview */}
-        {currentNote && (
-          <div className="relative z-10 mt-1 p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl pointer-events-none">
-             <p className="text-xs text-amber-400 font-medium mb-1">Private Note</p>
-             <p className="text-sm text-foreground line-clamp-2">{currentNote}</p>
+                {/* Note Preview */}
+        {(currentNote || note?.audioStoragePath) && (
+          <div className="relative z-10 mt-1 p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl pointer-events-none flex flex-col gap-1">
+             <div className="flex items-center gap-1.5 text-amber-400">
+               <StickyNote className="w-3.5 h-3.5" />
+               <p className="text-xs font-medium">Private Note</p>
+             </div>
+             {currentNote && <p className="text-sm text-foreground line-clamp-2">{currentNote}</p>}
+             {note?.audioStoragePath && (
+               <div className="flex flex-col gap-2 mt-2 border-t border-amber-500/20 pt-2 pointer-events-auto">
+                 <div className="flex items-center gap-1.5 text-xs text-amber-500/80 font-medium">
+                   <Mic className="w-3 h-3" /> Voice Note
+                 </div>
+                 <audio controls src={`/api/audio/${note.audioStoragePath}`} className="h-8 w-full" preload="metadata" />
+               </div>
+             )}
           </div>
         )}
 
@@ -207,7 +218,8 @@ export function ConnectionCard({ connection, profile, note }: ConnectionCardProp
                   setAudioDuration(0);
                   setRemoveAudio(true);
                 }}
-                existingAudioUrl={!removeAudio && !audioBlob && note?.audioStoragePath ? `/api/audio/${note.audioStoragePath.split('/').slice(1).join('/')}` : undefined}
+                existingAudioUrl={!removeAudio && !audioBlob && note?.audioStoragePath ? `/api/audio/${note.audioStoragePath}` : undefined}
+                existingAudioDuration={note?.audioDuration || 0}
               />
             </div>
           <DialogFooter className="sm:justify-between flex-row gap-2">

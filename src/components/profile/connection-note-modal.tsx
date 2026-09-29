@@ -16,6 +16,8 @@ interface ConnectionNoteModalProps {
   setAudioDuration: (duration: number) => void;
   savingNote: boolean;
   onSave: () => void;
+  existingAudioUrl?: string;
+  existingAudioDuration?: number;
 }
 
 export function ConnectionNoteModal({
@@ -27,7 +29,9 @@ export function ConnectionNoteModal({
   setAudioBlob,
   setAudioDuration,
   savingNote,
-  onSave
+  onSave,
+  existingAudioUrl,
+  existingAudioDuration
 }: ConnectionNoteModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -56,6 +60,8 @@ export function ConnectionNoteModal({
               setAudioBlob(null);
               setAudioDuration(0);
             }}
+            existingAudioUrl={existingAudioUrl}
+            existingAudioDuration={existingAudioDuration}
           />
         </div>
         

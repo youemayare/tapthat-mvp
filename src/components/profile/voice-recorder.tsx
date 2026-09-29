@@ -8,12 +8,13 @@ import { toast } from 'sonner';
 interface VoiceRecorderProps {
   onRecordingComplete: (blob: Blob, durationSeconds: number) => void;
   onClear: () => void;
-  existingAudioUrl?: string; // used for playback if they already have one, but typically used in edit mode
+  existingAudioUrl?: string;
+  existingAudioDuration?: number; // used for playback if they already have one, but typically used in edit mode
 }
 
-export function VoiceRecorder({ onRecordingComplete, onClear, existingAudioUrl }: VoiceRecorderProps) {
+export function VoiceRecorder({ onRecordingComplete, onClear, existingAudioUrl, existingAudioDuration }: VoiceRecorderProps) {
   const [isRecording, setIsRecording] = useState(false);
-  const [recordingTime, setRecordingTime] = useState(0);
+  const [recordingTime, setRecordingTime] = useState(existingAudioDuration || 0);
   const [audioBlobUrl, setAudioBlobUrl] = useState<string | null>(existingAudioUrl || null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [playbackTime, setPlaybackTime] = useState(0);
@@ -108,6 +109,11 @@ export function VoiceRecorder({ onRecordingComplete, onClear, existingAudioUrl }
   };
 
   const handleClear = () => {
+    if (existingAudioUrl) {
+      if (!window.confirm("Are you sure you want to delete this voice note?")) {
+        return;
+      }
+    }
     if (audioBlobUrl && !existingAudioUrl) {
       URL.revokeObjectURL(audioBlobUrl);
     }
