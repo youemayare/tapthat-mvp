@@ -6,7 +6,6 @@ import { cards, tapEvents, profiles } from '@/lib/db/schema';
 import { eq, count, or, inArray } from 'drizzle-orm';
 import { BarChart3, CreditCard, Eye, Users, Wallet, QrCode } from 'lucide-react';
 import { getGoogleWalletSaveUrl } from '@/lib/wallet/google';
-import { QrShareCard } from '@/components/dashboard/qr-share-card';
 
 export const metadata: Metadata = { title: 'Dashboard' };
 
@@ -164,11 +163,6 @@ export default async function DashboardPage() {
             <h3 className="text-foreground font-semibold mb-1">Create QR Display</h3>
             <p className="text-muted-foreground text-sm">Download or print a QR poster for your spaces.</p>
           </a>
-
-          {/* QR Share Modal Component */}
-          {statsData.activeCardUid && (
-            <QrShareCard cardUid={statsData.activeCardUid} />
-          )}
 
           {statsData.googleWalletUrl && (
             <a
