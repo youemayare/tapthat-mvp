@@ -7,6 +7,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { VoiceRecorder } from '@/components/profile/voice-recorder';
+import { AudioPlayer } from '@/components/ui/audio-player';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 
@@ -180,7 +181,7 @@ export function ConnectionCard({ connection, profile, note }: ConnectionCardProp
                  <div className="flex items-center gap-1.5 text-xs text-amber-500/80 font-medium">
                    <Mic className="w-3 h-3" /> Voice Note
                  </div>
-                 <audio controls src={`/api/audio/${note.audioStoragePath}`} className="h-8 w-full" preload="metadata" />
+                 <AudioPlayer src={`/api/audio/${note.audioStoragePath}`} duration={note?.audioDuration || 0} />
                </div>
              )}
           </div>
