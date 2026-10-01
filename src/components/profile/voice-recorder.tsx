@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Mic, Square, Play, Pause, Trash2, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 
 interface VoiceRecorderProps {
@@ -19,6 +20,7 @@ export function VoiceRecorder({ onRecordingComplete, onClear, existingAudioUrl, 
   const [isPlaying, setIsPlaying] = useState(false);
   const [playbackTime, setPlaybackTime] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<BlobPart[]>([]);
@@ -124,16 +126,20 @@ export function VoiceRecorder({ onRecordingComplete, onClear, existingAudioUrl, 
 
   const handleClear = () => {
     if (existingAudioUrl) {
-      if (!window.confirm("Are you sure you want to delete this voice note?")) {
-        return;
-      }
+      setShowConfirmModal(true);
+    } else {
+      confirmClear();
     }
+  };
+
+  const confirmClear = () => {
     if (audioBlobUrl && !existingAudioUrl) {
       URL.revokeObjectURL(audioBlobUrl);
     }
     setAudioBlobUrl(null);
     setRecordingTime(0);
     onClear();
+    setShowConfirmModal(false);
   };
 
   const togglePlayback = () => {
@@ -232,6 +238,25 @@ export function VoiceRecorder({ onRecordingComplete, onClear, existingAudioUrl, 
           {error}
         </div>
       )}
+
+      <Dialog open={showConfirmModal} onOpenChange={setShowConfirmModal}>
+        <DialogContent className="sm:max-w-md bg-background border-border" style={{ borderRadius: '1.5rem' }}>
+          <DialogHeader>
+            <DialogTitle>Delete Voice Note?</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this voice note? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="sm:justify-between flex-row gap-2 mt-4">
+            <Button type="button" variant="ghost" onClick={() => setShowConfirmModal(false)} className="rounded-xl">
+              Cancel
+            </Button>
+            <Button type="button" variant="destructive" onClick={confirmClear} className="rounded-xl">
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
