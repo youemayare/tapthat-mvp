@@ -73,7 +73,8 @@ export function AudioPlayer({ src, duration: knownDuration }: AudioPlayerProps) 
     return `${m}:${s.toString().padStart(2, '0')}`;
   };
 
-  const progressPercentage = duration > 0 ? (currentTime / duration) * 100 : 0;
+  const activeDuration = duration > 0 ? duration : 30;
+  const progressPercentage = (currentTime / activeDuration) * 100;
   
   // Show total duration if not playing and at start
   const displayTime = (!isPlaying && currentTime === 0) ? duration : currentTime;

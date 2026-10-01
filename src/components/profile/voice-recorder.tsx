@@ -25,6 +25,7 @@ export function VoiceRecorder({ onRecordingComplete, onClear, existingAudioUrl, 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<BlobPart[]>([]);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const recordingTimeRef = useRef(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const progressBarRef = useRef<HTMLDivElement | null>(null);
   
@@ -77,21 +78,23 @@ export function VoiceRecorder({ onRecordingComplete, onClear, existingAudioUrl, 
         const audioBlob = new Blob(audioChunksRef.current, { type: mediaRecorder.mimeType || 'audio/webm' });
         const url = URL.createObjectURL(audioBlob);
         setAudioBlobUrl(url);
-        onRecordingComplete(audioBlob, recordingTime);
+        onRecordingComplete(audioBlob, recordingTimeRef.current);
         stream.getTracks().forEach(track => track.stop());
       };
 
       mediaRecorder.start(200); // chunk every 200ms
       setIsRecording(true);
       setRecordingTime(0);
+      recordingTimeRef.current = 0;
 
       timerRef.current = setInterval(() => {
         setRecordingTime((prev) => {
+          const next = prev >= MAX_DURATION - 1 ? MAX_DURATION : prev + 1;
+          recordingTimeRef.current = next;
           if (prev >= MAX_DURATION - 1) {
             stopRecording();
-            return MAX_DURATION;
           }
-          return prev + 1;
+          return next;
         });
       }, 1000);
 
@@ -161,7 +164,8 @@ export function VoiceRecorder({ onRecordingComplete, onClear, existingAudioUrl, 
   };
 
   const displayTime = (!isPlaying && playbackTime === 0) ? (recordingTime > 0 ? recordingTime : (existingAudioDuration || 0)) : playbackTime;
-  const progressPercentage = (recordingTime > 0 || existingAudioDuration) ? (playbackTime / (recordingTime || existingAudioDuration || 1)) * 100 : 0;
+  const activeRecDuration = (recordingTime > 0 ? recordingTime : existingAudioDuration) || 30;
+  const progressPercentage = (playbackTime / activeRecDuration) * 100;
 
   return (
     <div className="flex flex-col gap-2 p-3 bg-zinc-950 border border-zinc-800 rounded-xl mt-2">
@@ -216,7 +220,19 @@ export function VoiceRecorder({ onRecordingComplete, onClear, existingAudioUrl, 
               <audio 
                 ref={audioRef} 
                 src={audioBlobUrl} 
-                onTimeUpdate={(e) => setPlaybackTime(e.currentTarget.currentTime)}
+                onTimeUpdate={(e) => {
+                  setPlaybackTime(e.currentTarget.currentTime);
+                  const d = e.currentTarget.duration;
+                  if (d && d !== Infinity && recordingTime === 0 && !existingAudioDuration) {
+                    setRecordingTime(Math.floor(d));
+                  }
+                }}
+                onLoadedMetadata={(e) => {
+                  const d = e.currentTarget.duration;
+                  if (d && d !== Infinity && recordingTime === 0 && !existingAudioDuration) {
+                    setRecordingTime(Math.floor(d));
+                  }
+                }}
                 onEnded={() => { setIsPlaying(false); setPlaybackTime(0); }}
                 className="hidden"
                 preload="metadata"
