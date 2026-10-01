@@ -80,7 +80,10 @@ export function ConnectionCard({ connection, profile, note }: ConnectionCardProp
         setAudioDuration(0);
         setRemoveAudio(false);
         if (audioMetadata !== undefined) {
-          note.audioStoragePath = audioMetadata ? audioMetadata.audioStoragePath : null;
+          if (note) {
+            note.audioStoragePath = audioMetadata ? audioMetadata.audioStoragePath : null;
+            note.audioDuration = audioMetadata ? audioMetadata.audioDuration : null;
+          }
         }
       } else {
         toast.error('Failed to save note.');

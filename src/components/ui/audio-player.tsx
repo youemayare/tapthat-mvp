@@ -96,12 +96,12 @@ export function AudioPlayer({ src, duration: knownDuration }: AudioPlayerProps) 
         onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleProgressClick(e); }}
       >
         {/* Track background */}
-        <div className="absolute left-0 right-0 h-1.5 bg-zinc-800 rounded-full" />
+        <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-1.5 bg-zinc-800 rounded-full" />
         
         {/* Filled track and pointer */}
         <div 
-          className="absolute left-0 h-1.5 bg-amber-500 rounded-full transition-all ease-linear"
-          style={{ width: `${progressPercentage}%`, transitionDuration: isPlaying ? '150ms' : '0ms' }}
+          className="absolute left-0 top-1/2 -translate-y-1/2 h-1.5 bg-amber-500 rounded-full"
+          style={{ width: `${Math.min(100, Math.max(0, progressPercentage || 0))}%`, transition: isPlaying ? 'width 150ms linear' : 'none' }}
         >
           {/* Moving Pointer (Knob) */}
           <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 w-3 h-3 bg-amber-200 rounded-full shadow-sm shadow-amber-500/50" />
