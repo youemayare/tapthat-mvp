@@ -92,13 +92,20 @@ export function AudioPlayer({ src, duration: knownDuration }: AudioPlayerProps) 
       
       <div 
         ref={progressBarRef}
-        className="flex-1 h-1.5 bg-zinc-800 rounded-full overflow-hidden cursor-pointer relative"
+        className="flex-1 h-4 flex items-center cursor-pointer relative group"
         onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleProgressClick(e); }}
       >
+        {/* Track background */}
+        <div className="absolute left-0 right-0 h-1.5 bg-zinc-800 rounded-full" />
+        
+        {/* Filled track and pointer */}
         <div 
-          className="absolute left-0 top-0 bottom-0 bg-amber-500 transition-all ease-linear"
+          className="absolute left-0 h-1.5 bg-amber-500 rounded-full transition-all ease-linear"
           style={{ width: `${progressPercentage}%`, transitionDuration: isPlaying ? '150ms' : '0ms' }}
-        />
+        >
+          {/* Moving Pointer (Knob) */}
+          <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 w-3 h-3 bg-amber-200 rounded-full shadow-sm shadow-amber-500/50" />
+        </div>
       </div>
 
       <div className="text-xs font-medium text-zinc-400 w-9 text-right tabular-nums shrink-0">
