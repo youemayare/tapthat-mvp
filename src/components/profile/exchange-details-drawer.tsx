@@ -16,6 +16,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Loader2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Turnstile } from '@marsidev/react-turnstile';
@@ -39,8 +40,11 @@ type Profile = {
   firstName: string | null;
   lastName: string | null;
   jobTitle: string | null;
+  companyName: string | null;
+  email: string | null;
+  phone: string | null;
   isDefault: boolean;
-};
+};;
 
 export function ExchangeDetailsDrawer({
   open,
@@ -58,6 +62,7 @@ export function ExchangeDetailsDrawer({
   const [loadingProfiles, setLoadingProfiles] = useState(false);
   const [selectedProfileId, setSelectedProfileId] = useState<string>('');
   const [isExchanging, setIsExchanging] = useState(false);
+  const [showMore, setShowMore] = useState(false);
   const [showAllFields, setShowAllFields] = useState(false);
   const [successData, setSuccessData] = useState<{ id: string, erasureToken: string } | null>(null);
   const [hasCheckedProfiles, setHasCheckedProfiles] = useState(false);
@@ -83,9 +88,9 @@ export function ExchangeDetailsDrawer({
             setProfiles(data.profiles);
             const defaultProfile = data.profiles.find((p: Profile) => p.isDefault);
             if (defaultProfile) {
-              setSelectedProfileId(defaultProfile.id);
+              setSelectedProfileId(defaultProfile.id || "");
             } else if (data.profiles.length > 0) {
-              setSelectedProfileId(data.profiles[0].id);
+              setSelectedProfileId(data.profiles[0].id || "");
             }
           }
         })
@@ -278,39 +283,58 @@ export function ExchangeDetailsDrawer({
         </DrawerHeader>
 
         <div className="p-4 pb-0 max-h-[60vh] overflow-y-auto">
-          {!isSubmittingAsGuest ? (
             <div className="space-y-4">
-              <h4 className="text-sm font-medium">Select a profile to share</h4>
-              {loadingProfiles ? (
-                <div className="space-y-3">
-                  <Skeleton className="h-16 w-full rounded-lg" />
-                  <Skeleton className="h-16 w-full rounded-lg" />
+              
+              {!isSubmittingAsGuest && (
+                <div className="space-y-2 bg-muted/30 p-3 rounded-lg border">
+                  <Label className="text-xs text-muted-foreground uppercase tracking-wider">Select Profile to Share</Label>
+                  {loadingProfiles ? (
+                    <Skeleton className="h-10 w-full rounded-md" />
+                  ) : (
+                    <Select 
+                      value={selectedProfileId} 
+                      onValueChange={(val) => {
+                        setSelectedProfileId(val || "");
+                        const p = profiles.find(profile => profile.id === val);
+                        if (p) {
+                          setFormData(prev => ({
+                            ...prev,
+                            firstName: p.firstName || '',
+                            lastName: p.lastName || '',
+                            jobTitle: p.jobTitle || '',
+                            companyName: p.companyName || '',
+                            email: p.email || '',
+                            phone: p.phone || '',
+                          }));
+                        }
+                      }}
+                    >
+                      <SelectTrigger className="w-full bg-background">
+                        <SelectValue placeholder="Select a profile" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {profiles.map(p => {
+                           const name = [p.firstName, p.lastName].filter(Boolean).join(' ') || 'Unnamed Profile';
+                           const subtitle = [p.jobTitle, p.label].filter(Boolean).join(' • ');
+                           return (
+                             <SelectItem key={p.id} value={p.id}>
+                               {name} {subtitle ? `(${subtitle})` : ''}
+                             </SelectItem>
+                           );
+                        })}
+                      </SelectContent>
+                    </Select>
+                  )}
+                  <p className="text-[10px] text-muted-foreground mt-1">Changes made below will permanently update this profile.</p>
                 </div>
-              ) : (
-                <RadioGroup value={selectedProfileId} onValueChange={setSelectedProfileId}>
-                  {profiles.map((p) => {
-                    const name = [p.firstName, p.lastName].filter(Boolean).join(' ') || 'Unnamed Profile';
-                    const subtitle = [p.jobTitle, p.label].filter(Boolean).join(' • ');
-                    return (
-                      <div key={p.id} className="flex items-center space-x-3 space-y-0 rounded-lg border p-4">
-                        <RadioGroupItem value={p.id} id={`profile-${p.id}`} />
-                        <Label htmlFor={`profile-${p.id}`} className="flex flex-col cursor-pointer">
-                          <span className="font-medium">{name}</span>
-                          {subtitle && <span className="text-muted-foreground text-sm">{subtitle}</span>}
-                        </Label>
-                      </div>
-                    );
-                  })}
-                </RadioGroup>
               )}
-            </div>
-          ) : (
-            <div className="space-y-4">
+
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="firstName">First name *</Label>
                   <Input 
                     id="firstName" 
+                    autoComplete="given-name"
                     value={formData.firstName}
                     onChange={(e) => setFormData(p => ({ ...p, firstName: e.target.value }))}
                   />
@@ -319,6 +343,7 @@ export function ExchangeDetailsDrawer({
                   <Label htmlFor="lastName">Last name</Label>
                   <Input 
                     id="lastName"
+                    autoComplete="family-name"
                     value={formData.lastName}
                     onChange={(e) => setFormData(p => ({ ...p, lastName: e.target.value }))}
                   />
@@ -330,6 +355,7 @@ export function ExchangeDetailsDrawer({
                 <Input 
                   id="email" 
                   type="email"
+                  autoComplete="email"
                   value={formData.email}
                   onChange={(e) => setFormData(p => ({ ...p, email: e.target.value }))}
                 />
@@ -340,27 +366,28 @@ export function ExchangeDetailsDrawer({
                 <Input 
                   id="phone" 
                   type="tel"
+                  autoComplete="tel"
                   value={formData.phone}
                   onChange={(e) => setFormData(p => ({ ...p, phone: e.target.value }))}
                 />
               </div>
 
-              {!showAllFields && (
+              {!showMore && isSubmittingAsGuest ? (
                 <Button 
+                  type="button" 
                   variant="ghost" 
-                  className="w-full text-brand-500 hover:text-brand-600 hover:bg-brand-500/10 h-9"
-                  onClick={() => setShowAllFields(true)}
+                  className="w-full text-sm text-muted-foreground"
+                  onClick={() => setShowMore(true)}
                 >
-                  + Add more details
+                  + Add more details (optional)
                 </Button>
-              )}
-
-              {showAllFields && (
+              ) : (
                 <>
                   <div className="space-y-2">
                     <Label htmlFor="companyName">Company</Label>
                     <Input 
                       id="companyName" 
+                      autoComplete="organization"
                       value={formData.companyName}
                       onChange={(e) => setFormData(p => ({ ...p, companyName: e.target.value }))}
                     />
@@ -370,69 +397,54 @@ export function ExchangeDetailsDrawer({
                     <Label htmlFor="jobTitle">Job Title</Label>
                     <Input 
                       id="jobTitle" 
+                      autoComplete="organization-title"
                       value={formData.jobTitle}
                       onChange={(e) => setFormData(p => ({ ...p, jobTitle: e.target.value }))}
-                    />
-                  </div>
-    
-                  <div className="space-y-2">
-                    <Label htmlFor="notes">Notes (optional)</Label>
-                    <Textarea 
-                      id="notes" 
-                      placeholder="Where did you meet?"
-                      value={formData.notes}
-                      onChange={(e) => setFormData(p => ({ ...p, notes: e.target.value }))}
-                      rows={2}
                     />
                   </div>
                 </>
               )}
 
-              <div className="flex items-center space-x-2 pt-2">
+              <div className="space-y-2">
+                <Label htmlFor="note">Add a note (optional)</Label>
+                <Textarea 
+                  id="note" 
+                  placeholder={`e.g., Met at the tech conference`}
+                  value={formData.notes}
+                  onChange={(e) => setFormData(p => ({ ...p, notes: e.target.value }))}
+                  className="resize-none"
+                  rows={3}
+                />
+              </div>
+
+              <div className="flex items-start space-x-2 pt-2">
                 <Checkbox 
                   id="consent" 
                   checked={formData.consentGiven}
                   onCheckedChange={(c) => setFormData(p => ({ ...p, consentGiven: c === true }))}
                 />
-                <Label htmlFor="consent" className="text-sm font-normal text-muted-foreground leading-snug cursor-pointer">
-                  I consent to sharing these details with {targetProfileName}.
-                </Label>
+                <div className="grid gap-1.5 leading-none">
+                  <Label htmlFor="consent" className="text-xs font-medium cursor-pointer">
+                    I consent to share my details
+                  </Label>
+                  <p className="text-[10px] text-muted-foreground">
+                    By checking this box, you agree to share the information provided above with {targetProfileName}.
+                  </p>
+                </div>
               </div>
 
-              <div className="pt-2">
-                <Turnstile
-                  siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || '1x00000000000000000000AA'} // dummy key for dev if unset
-                  onSuccess={(token) => setFormData(p => ({ ...p, turnstileToken: token }))}
-                />
+              <div className="flex justify-center pt-2">
+                {(!isLoggedIn || isSubmittingAsGuest) ? (
+                  <Turnstile 
+                    siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
+                    onSuccess={(token) => setFormData(p => ({ ...p, turnstileToken: token }))}
+                    options={{ theme: 'auto', size: 'compact' }}
+                  />
+                ) : null}
               </div>
             </div>
-          )}
-        </div>
-
-        <DrawerFooter>
-          <Button onClick={handleExchange} disabled={isExchanging || (isLoggedIn && loadingProfiles) || (!isLoggedIn && !formData.turnstileToken)}>
-            {isExchanging && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Exchange Details
-          </Button>
-          {!isLoggedIn && (
-            <div className="text-center text-sm text-muted-foreground mt-2">
-              Have an Tayz account? <a href={`/login?redirect=/p/${targetProfileId}`} className="underline hover:text-foreground">Sign in</a> to exchange in one tap.
-            </div>
-          )}
-          {isLoggedIn && isSubmittingAsGuest && (
-            <div className="text-center text-sm text-muted-foreground mt-2">
-              <a href="/dashboard/profile" className="underline hover:text-foreground">Create an Tayz profile</a> to exchange in one tap.
-            </div>
-          )}
-          <Button variant="outline" onClick={() => {
-            if (onGuestFlowComplete) {
-              onGuestFlowComplete(false);
-            } else {
-              onOpenChange(false);
-            }
-          }}>Cancel</Button>
-        </DrawerFooter>
-      </DrawerContent>
+          </div>
+        </DrawerContent>
     </Drawer>
   );
 }

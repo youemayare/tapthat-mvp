@@ -1,21 +1,46 @@
 const fs = require('fs');
+let content = fs.readFileSync('src/components/profile/exchange-details-drawer.tsx', 'utf8');
 
-const files = [
-  'src/components/profile/layouts/canvas-profile-layout.tsx',
-  'src/components/profile/layouts/classic-profile-layout.tsx',
-  'src/components/profile/layouts/identity-profile-layout.tsx',
-  'src/components/profile/layouts/professional-profile-layout.tsx'
-];
+// 1. Fix Profile type
+content = content.replace(
+  /type Profile = \{[\s\S]*?isDefault: boolean;\n\};/,
+  `type Profile = {
+  id: string;
+  label: string | null;
+  firstName: string | null;
+  lastName: string | null;
+  jobTitle: string | null;
+  companyName: string | null;
+  email: string | null;
+  phone: string | null;
+  isDefault: boolean;
+};`
+);
 
-files.forEach(file => {
-  let content = fs.readFileSync(file, 'utf8');
-  
-  content = content.replace('actions.setAudioBlob', 'setAudioBlob');
-  content = content.replace('actions.setAudioDuration', 'setAudioDuration');
-  
-  // Add to destructuring
-  content = content.replace('handleSaveConnectionAndNote,', 'handleSaveConnectionAndNote,\n    setAudioBlob,\n    setAudioDuration,');
+// 2. Fix showMore state (add it back if missing)
+if (!content.includes('const [showMore, setShowMore] = useState(false);')) {
+  content = content.replace(
+    'const [isExchanging, setIsExchanging] = useState(false);',
+    'const [isExchanging, setIsExchanging] = useState(false);\n  const [showMore, setShowMore] = useState(false);'
+  );
+}
 
-  fs.writeFileSync(file, content);
-  console.log('Fixed', file);
-});
+// 3. Fix note to notes in formData
+content = content.replace(/formData\.note\b/g, 'formData.notes');
+content = content.replace(/note: e\.target\.value/g, 'notes: e.target.value');
+
+// 4. Fix setSelectedProfileId error. Wait, line 293 might be something else?
+// The error was: src/components/profile/exchange-details-drawer.tsx(293,46): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'SetStateAction<string>'.
+// Wait! `data.profiles[0]` could have `.id` but what if `setSelectedProfileId` is called somewhere else?
+// Let's check `setSelectedProfileId`.
+content = content.replace(
+  'setSelectedProfileId(defaultProfile.id);',
+  'setSelectedProfileId(defaultProfile.id || "");'
+);
+content = content.replace(
+  'setSelectedProfileId(data.profiles[0].id);',
+  'setSelectedProfileId(data.profiles[0].id || "");'
+);
+
+fs.writeFileSync('src/components/profile/exchange-details-drawer.tsx', content);
+console.log('Fixed TS errors!');

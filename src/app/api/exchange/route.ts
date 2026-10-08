@@ -10,6 +10,12 @@ const loggedInExchangeSchema = z.object({
   targetProfileId: z.string().uuid(),
   sourceProfileId: z.string().uuid(),
   sourceCardUid: z.string().max(64).optional().nullable(),
+  firstName: z.string().optional(),
+  lastName: z.string().optional(),
+  email: z.string().optional(),
+  phone: z.string().optional(),
+  jobTitle: z.string().optional(),
+  companyName: z.string().optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -78,6 +84,18 @@ export async function POST(req: NextRequest) {
   if (!sourceProfile) {
     return NextResponse.json({ error: 'Source profile not found or not owned by user' }, { status: 403 });
   }
+
+  // Update profile if data provided
+  await db.update(profiles)
+    .set({
+      firstName: data.firstName ?? sourceProfile.firstName,
+      lastName: data.lastName ?? sourceProfile.lastName,
+      email: data.email ?? sourceProfile.email,
+      phone: data.phone ?? sourceProfile.phone,
+      jobTitle: data.jobTitle ?? sourceProfile.jobTitle,
+      companyName: data.companyName ?? sourceProfile.companyName,
+    })
+    .where(eq(profiles.id, sourceProfile.id));
 
   // Derive source_channel
   let sourceChannel: 'nfc' | 'qr' | 'direct_link' | 'unknown' = 'unknown';
