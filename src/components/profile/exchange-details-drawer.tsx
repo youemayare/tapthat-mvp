@@ -444,7 +444,30 @@ export function ExchangeDetailsDrawer({
               </div>
             </div>
           </div>
-        </DrawerContent>
+                <DrawerFooter>
+          <Button onClick={handleExchange} disabled={isExchanging || (isLoggedIn && loadingProfiles) || (!isLoggedIn && !formData.turnstileToken)}>
+            {isExchanging && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Exchange Details
+          </Button>
+          {!isLoggedIn && (
+            <div className="text-center text-sm text-muted-foreground mt-2">
+              Have a Tayz account? <a href={`/login?redirect=/p/${targetProfileId}`} className="underline hover:text-foreground">Sign in</a> to exchange in one tap.
+            </div>
+          )}
+          {isLoggedIn && isSubmittingAsGuest && (
+            <div className="text-center text-sm text-muted-foreground mt-2">
+              <a href="/dashboard/profile" className="underline hover:text-foreground">Create a Tayz profile</a> to exchange in one tap.
+            </div>
+          )}
+          <Button variant="outline" onClick={() => {
+            if (onGuestFlowComplete) {
+              onGuestFlowComplete(false);
+            } else {
+              onOpenChange(false);
+            }
+          }}>Cancel</Button>
+        </DrawerFooter>
+      </DrawerContent>
     </Drawer>
   );
 }
