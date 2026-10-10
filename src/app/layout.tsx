@@ -96,16 +96,20 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning className={cn("font-sans", geist.variable, playfair.variable, orbitron.variable, courier.variable, archivo.variable, allura.variable)}>
+    <html lang="en" suppressHydrationWarning className={cn("dark font-sans", geist.variable, playfair.variable, orbitron.variable, courier.variable, archivo.variable, allura.variable)}>
       <head>
         <script
           dangerouslySetInnerHTML={{
             __html: `
               try {
-                if (/samsungbrowser/i.test(navigator.userAgent)) {
+                var ua = navigator.userAgent || '';
+                var isSamsung = /samsung|samsungbrowser/i.test(ua);
+                if (!isSamsung && navigator.userAgentData && navigator.userAgentData.brands) {
+                  isSamsung = navigator.userAgentData.brands.some(function(b) { return /samsung/i.test(b.brand); });
+                }
+                if (isSamsung) {
                   document.documentElement.classList.add('samsung-browser');
-                  var isDark = document.documentElement.classList.contains('dark') || (!document.documentElement.classList.contains('light') && window.matchMedia('(prefers-color-scheme: dark)').matches);
-                  document.documentElement.style.colorScheme = isDark ? 'only dark' : 'only light';
+                  document.documentElement.style.colorScheme = 'only dark';
                 }
               } catch (e) {}
             `,

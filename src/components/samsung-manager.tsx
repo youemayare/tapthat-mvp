@@ -16,7 +16,12 @@ export function SamsungManager() {
   useEffect(() => {
     if (typeof window === 'undefined' || typeof navigator === 'undefined') return;
 
-    const isSamsung = /samsungbrowser/i.test(navigator.userAgent);
+    const ua = navigator.userAgent || '';
+    let isSamsung = /samsung|samsungbrowser/i.test(ua);
+    const nav = navigator as any;
+    if (!isSamsung && nav.userAgentData && nav.userAgentData.brands) {
+      isSamsung = nav.userAgentData.brands.some((b: any) => /samsung/i.test(b.brand));
+    }
     if (!isSamsung) return;
 
     const root = document.documentElement;

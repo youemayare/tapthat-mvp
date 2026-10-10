@@ -133,7 +133,13 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
                 className="relative w-13 h-13 rounded-full bg-black/30 backdrop-blur-md flex items-center justify-center hover:bg-black/50 transition-colors"
                 aria-label="Call"
               >
-                <div className="absolute inset-0 rounded-full pointer-events-none p-[1.5px] samsung-canvas-silver-ring" style={silverBorderMask} />
+                <div className="absolute inset-0 rounded-full pointer-events-none p-[1.5px] samsung-canvas-silver-ring" style={silverBorderMask}>
+                  <img 
+                    src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='s' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23e8e8e8'/%3E%3Cstop offset='25%25' stop-color='%23a0a0a0'/%3E%3Cstop offset='50%25' stop-color='%23d4d4d4'/%3E%3Cstop offset='75%25' stop-color='%23888888'/%3E%3Cstop offset='100%25' stop-color='%23c0c0c0'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='50' cy='50' r='48.5' fill='none' stroke='url(%23s)' stroke-width='3'/%3E%3C/svg%3E" 
+                    alt="" 
+                    className="hidden samsung-img-layer absolute inset-0 w-full h-full pointer-events-none z-20" 
+                  />
+                </div>
                 <Phone className="w-5 h-5 text-white relative z-10" />
               </a>
             )}
@@ -143,7 +149,13 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
                 className="relative w-13 h-13 rounded-full bg-black/30 backdrop-blur-md flex items-center justify-center hover:bg-black/50 transition-colors"
                 aria-label="Email"
               >
-                <div className="absolute inset-0 rounded-full pointer-events-none p-[1.5px] samsung-canvas-silver-ring" style={silverBorderMask} />
+                <div className="absolute inset-0 rounded-full pointer-events-none p-[1.5px] samsung-canvas-silver-ring" style={silverBorderMask}>
+                  <img 
+                    src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='s' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23e8e8e8'/%3E%3Cstop offset='25%25' stop-color='%23a0a0a0'/%3E%3Cstop offset='50%25' stop-color='%23d4d4d4'/%3E%3Cstop offset='75%25' stop-color='%23888888'/%3E%3Cstop offset='100%25' stop-color='%23c0c0c0'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='50' cy='50' r='48.5' fill='none' stroke='url(%23s)' stroke-width='3'/%3E%3C/svg%3E" 
+                    alt="" 
+                    className="hidden samsung-img-layer absolute inset-0 w-full h-full pointer-events-none z-20" 
+                  />
+                </div>
                 <Mail className="w-5 h-5 text-white relative z-10" />
               </a>
             )}
@@ -152,7 +164,13 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
 
         {/* Profile Avatar */}
         <div className="relative w-[134px] h-[134px] rounded-full flex-shrink-0 shadow-2xl">
-          <div className="absolute inset-0 rounded-full pointer-events-none p-[2px] z-20 samsung-canvas-silver-ring" style={silverBorderMask} />
+          <div className="absolute inset-0 rounded-full pointer-events-none p-[2px] z-20 samsung-canvas-silver-ring" style={silverBorderMask}>
+                  <img 
+                    src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='s' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23e8e8e8'/%3E%3Cstop offset='25%25' stop-color='%23a0a0a0'/%3E%3Cstop offset='50%25' stop-color='%23d4d4d4'/%3E%3Cstop offset='75%25' stop-color='%23888888'/%3E%3Cstop offset='100%25' stop-color='%23c0c0c0'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='50' cy='50' r='48.5' fill='none' stroke='url(%23s)' stroke-width='3'/%3E%3C/svg%3E" 
+                    alt="" 
+                    className="hidden samsung-img-layer absolute inset-0 w-full h-full pointer-events-none z-20" 
+                  />
+                </div>
           <div className="w-full h-full rounded-full overflow-hidden bg-black/20 backdrop-blur-md relative z-10">
             {profile.profilePhotoUrl ? (
               <img
@@ -202,7 +220,13 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
                 aria-label={link.label}
                 className="relative w-11 h-11 rounded-full bg-black/20 backdrop-blur-sm flex items-center justify-center hover:bg-black/40 transition-colors"
               >
-                <div className="absolute inset-0 rounded-full pointer-events-none p-[1.5px] samsung-canvas-silver-ring" style={silverBorderMask} />
+                <div className="absolute inset-0 rounded-full pointer-events-none p-[1.5px] samsung-canvas-silver-ring" style={silverBorderMask}>
+                  <img 
+                    src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='s' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23e8e8e8'/%3E%3Cstop offset='25%25' stop-color='%23a0a0a0'/%3E%3Cstop offset='50%25' stop-color='%23d4d4d4'/%3E%3Cstop offset='75%25' stop-color='%23888888'/%3E%3Cstop offset='100%25' stop-color='%23c0c0c0'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='50' cy='50' r='48.5' fill='none' stroke='url(%23s)' stroke-width='3'/%3E%3C/svg%3E" 
+                    alt="" 
+                    className="hidden samsung-img-layer absolute inset-0 w-full h-full pointer-events-none z-20" 
+                  />
+                </div>
                 <div className="relative z-10 flex items-center justify-center w-full h-full">
                   {link.icon}
                 </div>
@@ -312,7 +336,13 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
         {profile.companyLogoUrl && (
           <div className="flex justify-center">
             <div className="relative w-24 h-12 rounded-xl shadow-xl">
-              <div className="absolute inset-0 rounded-xl pointer-events-none p-[1.5px] z-20 samsung-canvas-silver-rect" style={silverBorderMask} />
+              <div className="absolute inset-0 rounded-xl pointer-events-none p-[1.5px] z-20 samsung-canvas-silver-rect" style={silverBorderMask}>
+                  <img 
+                  src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 48' preserveAspectRatio='none'%3E%3Cdefs%3E%3ClinearGradient id='s' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23e8e8e8'/%3E%3Cstop offset='25%25' stop-color='%23a0a0a0'/%3E%3Cstop offset='50%25' stop-color='%23d4d4d4'/%3E%3Cstop offset='75%25' stop-color='%23888888'/%3E%3Cstop offset='100%25' stop-color='%23c0c0c0'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='1' y='1' width='94' height='46' rx='11' fill='none' stroke='url(%23s)' stroke-width='2'/%3E%3C/svg%3E" 
+                  alt="" 
+                  className="hidden samsung-img-layer absolute inset-0 w-full h-full pointer-events-none z-20" 
+                />
+                </div>
               <div className="w-full h-full rounded-xl overflow-hidden bg-black/20 backdrop-blur-md relative z-10">
                 <img
                   src={profile.companyLogoUrl}
