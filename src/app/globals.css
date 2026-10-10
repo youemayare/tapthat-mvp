@@ -254,3 +254,11 @@
 }
 
 
+
+/* Samsung Internet Dark Mode Opt-Out */
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --samsung-internet-opt-out: 1;
+  }
+}
