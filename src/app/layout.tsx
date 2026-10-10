@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Inter, Geist, Playfair_Display, Orbitron, Courier_Prime, Archivo_Black, Allura } from 'next/font/google';
 import './globals.css';
 import { cn } from "@/lib/utils";
@@ -43,6 +43,16 @@ const allura = Allura({
   variable: '--font-allura',
   display: 'swap',
 });
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: 'white' },
+    { media: '(prefers-color-scheme: dark)', color: '#09090b' },
+  ],
+  colorScheme: 'light dark',
+  width: 'device-width',
+  initialScale: 1,
+};
 
 export const metadata: Metadata = {
   title: {
