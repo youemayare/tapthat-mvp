@@ -133,7 +133,7 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
                 className="relative w-13 h-13 rounded-full bg-black/30 backdrop-blur-md flex items-center justify-center hover:bg-black/50 transition-colors"
                 aria-label="Call"
               >
-                <div className="absolute inset-0 rounded-full pointer-events-none p-[1.5px]" style={silverBorderMask} />
+                <div className="absolute inset-0 rounded-full pointer-events-none p-[1.5px] samsung-canvas-silver-ring" style={silverBorderMask} />
                 <Phone className="w-5 h-5 text-white relative z-10" />
               </a>
             )}
@@ -143,7 +143,7 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
                 className="relative w-13 h-13 rounded-full bg-black/30 backdrop-blur-md flex items-center justify-center hover:bg-black/50 transition-colors"
                 aria-label="Email"
               >
-                <div className="absolute inset-0 rounded-full pointer-events-none p-[1.5px]" style={silverBorderMask} />
+                <div className="absolute inset-0 rounded-full pointer-events-none p-[1.5px] samsung-canvas-silver-ring" style={silverBorderMask} />
                 <Mail className="w-5 h-5 text-white relative z-10" />
               </a>
             )}
@@ -152,7 +152,7 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
 
         {/* Profile Avatar */}
         <div className="relative w-[134px] h-[134px] rounded-full flex-shrink-0 shadow-2xl">
-          <div className="absolute inset-0 rounded-full pointer-events-none p-[2px] z-20" style={silverBorderMask} />
+          <div className="absolute inset-0 rounded-full pointer-events-none p-[2px] z-20 samsung-canvas-silver-ring" style={silverBorderMask} />
           <div className="w-full h-full rounded-full overflow-hidden bg-black/20 backdrop-blur-md relative z-10">
             {profile.profilePhotoUrl ? (
               <img
@@ -202,7 +202,7 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
                 aria-label={link.label}
                 className="relative w-11 h-11 rounded-full bg-black/20 backdrop-blur-sm flex items-center justify-center hover:bg-black/40 transition-colors"
               >
-                <div className="absolute inset-0 rounded-full pointer-events-none p-[1.5px]" style={silverBorderMask} />
+                <div className="absolute inset-0 rounded-full pointer-events-none p-[1.5px] samsung-canvas-silver-ring" style={silverBorderMask} />
                 <div className="relative z-10 flex items-center justify-center w-full h-full">
                   {link.icon}
                 </div>
@@ -220,7 +220,7 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
                   <button
                     onClick={handleSaveContact}
                     aria-label="Save Contact"
-                    className="relative overflow-hidden group flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-full border border-white/30 bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-colors text-white text-xs font-bold"
+                    className="relative overflow-hidden group flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-full border border-white/30 bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-colors text-white text-xs font-bold samsung-canvas-btn"
                   >
                     <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent animate-shimmer pointer-events-none" />
                     <span className="relative z-10 flex items-center justify-center gap-1.5">
@@ -252,7 +252,7 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
                   onClick={() => guestFlow.handleManualExchangeClick()}
                   disabled={viewerState.exchangeStatus === 'pending' || viewerState.exchangeStatus === 'accepted'}
                   aria-label="Exchange Details"
-                  className="relative overflow-hidden group flex items-center justify-center gap-1.5 w-full px-4 py-2 rounded-full border border-white/20 bg-black/20 backdrop-blur-sm hover:bg-black/40 transition-colors text-white text-xs font-semibold"
+                  className="relative overflow-hidden group flex items-center justify-center gap-1.5 w-full px-4 py-2 rounded-full border border-white/20 bg-black/20 backdrop-blur-sm hover:bg-black/40 transition-colors text-white text-xs font-semibold samsung-canvas-btn"
                 >
                   <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-current opacity-10 to-transparent animate-shimmer pointer-events-none" />
                   <span className="relative z-10 flex items-center gap-1.5">
@@ -271,7 +271,7 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
                   <button
                     onClick={handleSaveContact}
                     aria-label="Save Contact"
-                    className="relative overflow-hidden group flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-full border border-white/30 bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-colors text-white text-xs font-bold"
+                    className="relative overflow-hidden group flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-full border border-white/30 bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-colors text-white text-xs font-bold samsung-canvas-btn"
                   >
                     <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent animate-shimmer pointer-events-none" />
                     <span className="relative z-10 flex items-center justify-center gap-1.5">
@@ -283,7 +283,7 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
                     onClick={() => guestFlow.handleManualExchangeClick()}
                     disabled={viewerState.exchangeStatus === 'pending' || viewerState.exchangeStatus === 'accepted'}
                     aria-label="Exchange Details"
-                    className="relative overflow-hidden group flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-full border border-white/20 bg-black/20 backdrop-blur-sm hover:bg-black/40 transition-colors text-white text-xs font-semibold"
+                    className="relative overflow-hidden group flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-full border border-white/20 bg-black/20 backdrop-blur-sm hover:bg-black/40 transition-colors text-white text-xs font-semibold samsung-canvas-btn"
                   >
                     <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-current opacity-10 to-transparent animate-shimmer pointer-events-none" />
                     <span className="relative z-10 flex items-center gap-1.5">
@@ -298,7 +298,7 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
                 </div>
                 <Link
                   href={`/signup?redirect=/p/${profile.slug || profile.id}`}
-                  className="flex items-center justify-center gap-1.5 w-full px-4 py-2 rounded-full border border-white/20 bg-black/20 backdrop-blur-sm hover:bg-black/40 transition-colors text-white text-xs font-semibold"
+                  className="flex items-center justify-center gap-1.5 w-full px-4 py-2 rounded-full border border-white/20 bg-black/20 backdrop-blur-sm hover:bg-black/40 transition-colors text-white text-xs font-semibold samsung-canvas-btn"
                 >
                   <BookmarkPlus className="w-3.5 h-3.5" />
                   Sign In to Save Connection
@@ -312,7 +312,7 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
         {profile.companyLogoUrl && (
           <div className="flex justify-center">
             <div className="relative w-24 h-12 rounded-xl shadow-xl">
-              <div className="absolute inset-0 rounded-xl pointer-events-none p-[1.5px] z-20" style={silverBorderMask} />
+              <div className="absolute inset-0 rounded-xl pointer-events-none p-[1.5px] z-20 samsung-canvas-silver-rect" style={silverBorderMask} />
               <div className="w-full h-full rounded-xl overflow-hidden bg-black/20 backdrop-blur-md relative z-10">
                 <img
                   src={profile.companyLogoUrl}

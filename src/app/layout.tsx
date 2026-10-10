@@ -88,6 +88,7 @@ import { ThemeProvider } from '@/components/theme-provider';
 import { MotionConfig } from 'framer-motion';
 
 import { Toaster } from '@/components/ui/sonner';
+import { SamsungManager } from '@/components/samsung-manager';
 
 export default function RootLayout({
   children,
@@ -96,6 +97,21 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning className={cn("font-sans", geist.variable, playfair.variable, orbitron.variable, courier.variable, archivo.variable, allura.variable)}>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              try {
+                if (/samsungbrowser/i.test(navigator.userAgent)) {
+                  document.documentElement.classList.add('samsung-browser');
+                  var isDark = document.documentElement.classList.contains('dark') || (!document.documentElement.classList.contains('light') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+                  document.documentElement.style.colorScheme = isDark ? 'only dark' : 'only light';
+                }
+              } catch (e) {}
+            `,
+          }}
+        />
+      </head>
       <body className={`${inter.variable} font-sans antialiased bg-background text-foreground`}>
         <ThemeProvider
           attribute="class"
@@ -103,6 +119,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+          <SamsungManager />
           <MotionConfig reducedMotion="user">
             {children}
             <Toaster />

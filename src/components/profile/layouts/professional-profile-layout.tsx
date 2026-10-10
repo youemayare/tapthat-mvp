@@ -128,15 +128,15 @@ export function ProfessionalProfileLayout({ profile, cardUid }: Props) {
         <div className="flex flex-col items-center text-center">
           {profile.companyName && (
             <div className="mb-10 flex items-center justify-center w-full max-w-[280px] opacity-80">
-              <div className="flex-1 h-[1px] bg-gradient-to-r from-transparent to-[#C9A45D]/50" />
+              <div className="flex-1 h-[1px] bg-gradient-to-r from-transparent to-[#C9A45D]/50 samsung-prof-divider-line" />
               <h2 className="px-4 text-[11px] uppercase tracking-[0.25em] font-semibold text-[#B98A3D] dark:text-[#C9A45D]">
                 {profile.companyName}
               </h2>
-              <div className="flex-1 h-[1px] bg-gradient-to-l from-transparent to-[#C9A45D]/50" />
+              <div className="flex-1 h-[1px] bg-gradient-to-l from-transparent to-[#C9A45D]/50 samsung-prof-divider-line-rev" />
             </div>
           )}
 
-          <div className="w-32 h-32 mb-6 rounded-full p-[1.5px] bg-gradient-to-tr from-[#B98A3D] via-[#E4C98F] to-[#B98A3D] shadow-md">
+          <div className="w-32 h-32 mb-6 rounded-full p-[1.5px] bg-gradient-to-tr from-[#B98A3D] via-[#E4C98F] to-[#B98A3D] shadow-md samsung-prof-ring">
             <div className="w-full h-full rounded-full overflow-hidden bg-[#F7F7F5] dark:bg-[#15130F] flex items-center justify-center">
               {profile.profilePhotoUrl ? (
                 <img src={profile.profilePhotoUrl} alt={fullName} className="w-full h-full object-cover" />
@@ -178,7 +178,7 @@ export function ProfessionalProfileLayout({ profile, cardUid }: Props) {
               onClick={handleSaveContact}
               className="relative overflow-hidden group w-full h-12 rounded-full flex items-center justify-center font-medium text-[15px] tracking-wide transition-all
                 bg-gradient-to-b from-[#C9A45D] to-[#B98A3D] border border-[#B98A3D] text-white dark:text-[#0B0A08] shadow-md
-                hover:opacity-90 active:scale-[0.98]"
+                hover:opacity-90 active:scale-[0.98] samsung-prof-btn-gold"
             >
               <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent animate-shimmer pointer-events-none" />
               <span className="relative z-10 flex items-center justify-center">
@@ -193,7 +193,7 @@ export function ProfessionalProfileLayout({ profile, cardUid }: Props) {
                 onClick={handleSaveContact}
                 className="relative overflow-hidden group w-full h-12 rounded-full flex items-center justify-center font-medium text-[15px] tracking-wide transition-all
                   bg-gradient-to-b from-[#C9A45D] to-[#B98A3D] border border-[#B98A3D] text-white dark:text-[#0B0A08] shadow-md
-                  hover:opacity-90 active:scale-[0.98]"
+                  hover:opacity-90 active:scale-[0.98] samsung-prof-btn-gold"
               >
                 <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent animate-shimmer pointer-events-none" />
                 <span className="relative z-10 flex items-center justify-center">
@@ -208,7 +208,7 @@ export function ProfessionalProfileLayout({ profile, cardUid }: Props) {
                   className={`relative overflow-hidden group w-full h-12 rounded-full flex items-center justify-center font-medium text-[15px] tracking-wide transition-all ${
                     saved 
                       ? 'bg-[#C9A45D]/10 border border-[#C9A45D]/30 text-[#B98A3D] dark:text-[#C9A45D] cursor-default opacity-80'
-                      : 'bg-transparent border border-[#C9A45D]/40 text-[#1A1A1A] dark:border-[#C9A45D]/40 dark:text-[#F6F1E6] hover:bg-[#C9A45D]/5 active:scale-[0.98]'
+                      : 'bg-transparent border border-[#C9A45D]/40 text-[#1A1A1A] dark:border-[#C9A45D]/40 dark:text-[#F6F1E6] hover:bg-[#C9A45D]/5 active:scale-[0.98] samsung-prof-btn-border'
                   }`}
                 >
                   <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-current opacity-10 to-transparent animate-shimmer pointer-events-none" />
@@ -221,7 +221,7 @@ export function ProfessionalProfileLayout({ profile, cardUid }: Props) {
               <button
                 onClick={() => guestFlow.handleManualExchangeClick()}
                 disabled={viewerState.exchangeStatus === 'pending' || viewerState.exchangeStatus === 'accepted'}
-                className="relative overflow-hidden group w-full h-12 rounded-full flex items-center justify-center font-medium text-[15px] tracking-wide transition-all bg-transparent border-2 border-[#C9A45D]/40 text-[#1A1A1A] dark:text-[#F6F1E6] hover:bg-[#C9A45D]/5 active:scale-[0.98]"
+                className="relative overflow-hidden group w-full h-12 rounded-full flex items-center justify-center font-medium text-[15px] tracking-wide transition-all bg-transparent border-2 border-[#C9A45D]/40 text-[#1A1A1A] dark:text-[#F6F1E6] hover:bg-[#C9A45D]/5 active:scale-[0.98] samsung-prof-btn-border"
               >
                 <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-current opacity-10 to-transparent animate-shimmer pointer-events-none" />
                 <span className="relative z-10 flex items-center justify-center">
@@ -236,7 +236,7 @@ export function ProfessionalProfileLayout({ profile, cardUid }: Props) {
               {!viewerState.isLoggedIn && (
                 <Link
                   href={`/signup?save=${cardUid}`}
-                  className="relative overflow-hidden group w-full h-12 rounded-full flex items-center justify-center font-medium text-[15px] tracking-wide transition-all bg-transparent border border-[#C9A45D]/20 text-[#1A1A1A]/80 dark:text-[#F6F1E6]/80 hover:bg-[#C9A45D]/5 active:scale-[0.98]"
+                  className="relative overflow-hidden group w-full h-12 rounded-full flex items-center justify-center font-medium text-[15px] tracking-wide transition-all bg-transparent border border-[#C9A45D]/20 text-[#1A1A1A]/80 dark:text-[#F6F1E6]/80 hover:bg-[#C9A45D]/5 active:scale-[0.98] samsung-prof-btn-border"
                 >
                   <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-current opacity-10 to-transparent animate-shimmer pointer-events-none" />
                   <span className="relative z-10 flex items-center justify-center gap-2">
@@ -252,9 +252,9 @@ export function ProfessionalProfileLayout({ profile, cardUid }: Props) {
         {/* Decorative Divider */}
         {contactRows.length > 0 && (
           <div className="w-full flex justify-center items-center gap-3 my-12 opacity-70">
-            <div className="w-16 h-[1px] bg-gradient-to-r from-transparent to-[#C9A45D]" />
-            <div className="w-1.5 h-1.5 rotate-45 border border-[#C9A45D]" />
-            <div className="w-16 h-[1px] bg-gradient-to-l from-transparent to-[#C9A45D]" />
+            <div className="w-16 h-[1px] bg-gradient-to-r from-transparent to-[#C9A45D] samsung-prof-divider-line" />
+            <div className="w-1.5 h-1.5 rotate-45 border border-[#C9A45D] samsung-prof-divider-diamond" />
+            <div className="w-16 h-[1px] bg-gradient-to-l from-transparent to-[#C9A45D] samsung-prof-divider-line-rev" />
           </div>
         )}
 
