@@ -1,4 +1,4 @@
-import type { Metadata, Viewport } from 'next';
+import type { Metadata } from 'next';
 import { Inter, Geist, Playfair_Display, Orbitron, Courier_Prime, Archivo_Black, Allura } from 'next/font/google';
 import './globals.css';
 import { cn } from "@/lib/utils";
@@ -44,16 +44,6 @@ const allura = Allura({
   display: 'swap',
 });
 
-export const viewport: Viewport = {
-  themeColor: [
-    { media: '(prefers-color-scheme: light)', color: 'white' },
-    { media: '(prefers-color-scheme: dark)', color: '#09090b' },
-  ],
-  colorScheme: 'light dark',
-  width: 'device-width',
-  initialScale: 1,
-};
-
 export const metadata: Metadata = {
   title: {
     default: 'Tayz — Professional Identity, One Tap Away',
@@ -88,7 +78,6 @@ import { ThemeProvider } from '@/components/theme-provider';
 import { MotionConfig } from 'framer-motion';
 
 import { Toaster } from '@/components/ui/sonner';
-import { SamsungManager } from '@/components/samsung-manager';
 
 export default function RootLayout({
   children,
@@ -96,26 +85,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning className={cn("dark font-sans", geist.variable, playfair.variable, orbitron.variable, courier.variable, archivo.variable, allura.variable)}>
-      <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              try {
-                var ua = navigator.userAgent || '';
-                var isSamsung = /samsung|samsungbrowser/i.test(ua);
-                if (!isSamsung && navigator.userAgentData && navigator.userAgentData.brands) {
-                  isSamsung = navigator.userAgentData.brands.some(function(b) { return /samsung/i.test(b.brand); });
-                }
-                if (isSamsung) {
-                  document.documentElement.classList.add('samsung-browser');
-                  document.documentElement.style.colorScheme = 'only dark';
-                }
-              } catch (e) {}
-            `,
-          }}
-        />
-      </head>
+    <html lang="en" suppressHydrationWarning className={cn("font-sans", geist.variable, playfair.variable, orbitron.variable, courier.variable, archivo.variable, allura.variable)}>
       <body className={`${inter.variable} font-sans antialiased bg-background text-foreground`}>
         <ThemeProvider
           attribute="class"
@@ -123,7 +93,6 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <SamsungManager />
           <MotionConfig reducedMotion="user">
             {children}
             <Toaster />
