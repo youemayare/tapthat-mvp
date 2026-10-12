@@ -48,7 +48,7 @@ export function ClaimCard({ uid }: Props) {
         <div className="space-y-3">
           <Link
             href={`/claim?uid=${uid}`}
-            className="group w-full flex items-center justify-center gap-2 py-4 px-6 bg-brand-500 hover:bg-brand-600 text-foreground font-semibold rounded-2xl transition-all duration-200 hover:scale-[1.02]"
+            className="group w-full flex items-center justify-center gap-2 py-4 px-6 bg-brand-500 hover:bg-brand-600 text-white font-semibold rounded-2xl transition-all duration-200 hover:scale-[1.02] shadow-sm"
           >
             Claim this card
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
