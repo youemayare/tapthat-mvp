@@ -85,9 +85,9 @@ export async function adminLoginStepTwoAction(
       return { success: false, error: 'Email and verification code are required.' };
     }
 
-    const isOtpValid = await verifyAdminOtp(email, otp);
-    if (!isOtpValid) {
-      return { success: false, error: 'Invalid or expired 6-digit code. Please try again.' };
+    const otpResult = await verifyAdminOtp(email, otp);
+    if (!otpResult.valid) {
+      return { success: false, error: otpResult.error || 'Invalid security PIN. Please try again.' };
     }
 
     await createAdminSession(email);

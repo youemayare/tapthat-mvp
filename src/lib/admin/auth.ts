@@ -64,28 +64,43 @@ export async function createAndSendAdminOtp(_email: string): Promise<{ success: 
 }
 
 // ─── Step 3: Verify Static Security PIN ───────────────────────────────────────
-export async function verifyAdminOtp(_email: string, inputOtp: string): Promise<boolean> {
+export async function verifyAdminOtp(
+  _email: string,
+  inputOtp: string
+): Promise<{ valid: boolean; error?: string }> {
   const rawEnvPin = process.env.ADMIN_SECURITY_PIN;
   if (!rawEnvPin) {
     console.error('⚠️ [ADMIN AUTH] ADMIN_SECURITY_PIN is not configured in environment variables.');
-    return false;
+    return {
+      valid: false,
+      error: 'ADMIN_SECURITY_PIN is not configured on your server. Please verify your Vercel environment variables and redeploy.',
+    };
   }
 
-  const targetPin = String(rawEnvPin).trim();
-  const cleanInput = String(inputOtp ?? '').trim();
+  // Strip accidental quotes, newlines, and whitespace
+  const targetPin = String(rawEnvPin).replace(/['"\r\n\t\s]/g, '');
+  const cleanInput = String(inputOtp ?? '').replace(/['"\r\n\t\s]/g, '');
 
-  if (!cleanInput || cleanInput.length === 0) {
-    return false;
+  if (!cleanInput) {
+    return { valid: false, error: 'Please enter your security PIN.' };
   }
 
   const targetBuffer = Buffer.from(targetPin, 'utf-8');
   const inputBuffer = Buffer.from(cleanInput, 'utf-8');
 
   if (targetBuffer.length !== inputBuffer.length) {
-    return false;
+    return {
+      valid: false,
+      error: `Invalid PIN length. Expected a ${targetBuffer.length}-digit PIN configured in your environment.`,
+    };
   }
 
-  return crypto.timingSafeEqual(targetBuffer, inputBuffer);
+  const isMatch = crypto.timingSafeEqual(targetBuffer, inputBuffer);
+  if (!isMatch) {
+    return { valid: false, error: 'Invalid security PIN. Please check the code saved in your environment.' };
+  }
+
+  return { valid: true };
 }
 
 // ─── Step 4: Admin Session Cookie Management ─────────────────────────────────
