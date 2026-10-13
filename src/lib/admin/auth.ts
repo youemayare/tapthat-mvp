@@ -4,12 +4,17 @@ import { cookies } from 'next/headers';
 import { resend } from '@/lib/email';
 import { Redis } from '@upstash/redis';
 
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? 'admin@tayz.app';
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD ?? 'TayzAdmin2026!SecureKey';
-const ADMIN_SESSION_SECRET =
-  process.env.ADMIN_SESSION_SECRET ??
-  process.env.SUPABASE_SERVICE_ROLE_KEY ??
-  'tayz-admin-session-secret-salt-2026';
+function getAdminSessionSecret(): string {
+  const secret = process.env.ADMIN_SESSION_SECRET || process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!secret) {
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('[CRITICAL] ADMIN_SESSION_SECRET or SUPABASE_SERVICE_ROLE_KEY is required in production.');
+    }
+    return 'dev-ephemeral-session-secret-change-in-env';
+  }
+  return secret;
+}
+
 const ADMIN_COOKIE_NAME = 'tayz_admin_session';
 
 // ─── Redis / Memory Fallback for 2FA OTP Storage ──────────────────────────────
@@ -35,35 +40,29 @@ if (process.env.NODE_ENV !== 'production') {
 export function verifyAdminCredentials(email: string, pass: string): boolean {
   if (!email || !pass) return false;
 
-  const targetEmail = (
-    process.env.ADMIN_EMAIL ??
-    ADMIN_EMAIL ??
-    'admin@tayz.app'
-  )
-    .trim()
-    .replace(/\r/g, '')
-    .toLowerCase();
+  const targetEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
+  const targetPass = process.env.ADMIN_PASSWORD?.trim();
 
-  const targetPass = (
-    process.env.ADMIN_PASSWORD ??
-    ADMIN_PASSWORD ??
-    'TayzAdmin2026!SecureKey'
-  )
-    .trim()
-    .replace(/\r/g, '');
-
-  const inputEmail = email.trim().replace(/\r/g, '').toLowerCase();
-  const inputPass = pass.trim().replace(/\r/g, '');
-
-  const isEmailMatch = inputEmail === targetEmail;
-  // Match configured password OR hardcoded default password
-  const isPassMatch = inputPass === targetPass || inputPass === 'TayzAdmin2026!SecureKey';
-
-  if (!isEmailMatch || !isPassMatch) {
-    console.warn(
-      `⚠️ [ADMIN LOGIN FAILED] Email match: ${isEmailMatch} (${inputEmail} vs ${targetEmail}), Password match: ${isPassMatch}`
-    );
+  if (!targetEmail || !targetPass) {
+    console.error('⚠️ [ADMIN AUTH] ADMIN_EMAIL or ADMIN_PASSWORD is not configured in environment variables.');
+    return false;
   }
+
+  const inputEmail = email.trim().toLowerCase();
+  const inputPass = pass.trim();
+
+  const emailBuffer = Buffer.from(inputEmail);
+  const targetEmailBuffer = Buffer.from(targetEmail);
+  const passBuffer = Buffer.from(inputPass);
+  const targetPassBuffer = Buffer.from(targetPass);
+
+  const isEmailMatch =
+    emailBuffer.length === targetEmailBuffer.length &&
+    crypto.timingSafeEqual(emailBuffer, targetEmailBuffer);
+
+  const isPassMatch =
+    passBuffer.length === targetPassBuffer.length &&
+    crypto.timingSafeEqual(passBuffer, targetPassBuffer);
 
   return isEmailMatch && isPassMatch;
 }
@@ -72,7 +71,19 @@ export function verifyAdminCredentials(email: string, pass: string): boolean {
 export async function createAndSendAdminOtp(email: string): Promise<{ success: boolean; error?: string }> {
   const normalizedEmail = email.trim().toLowerCase();
 
-  // Generate 6-digit numeric OTP
+  // If a static security PIN is configured via environment variables, bypass dynamic OTP dispatch
+  const staticPin = process.env.ADMIN_SECURITY_PIN?.trim();
+  if (staticPin) {
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('\n🔑 ========================================================');
+      console.log('🔑 [TAYZ ADMIN]: Static Security PIN active from ADMIN_SECURITY_PIN');
+      console.log(`🔑 [DESTINATION]:         ${normalizedEmail}`);
+      console.log('🔑 ========================================================\n');
+    }
+    return { success: true };
+  }
+
+  // Generate 6-digit numeric OTP (Future dynamic OTP flow)
   const otp = crypto.randomInt(100000, 999999).toString();
   const expiresAt = Date.now() + 10 * 60 * 1000; // 10 minutes
 
@@ -127,15 +138,26 @@ export async function createAndSendAdminOtp(email: string): Promise<{ success: b
   return { success: true };
 }
 
-// ─── Step 3: Verify OTP ───────────────────────────────────────────────────────
+// ─── Step 3: Verify OTP or Static PIN ─────────────────────────────────────────
 export async function verifyAdminOtp(email: string, inputOtp: string): Promise<boolean> {
   const normalizedEmail = email.trim().toLowerCase();
   const cleanInput = inputOtp.trim();
 
-  // Master security PIN fallback (729401)
-  const masterPin = (process.env.ADMIN_SECURITY_PIN ?? '729401').trim();
-  if (cleanInput === masterPin) {
-    return true;
+  // Enforce strict 6-digit numeric pattern
+  if (!cleanInput || cleanInput.length !== 6 || !/^\d{6}$/.test(cleanInput)) {
+    return false;
+  }
+
+  // 1. If static security PIN is configured via environment variables, verify using constant-time check
+  const staticPin = process.env.ADMIN_SECURITY_PIN?.trim();
+  if (staticPin) {
+    const staticBuffer = Buffer.from(staticPin);
+    const inputBuffer = Buffer.from(cleanInput);
+
+    if (staticBuffer.length === inputBuffer.length && crypto.timingSafeEqual(staticBuffer, inputBuffer)) {
+      return true;
+    }
+    return false;
   }
 
   let storedOtp: string | null = null;
@@ -144,7 +166,7 @@ export async function verifyAdminOtp(email: string, inputOtp: string): Promise<b
     try {
       storedOtp = await redis.get<string>(`admin:otp:${normalizedEmail}`);
     } catch {
-      // Fallback
+      // Fallback to memory
       storedOtp = null;
     }
   }
@@ -160,10 +182,17 @@ export async function verifyAdminOtp(email: string, inputOtp: string): Promise<b
     return false;
   }
 
-  const isValid = crypto.timingSafeEqual(Buffer.from(storedOtp), Buffer.from(cleanInput));
+  const storedBuffer = Buffer.from(storedOtp);
+  const inputBuffer = Buffer.from(cleanInput);
+
+  if (storedBuffer.length !== inputBuffer.length) {
+    return false;
+  }
+
+  const isValid = crypto.timingSafeEqual(storedBuffer, inputBuffer);
 
   if (isValid) {
-    // Burn OTP so it cannot be reused
+    // Burn OTP immediately so it cannot be reused
     if (redis) {
       await redis.del(`admin:otp:${normalizedEmail}`).catch(() => {});
     }
@@ -176,12 +205,13 @@ export async function verifyAdminOtp(email: string, inputOtp: string): Promise<b
 
 // ─── Step 4: Admin Session Cookie Management ─────────────────────────────────
 export async function createAdminSession(email: string): Promise<void> {
+  const sessionSecret = getAdminSessionSecret();
   const token = jwt.sign(
     {
       role: 'tayz_admin',
       email: email.trim().toLowerCase(),
     },
-    ADMIN_SESSION_SECRET,
+    sessionSecret,
     { expiresIn: '8h' }
   );
 
@@ -204,7 +234,8 @@ export async function verifyAdminSession(): Promise<{ authenticated: boolean; em
       return { authenticated: false };
     }
 
-    const decoded = jwt.verify(token, ADMIN_SESSION_SECRET) as {
+    const sessionSecret = getAdminSessionSecret();
+    const decoded = jwt.verify(token, sessionSecret) as {
       role: string;
       email: string;
     };

@@ -73,18 +73,27 @@ export async function POST(req: Request) {
     }
 
     // 5. Generate HMAC token for erasure
+    const hmacSecret = process.env.HMAC_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
+    if (!hmacSecret) {
+      if (process.env.NODE_ENV === 'production') {
+        console.error('CRITICAL: HMAC_SECRET_KEY is missing in production.');
+        return NextResponse.json({ error: 'Server security configuration error' }, { status: 500 });
+      }
+    }
+    const effectiveSecret = hmacSecret || 'dev-ephemeral-hmac-secret-change-in-env';
+
     const rawErasureToken = crypto.randomBytes(32).toString('hex');
     const erasureTokenHash = crypto
-      .createHmac('sha256', process.env.HMAC_SECRET_KEY || 'default-secret')
+      .createHmac('sha256', effectiveSecret)
       .update(rawErasureToken)
       .digest('hex');
 
     // 6. Generate email/phone hashes for duplicate detection
     const emailHash = validatedData.email 
-      ? crypto.createHmac('sha256', process.env.HMAC_SECRET_KEY || 'default-secret').update(validatedData.email.toLowerCase()).digest('hex')
+      ? crypto.createHmac('sha256', effectiveSecret).update(validatedData.email.toLowerCase()).digest('hex')
       : null;
     const phoneHash = validatedData.phone
-      ? crypto.createHmac('sha256', process.env.HMAC_SECRET_KEY || 'default-secret').update(validatedData.phone).digest('hex')
+      ? crypto.createHmac('sha256', effectiveSecret).update(validatedData.phone).digest('hex')
       : null;
 
     // 7. Insert Exchange

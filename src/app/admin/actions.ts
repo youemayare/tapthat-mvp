@@ -19,6 +19,14 @@ export async function adminLoginStepOneAction(
   prevState: unknown,
   formData: FormData
 ): Promise<{ success: boolean; email?: string; error?: string }> {
+  const { headers } = await import('next/headers');
+  const ip = (await headers()).get('x-forwarded-for')?.split(',')[0]?.trim() ?? '127.0.0.1';
+  const { authRouteRatelimit } = await import('@/lib/ratelimit');
+  const { success: allowed } = await authRouteRatelimit.limit(`admin:step1:${ip}`);
+  if (!allowed) {
+    return { success: false, error: 'Too many attempts. Please try again later.' };
+  }
+
   const email = formData.get('email') as string;
   const password = formData.get('password') as string;
 
@@ -43,6 +51,14 @@ export async function adminLoginStepTwoAction(
   prevState: unknown,
   formData: FormData
 ): Promise<{ success: boolean; error?: string }> {
+  const { headers } = await import('next/headers');
+  const ip = (await headers()).get('x-forwarded-for')?.split(',')[0]?.trim() ?? '127.0.0.1';
+  const { authRouteRatelimit } = await import('@/lib/ratelimit');
+  const { success: allowed } = await authRouteRatelimit.limit(`admin:step2:${ip}`);
+  if (!allowed) {
+    return { success: false, error: 'Too many attempts. Please try again later.' };
+  }
+
   const email = formData.get('email') as string;
   const otp = formData.get('otp') as string;
 

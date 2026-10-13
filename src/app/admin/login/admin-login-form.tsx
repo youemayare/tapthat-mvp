@@ -156,16 +156,8 @@ export function AdminLoginForm() {
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
               <label className="block text-xs font-medium text-foreground">
-                6-Digit Security Code
+                6-Digit Security PIN
               </label>
-              <button
-                type="button"
-                onClick={handleResendOtp}
-                disabled={isPending}
-                className="text-xs text-brand-400 hover:underline flex items-center gap-1 cursor-pointer"
-              >
-                Resend code
-              </button>
             </div>
             <input
               type="text"
@@ -174,11 +166,11 @@ export function AdminLoginForm() {
               maxLength={6}
               value={otp}
               onChange={(e) => setOtp(e.target.value.replace(/[^0-9]/g, ''))}
-              placeholder="729401"
+              placeholder="••••••"
               className="w-full h-13 text-center tracking-[0.5em] text-2xl font-mono font-bold px-4 rounded-xl bg-background border border-border text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 transition-all"
             />
             <p className="text-xs text-muted-foreground mt-2 text-center">
-              Enter the code from console or master PIN <strong className="text-foreground font-mono">729401</strong>
+              Enter your configured 6-digit admin security PIN
             </p>
           </div>
 

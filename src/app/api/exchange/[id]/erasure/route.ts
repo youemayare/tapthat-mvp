@@ -33,13 +33,28 @@ export async function POST(req: Request, props: { params: Promise<{ id: string }
       return NextResponse.json({ error: 'Your details have already been removed' }, { status: 400 });
     }
 
-    // 2. Hash provided token and compare
+    // 2. Hash provided token and compare using constant-time equality
+    const hmacSecret = process.env.HMAC_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
+    if (!hmacSecret) {
+      if (process.env.NODE_ENV === 'production') {
+        console.error('CRITICAL: HMAC_SECRET_KEY is missing in production.');
+        return NextResponse.json({ error: 'Server security configuration error' }, { status: 500 });
+      }
+    }
+    const effectiveSecret = hmacSecret || 'dev-ephemeral-hmac-secret-change-in-env';
+
     const providedHash = crypto
-      .createHmac('sha256', process.env.HMAC_SECRET_KEY || 'default-secret')
+      .createHmac('sha256', effectiveSecret)
       .update(token)
       .digest('hex');
 
-    if (providedHash !== exchange.erasureTokenHash) {
+    const providedBuffer = Buffer.from(providedHash);
+    const storedBuffer = Buffer.from(exchange.erasureTokenHash || '');
+
+    if (
+      providedBuffer.length !== storedBuffer.length ||
+      !crypto.timingSafeEqual(providedBuffer, storedBuffer)
+    ) {
       return NextResponse.json({ error: 'Invalid or unauthorized token' }, { status: 403 });
     }
 
@@ -65,8 +80,8 @@ export async function POST(req: Request, props: { params: Promise<{ id: string }
       .where(eq(contactExchanges.id, exchangeId));
 
     return NextResponse.json({ success: true });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('[Erasure Error]', err);
-    return NextResponse.json({ error: err.message || 'Internal server error', stack: err.stack }, { status: 500 });
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

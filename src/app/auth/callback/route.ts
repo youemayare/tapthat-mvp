@@ -17,9 +17,23 @@ export async function GET(request: NextRequest) {
   const saveUid = searchParams.get('save');
   let redirectTo = searchParams.get('redirectTo') ?? '/dashboard';
 
-  // Prevent open redirect vulnerabilities
-  if (!redirectTo.startsWith('/')) {
+  // Prevent open redirect vulnerabilities (disallow external hosts, protocol-relative '//', and backslashes)
+  if (
+    !redirectTo.startsWith('/') ||
+    redirectTo.startsWith('//') ||
+    redirectTo.includes('\\') ||
+    redirectTo.includes('://')
+  ) {
     redirectTo = '/dashboard';
+  } else {
+    try {
+      const resolved = new URL(redirectTo, origin);
+      if (resolved.origin !== origin) {
+        redirectTo = '/dashboard';
+      }
+    } catch {
+      redirectTo = '/dashboard';
+    }
   }
   const error = searchParams.get('error');
 

@@ -37,7 +37,8 @@ Tayz (originally prototyped under *TapThat*) is an enterprise-grade smart busine
   * Run single card: `npm run cards:ingest -- --uid=045BD2AA1B1291 --type=metal`
   * Run batch file: `npm run cards:ingest -- --file=cards.csv --type=metal`
 * **Two-Factor Admin Portal (`/admin/login` & `/admin/inventory`):**  
-  * Protected by master credentials + 6-digit email OTP (with terminal console logging in development and `729401` master PIN fallback).
+  * Protected by environment credentials (`ADMIN_EMAIL`, `ADMIN_PASSWORD`) + 6-digit admin security PIN (`ADMIN_SECURITY_PIN`) via timing-safe comparison and brute-force rate limiting.
+  * *Future Enhancement Planned:* Dynamic one-time password (OTP) dispatch to administrator email via Resend and Redis TTL storage will be rolled out post-launch alongside broader transactional email pipelines.
   * Unified UI built with Tayz design tokens:
     * 4 balanced metric cards (Total Hardware, In Stock, Active, Finishes).
     * Single UID entry tab with aligned grid baselines.
@@ -164,3 +165,18 @@ To transition from a **Founding Circle / Pilot Phase** to a **Public, Fully Auto
 | :--- | :--- | :--- |
 | **Phase 1: Founding Circle Pilot** | Invite-only / early bird waitlist, manual card engraving & shipping for first 50–100 VIPs. | **READY TO LAUNCH NOW** |
 | **Phase 2: Automated Public Sales** | Implement Stripe Checkout, Exchange Email Alerts, Legal Pages, and Order Shipping Pipeline. | **Ready after Phase 2 sprint (~2–3 days)** |
+
+---
+
+## 6. Security Audit & Remediation Tracking (Pillar 1 Resolved)
+
+A comprehensive, end-to-end production audit was executed across the codebase in October 2026. All Critical (P0) and High (P1) findings under **Pillar 1 (Security, Auth & Access Control)** have been remediated:
+
+| Finding ID | Finding Description | Severity | Remediation Summary & Status |
+| :--- | :--- | :---: | :--- |
+| **SEC-01** | Hardcoded Admin Credentials & Master 2FA Backdoor PIN (`src/lib/admin/auth.ts`) | **P0 Blocker** | **RESOLVED:** Purged hardcoded plaintext passwords, master PIN `729401`, and default session secrets. Configured constant-time equality check against environment variables (`ADMIN_EMAIL`, `ADMIN_PASSWORD`, `ADMIN_SECURITY_PIN`). Fail-closed in production. Dynamic Resend OTP generation architecture retained for future post-launch rollout. |
+| **SEC-02** | Unrestricted Server-Side Request Forgery (SSRF) (`src/app/api/proxy-image/route.ts`) | **P0 Blocker** | **RESOLVED:** Enforced strict HTTPS, verified hostname against allowed CDN/OAuth/Storage whitelist (`lh3.googleusercontent.com`, `*.r2.dev`, `*.supabase.co`), blocked private/local IPs and redirect chains, checked `image/*` MIME type, and rate-limited. |
+| **SEC-03** | Open Redirect via Protocol-Relative URLs in Auth Callback (`src/app/auth/callback/route.ts`) | **P1 Blocker** | **RESOLVED:** Disallowed `//`, backslashes, and schemes; verified resolved URL origin matches application host before redirecting. |
+| **SEC-04** | Next.js 16 `proxy.ts` Matcher Bypassed Sensitive Endpoints (`src/proxy.ts`) | **P1 Blocker** | **RESOLVED:** Broadened matcher to cover all application and sensitive API routes; enforced rate limits on `/admin/login`, uploads, and public profiles. |
+| **SEC-05** | Fallback HMAC Secret, Timing Leak & Stack Trace Exposure (`src/app/api/exchange/**`) | **P1 Blocker** | **RESOLVED:** Removed `'default-secret'` fallback; required `HMAC_SECRET_KEY` / `SUPABASE_SERVICE_ROLE_KEY`; implemented constant-time comparison in GDPR erasure; stripped `stack` traces from 500 error responses. |
+| **SEC-06** | Admin Login Endpoints Lacked Rate Limiting (`src/app/admin/actions.ts`) | **P2** | **RESOLVED:** Applied IP rate limiting to both Step 1 and Step 2 server actions to defend against brute-force attacks. |
