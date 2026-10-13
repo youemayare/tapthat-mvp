@@ -5,14 +5,25 @@ import { resend } from '@/lib/email';
 import { Redis } from '@upstash/redis';
 
 function getAdminSessionSecret(): string {
-  const secret = process.env.ADMIN_SESSION_SECRET || process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!secret) {
-    if (process.env.NODE_ENV === 'production') {
-      throw new Error('[CRITICAL] ADMIN_SESSION_SECRET or SUPABASE_SERVICE_ROLE_KEY is required in production.');
-    }
-    return 'dev-ephemeral-session-secret-change-in-env';
+  if (process.env.ADMIN_SESSION_SECRET?.trim()) {
+    return process.env.ADMIN_SESSION_SECRET.trim();
   }
-  return secret;
+  if (process.env.SUPABASE_SERVICE_ROLE_KEY?.trim()) {
+    return process.env.SUPABASE_SERVICE_ROLE_KEY.trim();
+  }
+  // Deterministically derive a 256-bit secret from ADMIN_PASSWORD or ADMIN_SECURITY_PIN if set
+  const baseSecret = process.env.ADMIN_PASSWORD || process.env.ADMIN_SECURITY_PIN;
+  if (baseSecret?.trim()) {
+    return crypto
+      .createHmac('sha256', 'tayz-admin-session-salt-2026')
+      .update(baseSecret.trim())
+      .digest('hex');
+  }
+
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('[CRITICAL] ADMIN_PASSWORD or ADMIN_SESSION_SECRET must be configured.');
+  }
+  return 'dev-ephemeral-session-secret-change-in-env';
 }
 
 const ADMIN_COOKIE_NAME = 'tayz_admin_session';

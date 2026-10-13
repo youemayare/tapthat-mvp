@@ -29,7 +29,7 @@ export function AdminLoginForm() {
       if (res.success && res.email) {
         setEmail(res.email);
         setStep('otp');
-        setSuccessInfo('Security code generated. Check your console or enter your master PIN.');
+        setSuccessInfo('Credentials verified. Enter your 6-digit security PIN to unlock.');
       } else {
         setErrorMessage(res.error || 'Failed to authenticate admin.');
       }
@@ -45,12 +45,19 @@ export function AdminLoginForm() {
     formData.append('otp', otp);
 
     startTransition(async () => {
-      const res = await adminLoginStepTwoAction(null, formData);
-      if (res.success) {
-        router.push('/admin/inventory');
-        router.refresh();
-      } else {
-        setErrorMessage(res.error || 'Verification code invalid or expired.');
+      try {
+        const res = await adminLoginStepTwoAction(null, formData);
+        if (res.success) {
+          // Full navigation ensures the newly set auth session cookie is transmitted reliably
+          window.location.href = '/admin/inventory';
+        } else {
+          setErrorMessage(res.error || 'Security PIN invalid or expired.');
+        }
+      } catch (err: unknown) {
+        console.error('Step 2 submit error:', err);
+        setErrorMessage(
+          err instanceof Error ? err.message : 'A server error occurred during verification.'
+        );
       }
     });
   };
