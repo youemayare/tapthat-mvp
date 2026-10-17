@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import { withRlsUser } from '@/lib/db/auth-wrapper';
 import { connectionNotes } from '@/lib/db/schema';
 import { and, eq } from 'drizzle-orm';
-import { deleteAudioFromStorage } from '@/lib/audio-storage';
+import { deleteAudioFromStorage, isValidUserAudioKey } from '@/lib/audio-storage';
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const supabase = await createClient();
@@ -21,6 +21,12 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     try {
       const hasNote = note !== undefined;
       const hasAudio = audio !== undefined;
+
+      if (hasAudio && audio !== null) {
+        if (!audio || typeof audio !== 'object' || !isValidUserAudioKey(audio.audioStoragePath, user.id)) {
+          return NextResponse.json({ error: 'Invalid audio storage key' }, { status: 403 });
+        }
+      }
       
       if (hasNote || hasAudio) {
         // Fetch existing note to check if we need to delete it
@@ -37,16 +43,16 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
             .where(and(eq(connectionNotes.connectionId, connectionId), eq(connectionNotes.ownerUserId, user.id)));
           
           if (existingNote?.audioStoragePath) {
-            deleteAudioFromStorage(existingNote.audioStoragePath);
+            await deleteAudioFromStorage(existingNote.audioStoragePath);
           }
         } else {
           // Upsert note
-          const insertData: any = {
+          const insertData: typeof connectionNotes.$inferInsert = {
             connectionId: connectionId,
             ownerUserId: user.id,
             content: newNoteContent,
           };
-          const updateData: any = {
+          const updateData: Record<string, unknown> = {
             content: newNoteContent,
             updatedAt: new Date()
           };
@@ -61,6 +67,13 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
             updateData.audioMimeType = audio.audioMimeType;
             updateData.audioSize = audio.audioSize;
             updateData.audioDuration = audio.audioDuration;
+
+            if (
+              existingNote?.audioStoragePath &&
+              existingNote.audioStoragePath !== audio.audioStoragePath
+            ) {
+              await deleteAudioFromStorage(existingNote.audioStoragePath);
+            }
           } else if (hasAudio && audio === null) {
             updateData.audioStoragePath = null;
             updateData.audioMimeType = null;
@@ -68,7 +81,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
             updateData.audioDuration = null;
             
             if (existingNote?.audioStoragePath) {
-              deleteAudioFromStorage(existingNote.audioStoragePath);
+              await deleteAudioFromStorage(existingNote.audioStoragePath);
             }
           }
 

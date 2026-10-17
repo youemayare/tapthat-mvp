@@ -1,4 +1,4 @@
-﻿/**
+/**
  * POST /api/upload
  *
  * Server-buffered upload route (interim implementation; P-1 partially addressed).
@@ -130,13 +130,26 @@ export async function POST(req: Request) {
         .toBuffer();
       finalMime = fileTypeResult.mime; // unchanged
       finalExt  = isPng ? 'png' : 'jpg';
+    } else if (type === 'avatar' || type === 'logo') {
+      // Google Wallet and native vCard readers reject .webp for pass logos/photos.
+      // Output PNG for PNG/WebP/GIF inputs (preserving transparency for logos) and JPEG for JPEG inputs.
+      const isJpeg = fileTypeResult.mime === 'image/jpeg';
+      processedBuffer = await sharp(rawBuffer)
+        .resize(MAX_IMAGE_DIMENSION, MAX_IMAGE_DIMENSION, {
+          fit: 'inside',
+          withoutEnlargement: true,
+        })
+        .toFormat(isJpeg ? 'jpeg' : 'png', isJpeg ? { quality: 88 } : { compressionLevel: 8 })
+        .toBuffer();
+      finalMime = isJpeg ? 'image/jpeg' : 'image/png';
+      finalExt  = isJpeg ? 'jpg' : 'png';
     } else if (isImage) {
       processedBuffer = await sharp(rawBuffer)
         .resize(MAX_IMAGE_DIMENSION, MAX_IMAGE_DIMENSION, {
           fit: 'inside',        // never upscale; never crop; preserve aspect ratio
           withoutEnlargement: true,
         })
-        .webp({ quality: 85 }) // consistent WebP output regardless of input format
+        .webp({ quality: 85 }) // consistent WebP output for layout backgrounds
         .toBuffer();
       finalMime = 'image/webp';
       finalExt  = 'webp';

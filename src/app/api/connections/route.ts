@@ -4,7 +4,7 @@ import { db } from '@/lib/db';
 import { withRlsUser } from '@/lib/db/auth-wrapper';
 import { connections, connectionNotes, profiles } from '@/lib/db/schema';
 import { and, eq } from 'drizzle-orm';
-import { deleteAudioFromStorage } from '@/lib/audio-storage';
+import { deleteAudioFromStorage, isValidUserAudioKey } from '@/lib/audio-storage';
 
 export async function POST(req: NextRequest) {
   const supabase = await createClient();
@@ -58,14 +58,25 @@ export async function POST(req: NextRequest) {
 
       const hasNoteText = typeof note === 'string';
       const audio = body.audio;
-      const hasAudio = audio && typeof audio === 'object' && audio.audioStoragePath;
+      const hasAudio = Boolean(audio && typeof audio === 'object' && audio.audioStoragePath);
+
+      if (hasAudio && !isValidUserAudioKey(audio.audioStoragePath, user.id)) {
+        return NextResponse.json({ error: 'Invalid audio storage key' }, { status: 403 });
+      }
 
       if ((hasNoteText || hasAudio) && connectionId) {
-        const updateData: any = { updatedAt: new Date() };
-        const insertData: any = {
+        const existingNote = await tx.query.connectionNotes.findFirst({
+          where: and(
+            eq(connectionNotes.connectionId, connectionId),
+            eq(connectionNotes.ownerUserId, user.id)
+          ),
+        });
+
+        const updateData: Record<string, unknown> = { updatedAt: new Date() };
+        const insertData: typeof connectionNotes.$inferInsert = {
           connectionId: connectionId,
           ownerUserId: user.id,
-          content: hasNoteText ? note : ''
+          content: hasNoteText ? note : '',
         };
 
         if (hasNoteText) {
@@ -82,6 +93,13 @@ export async function POST(req: NextRequest) {
           updateData.audioMimeType = audio.audioMimeType;
           updateData.audioSize = audio.audioSize;
           updateData.audioDuration = audio.audioDuration;
+
+          if (
+            existingNote?.audioStoragePath &&
+            existingNote.audioStoragePath !== audio.audioStoragePath
+          ) {
+            await deleteAudioFromStorage(existingNote.audioStoragePath);
+          }
         }
 
         await tx.insert(connectionNotes)
@@ -111,9 +129,27 @@ export async function DELETE(req: NextRequest) {
   if (!profileId || typeof profileId !== 'string') return NextResponse.json({ error: 'profileId is required' }, { status: 400 });
 
   return await withRlsUser(user, async (tx) => {
-    await tx
-      .delete(connections)
-      .where(and(eq(connections.viewerUserId, user.id), eq(connections.profileId, profileId)));
+    const existingConnection = await tx.query.connections.findFirst({
+      where: and(eq(connections.viewerUserId, user.id), eq(connections.profileId, profileId)),
+    });
+
+    if (existingConnection) {
+      const existingNote = await tx.query.connectionNotes.findFirst({
+        where: and(
+          eq(connectionNotes.connectionId, existingConnection.id),
+          eq(connectionNotes.ownerUserId, user.id)
+        ),
+      });
+
+      await tx
+        .delete(connections)
+        .where(and(eq(connections.viewerUserId, user.id), eq(connections.profileId, profileId)));
+
+      if (existingNote?.audioStoragePath) {
+        await deleteAudioFromStorage(existingNote.audioStoragePath);
+      }
+    }
+
     return NextResponse.json({ success: true });
   });
 }

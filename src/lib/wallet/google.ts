@@ -33,7 +33,7 @@ function hasCredentials() {
   return Boolean(issuerId && clientEmail && privateKey);
 }
 
-function isValidWalletImage(url?: string | null): url is string {
+function isNativeWalletImage(url?: string | null): url is string {
   if (!url) return false;
   const lower = url.toLowerCase();
   return (
@@ -42,10 +42,24 @@ function isValidWalletImage(url?: string | null): url is string {
   );
 }
 
+function isWebpImage(url?: string | null): url is string {
+  if (!url) return false;
+  return url.startsWith('https://') && url.toLowerCase().includes('.webp');
+}
+
 function withVersion(url: string, updatedAt?: Date | null): string {
   const ts  = updatedAt ? updatedAt.getTime() : Date.now();
   const sep = url.includes('?') ? '&' : '?';
   return `${url}${sep}v=${ts}`;
+}
+
+function resolveAppUrl(): string {
+  return (
+    process.env.NEXT_PUBLIC_APP_URL ||
+    (process.env.VERCEL_PROJECT_PRODUCTION_URL
+      ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+      : 'https://tapthat.vercel.app')
+  ).replace(/\/$/, '');
 }
 
 function buildWalletObjectPayload(
@@ -53,20 +67,35 @@ function buildWalletObjectPayload(
   classId: string,
   objectId: string
 ): Record<string, unknown> {
-  const appUrl     = process.env.NEXT_PUBLIC_APP_URL || 'https://tayz.com';
+  const appUrl     = resolveAppUrl();
   const profileUrl = `${appUrl}/p/${profile.slug || profile.id}`;
+  const ts         = profile.updatedAt ? profile.updatedAt.getTime() : Date.now();
 
-  let displayLogo = 'https://i.imgur.com/4tGqO5C.png';
-  if (isValidWalletImage(profile.companyLogoUrl)) {
-    displayLogo = profile.companyLogoUrl;
-  } else if (isValidWalletImage(profile.profilePhotoUrl)) {
-    displayLogo = profile.profilePhotoUrl;
+  // Prioritize profilePhotoUrl first (matching WalletPreview 1-for-1), then companyLogoUrl.
+  // If the stored URL is .webp, serve it through our PNG conversion endpoint so Google Wallet accepts it.
+  const preferredLogoSource = profile.profilePhotoUrl || profile.companyLogoUrl;
+  let displayLogo = `${appUrl}/tayz-logo-qr.png`;
+
+  if (isNativeWalletImage(preferredLogoSource)) {
+    displayLogo = withVersion(preferredLogoSource, profile.updatedAt);
+  } else if (isWebpImage(preferredLogoSource)) {
+    displayLogo = `${appUrl}/api/wallet/logo/${profile.id}?v=${ts}&ext=.png`;
+  } else if (isNativeWalletImage(profile.companyLogoUrl)) {
+    displayLogo = withVersion(profile.companyLogoUrl, profile.updatedAt);
+  } else if (isWebpImage(profile.companyLogoUrl)) {
+    displayLogo = `${appUrl}/api/wallet/logo/${profile.id}?v=${ts}&ext=.png`;
   }
+
+  const bgColor =
+    profile.walletThemeColor && /^#[0-9A-Fa-f]{6}$/.test(profile.walletThemeColor)
+      ? profile.walletThemeColor
+      : '#0f0f19';
 
   const walletObject: Record<string, unknown> = {
     id: objectId,
     classId,
     genericType: 'GENERIC_TYPE_UNSPECIFIED',
+    hexBackgroundColor: bgColor,
     logo: { sourceUri: { uri: displayLogo } },
     cardTitle: { defaultValue: { language: 'en', value: 'Tayz Digital Business Card' } },
     header: { defaultValue: { language: 'en', value: profile.name || 'Anonymous' } },
@@ -79,13 +108,8 @@ function buildWalletObjectPayload(
     barcode: { type: 'QR_CODE', value: profileUrl, alternateText: 'Scan to connect' },
   };
 
-  if (profile.walletThemeColor && /^#[0-9A-Fa-f]{6}$/.test(profile.walletThemeColor)) {
-    walletObject.hexBackgroundColor = profile.walletThemeColor;
-  }
-
-  // Use the raw wallet hero image URL directly as requested by the user,
-  // bypassing the composite circular PFP logic.
-  if (isValidWalletImage(profile.walletHeroImageUrl)) {
+  // Use the wallet hero image URL directly at the bottom of the pass (matching WalletPreview).
+  if (isNativeWalletImage(profile.walletHeroImageUrl)) {
     walletObject.heroImage = {
       sourceUri: { uri: withVersion(profile.walletHeroImageUrl, profile.updatedAt) },
     };
@@ -96,7 +120,7 @@ function buildWalletObjectPayload(
 
 function getIds(issuerId: string, profileId: string) {
   const classId  = `${issuerId}.tayz_business_card_v2`;
-  const objectId = `${issuerId}.${profileId.replace(/-/g, '')}_v2`;
+  const objectId = `${issuerId}.${profileId.replace(/-/g, '')}_v3`;
   return { classId, objectId };
 }
 

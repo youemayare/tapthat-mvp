@@ -91,16 +91,32 @@ async function buildComposite(bannerUrl: string | null, pfpUrl: string | null): 
     .toBuffer();
 }
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
 export async function GET(
-  _req: Request,
+  req: Request,
   { params }: { params: Promise<{ profileId: string }> }
 ) {
   const { profileId } = await params;
-  if (!profileId) return new NextResponse('Not found', { status: 404 });
+  if (!profileId || !UUID_RE.test(profileId)) {
+    return new NextResponse('Not found', { status: 404 });
+  }
 
   try {
+    const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? '0.0.0.0';
+    const { publicProfileRatelimit } = await import('@/lib/ratelimit');
+    const { success: allowed } = await publicProfileRatelimit.limit(ip);
+    if (!allowed) {
+      return new NextResponse('Too many requests', { status: 429 });
+    }
+
+    const { and, isNull } = await import('drizzle-orm');
     const profile = await db.query.profiles.findFirst({
-      where: eq(profiles.id, profileId),
+      where: and(
+        eq(profiles.id, profileId),
+        eq(profiles.isPublished, true),
+        isNull(profiles.archivedAt)
+      ),
       columns: { walletHeroImageUrl: true, profilePhotoUrl: true },
     });
 
@@ -111,11 +127,12 @@ export async function GET(
       profile.profilePhotoUrl || null
     );
 
-    return new NextResponse(composite as any, {
+    return new NextResponse(new Uint8Array(composite), {
       status: 200,
       headers: {
         'Content-Type': 'image/png',
         'Cache-Control': `public, max-age=${CACHE_SECONDS}, s-maxage=${CACHE_SECONDS}`,
+        'X-Content-Type-Options': 'nosniff',
       },
     });
   } catch (err) {

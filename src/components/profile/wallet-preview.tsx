@@ -13,7 +13,14 @@ interface WalletPreviewProps {
 function isValidWalletImage(url?: string | null): url is string {
   if (!url) return false;
   const lower = url.toLowerCase();
-  return lower.includes('.png') || lower.includes('.jpg') || lower.includes('.jpeg');
+  return (
+    lower.includes('.png') ||
+    lower.includes('.jpg') ||
+    lower.includes('.jpeg') ||
+    lower.includes('.webp') ||
+    url.startsWith('/uploads/') ||
+    url.startsWith('https://')
+  );
 }
 
 function getTextColor(hexColor: string) {
@@ -46,10 +53,10 @@ export function WalletPreview({
 
   const textColorClass = getTextColor(bgColor);
 
-  const logoUrl = isValidWalletImage(companyLogoUrl)
-    ? companyLogoUrl
-    : isValidWalletImage(profilePhotoUrl)
+  const logoUrl = isValidWalletImage(profilePhotoUrl)
     ? profilePhotoUrl
+    : isValidWalletImage(companyLogoUrl)
+    ? companyLogoUrl
     : null;
 
   const subheader = [jobTitle, company].filter(Boolean).join(' at ') || 'Member';

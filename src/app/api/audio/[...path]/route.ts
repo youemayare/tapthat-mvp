@@ -1,13 +1,40 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
-import { createReadStream, existsSync } from 'fs';
-import { resolve } from 'path';
+import { existsSync, readFileSync } from 'fs';
+import { resolve, sep } from 'path';
 import { connectionNotes } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
-import { db } from '@/lib/db';
+import { withRlsUser } from '@/lib/db/auth-wrapper';
+import {
+  isValidUserAudioKey,
+  isR2Configured,
+  getPrivateAudioFromR2,
+  decryptAudioBuffer,
+} from '@/lib/audio-storage';
+import { logError, generateRequestId } from '@/lib/security';
+
+const EXT_TO_MIME: Record<string, string> = {
+  webm: 'audio/webm',
+  mp4: 'audio/mp4',
+  m4a: 'audio/mp4',
+  ogg: 'audio/ogg',
+  oga: 'audio/ogg',
+  mp3: 'audio/mpeg',
+  wav: 'audio/wav',
+  aac: 'audio/aac',
+};
+
+function inferAudioMimeFromKey(key: string, fallbackMime?: string | null): string {
+  if (fallbackMime && fallbackMime.startsWith('audio/')) {
+    return fallbackMime;
+  }
+  const ext = key.split('.').pop()?.toLowerCase() ?? '';
+  return EXT_TO_MIME[ext] ?? 'audio/webm';
+}
 
 export async function GET(req: Request, { params }: { params: Promise<{ path: string[] }> }) {
+  const requestId = generateRequestId();
+
   try {
     const resolvedParams = await params;
     const supabase = await createClient();
@@ -17,35 +44,42 @@ export async function GET(req: Request, { params }: { params: Promise<{ path: st
       return new NextResponse('Unauthorized', { status: 401 });
     }
 
-    // path array e.g. ['private-audio', 'user-id', 'uuid.webm']
-    const key = resolvedParams.path.join('/');
-
-    // Validate ownership via DB (the user must own a connection note with this audioStoragePath)
-    // Defense-in-depth: If the path strictly contains the user's ID, that also works, but checking DB is best.
-    const note = await db.query.connectionNotes.findFirst({
-      where: and(
-        eq(connectionNotes.audioStoragePath, key),
-        eq(connectionNotes.ownerUserId, user.id)
-      )
-    });
-
-    if (!note) {
-      // It's possible the note isn't saved yet if they just recorded it. 
-      // So allow access if the key starts with private-audio/their-user-id/
-      if (!key.startsWith(`private-audio/${user.id}/`)) {
-        return new NextResponse('Forbidden', { status: 403 });
-      }
+    // Strict segment validation: must be ['private-audio', '<userId>', '<32hex>.<ext>']
+    if (
+      !Array.isArray(resolvedParams.path) ||
+      resolvedParams.path.length !== 3 ||
+      resolvedParams.path.some((seg) => !seg || seg === '.' || seg === '..' || seg.includes('/') || seg.includes('\\'))
+    ) {
+      return new NextResponse('Forbidden', { status: 403 });
     }
 
-    if (!process.env.R2_ACCESS_KEY_ID || process.env.R2_ACCESS_KEY_ID.includes('your-r2')) {
+    const key = resolvedParams.path.join('/');
+
+    // Enforce that the audio key strictly belongs to the authenticated user's namespace
+    if (!isValidUserAudioKey(key, user.id)) {
+      return new NextResponse('Forbidden', { status: 403 });
+    }
+
+    // Optional DB lookup under RLS to retrieve recorded MIME type metadata
+    const note = await withRlsUser(user, (tx) =>
+      tx.query.connectionNotes.findFirst({
+        where: and(
+          eq(connectionNotes.audioStoragePath, key),
+          eq(connectionNotes.ownerUserId, user.id)
+        ),
+      })
+    );
+
+    const contentType = inferAudioMimeFromKey(key, note?.audioMimeType);
+
+    if (!isR2Configured()) {
       if (process.env.NODE_ENV === 'production') {
-        return new NextResponse('Local uploads not supported in prod', { status: 501 });
+        return new NextResponse('Local uploads not supported in production', { status: 501 });
       }
 
       const uploadDir = resolve(process.cwd(), 'private-uploads');
       const resolvedPath = resolve(uploadDir, key);
 
-      const { sep } = await import('path');
       if (resolvedPath !== uploadDir && !resolvedPath.startsWith(`${uploadDir}${sep}`)) {
         return new NextResponse('Invalid path', { status: 400 });
       }
@@ -54,49 +88,38 @@ export async function GET(req: Request, { params }: { params: Promise<{ path: st
         return new NextResponse('Not found', { status: 404 });
       }
 
-      const stream = createReadStream(resolvedPath);
-      // @ts-ignore - node stream to web stream
-      return new NextResponse(stream, {
+      const decryptedBuffer = decryptAudioBuffer(readFileSync(resolvedPath));
+      return new NextResponse(new Uint8Array(decryptedBuffer), {
         headers: {
-          'Content-Type': note?.audioMimeType || 'audio/webm',
+          'Content-Type': contentType,
+          'Content-Length': decryptedBuffer.length.toString(),
           'Cache-Control': 'private, max-age=3600',
-        }
+          'X-Content-Type-Options': 'nosniff',
+        },
       });
     }
 
-    const R2_ENDPOINT = `https://${process.env.CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com`;
-    const s3Client = new S3Client({
-      region: 'auto',
-      endpoint: R2_ENDPOINT,
-      credentials: {
-        accessKeyId: process.env.R2_ACCESS_KEY_ID!,
-        secretAccessKey: process.env.R2_SECRET_ACCESS_KEY!,
+    const decryptedBuffer = await getPrivateAudioFromR2(key);
+
+    if (!decryptedBuffer) {
+      return new NextResponse('Not found', { status: 404 });
+    }
+
+    return new NextResponse(new Uint8Array(decryptedBuffer), {
+      headers: {
+        'Content-Type': contentType,
+        'Content-Length': decryptedBuffer.length.toString(),
+        'Cache-Control': 'private, max-age=3600',
+        'X-Content-Type-Options': 'nosniff',
+        'Accept-Ranges': 'bytes',
       },
     });
 
-    const getObj = await s3Client.send(new GetObjectCommand({
-      Bucket: process.env.R2_BUCKET_NAME!,
-      Key: key,
-    }));
-
-    if (!getObj.Body) {
+  } catch (error: unknown) {
+    if (error && typeof error === 'object' && 'name' in error && error.name === 'NoSuchKey') {
       return new NextResponse('Not found', { status: 404 });
     }
-
-    return new NextResponse(getObj.Body as any, {
-      headers: {
-        'Content-Type': getObj.ContentType || 'audio/webm',
-        'Content-Length': getObj.ContentLength?.toString() || '',
-        'Cache-Control': 'private, max-age=3600',
-        'Accept-Ranges': 'bytes',
-      }
-    });
-
-  } catch (error: any) {
-    console.error('Audio fetch error:', error);
-    if (error.name === 'NoSuchKey') {
-      return new NextResponse('Not found', { status: 404 });
-    }
+    logError({ operation: 'audio.GET', requestId, error });
     return new NextResponse('Internal Server Error', { status: 500 });
   }
 }

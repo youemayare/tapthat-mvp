@@ -4,8 +4,12 @@ import { createClient } from '@/lib/supabase/server';
 import { withRlsUser } from '@/lib/db/auth-wrapper';
 import { cards, tapEvents, profiles } from '@/lib/db/schema';
 import { eq, count, or, inArray } from 'drizzle-orm';
-import { BarChart3, CreditCard, Eye, Users, Wallet, QrCode } from 'lucide-react';
+import { BarChart3, CreditCard, Eye, Users, QrCode } from 'lucide-react';
 import { getGoogleWalletSaveUrl } from '@/lib/wallet/google';
+import {
+  GoogleWalletAction,
+  type WalletProfileOption,
+} from '@/components/dashboard/google-wallet-action';
 
 export const metadata: Metadata = { title: 'Dashboard' };
 
@@ -19,7 +23,8 @@ export default async function DashboardPage() {
     totalTaps: 0,
     totalCards: 0,
     userProfilesCount: 0,
-    googleWalletUrl: null as string | null,
+    walletProfiles: [] as WalletProfileOption[],
+    defaultSelectedProfileId: null as string | null,
     activeCardUid: null as string | null,
   };
 
@@ -31,58 +36,85 @@ export default async function DashboardPage() {
         tx.select().from(cards).where(eq(cards.userId, user!.id)),
       ]);
 
-      const activeCard = cardRows.find(c => c.status === 'active');
+      const nonArchivedProfiles = userProfiles.filter((p) => !p.archivedAt);
+      const activeCards = cardRows.filter((c) => c.status === 'active');
+      const activeCard = activeCards[0] ?? null;
+      const activeCardProfileIds = new Set(
+        activeCards.map((c) => c.profileId).filter(Boolean) as string[]
+      );
 
-      const profile = activeCard 
-        ? userProfiles.find(p => p.id === activeCard.profileId) || userProfiles[0] || null
-        : userProfiles[0] || null;
+      const primaryProfile = activeCard
+        ? nonArchivedProfiles.find((p) => p.id === activeCard.profileId) ||
+          nonArchivedProfiles.find((p) => p.isDefault) ||
+          nonArchivedProfiles[0] ||
+          null
+        : nonArchivedProfiles.find((p) => p.isDefault) ||
+          nonArchivedProfiles[0] ||
+          null;
 
-      const userProfilesCount = userProfiles.length;
+      const userProfilesCount = nonArchivedProfiles.length;
       const totalCards = cardRows.length;
-      
+
       let totalTaps = 0;
-      let googleWalletUrl = null;
-      let activeCardUid = null;
+      const activeCardUid = activeCard ? activeCard.cardUid : null;
 
-      if (activeCard) {
-        activeCardUid = activeCard.cardUid;
-      }
+      if (userProfiles.length > 0) {
+        const profileIds = userProfiles.map((p) => p.id);
+        const cardIds = cardRows.map((c) => c.id);
 
-      if (profile) {
-        const profileIds = userProfiles.map(p => p.id);
-        const cardIds = cardRows.map(c => c.id);
-        
-        const profileTapsCondition = cardIds.length > 0
-          ? or(inArray(tapEvents.profileId, profileIds), inArray(tapEvents.cardId, cardIds))
-          : inArray(tapEvents.profileId, profileIds);
+        const profileTapsCondition =
+          cardIds.length > 0
+            ? or(inArray(tapEvents.profileId, profileIds), inArray(tapEvents.cardId, cardIds))
+            : inArray(tapEvents.profileId, profileIds);
 
-        const tapRows = await tx.select({ count: count() }).from(tapEvents).where(profileTapsCondition);
+        const tapRows = await tx
+          .select({ count: count() })
+          .from(tapEvents)
+          .where(profileTapsCondition);
         totalTaps = tapRows[0]?.count ?? 0;
-
-        // Only generate Google Wallet URL if they have a profile and an active card
-        if (activeCard) {
-          const fullName = [profile.firstName, profile.lastName].filter(Boolean).join(' ') || 'My Profile';
-          googleWalletUrl = getGoogleWalletSaveUrl({
-            id: profile.id,
-            name: fullName,
-            jobTitle: profile.jobTitle,
-            company: profile.companyName,
-            slug: profile.slug,
-            profilePhotoUrl: profile.profilePhotoUrl,
-            companyLogoUrl: profile.companyLogoUrl,
-            walletThemeColor: profile.walletThemeColor,
-            walletHeroImageUrl: profile.walletHeroImageUrl,
-            phone: profile.phone,
-            email: profile.email,
-            websiteUrl: profile.websiteUrl,
-            linkedinUrl: profile.linkedinUrl,
-            whatsapp: profile.whatsapp,
-            updatedAt: profile.updatedAt,
-          });
-        }
       }
 
-      return { totalTaps, totalCards, userProfilesCount, googleWalletUrl, activeCardUid };
+      const walletProfiles: WalletProfileOption[] = nonArchivedProfiles.map((p) => {
+        const fullName = [p.firstName, p.lastName].filter(Boolean).join(' ') || 'My Profile';
+        return {
+          id: p.id,
+          label: p.label,
+          firstName: p.firstName,
+          lastName: p.lastName,
+          jobTitle: p.jobTitle,
+          companyName: p.companyName,
+          profilePhotoUrl: p.profilePhotoUrl,
+          isPublished: p.isPublished,
+          isDefault: p.isDefault,
+          isActiveOnCard: activeCardProfileIds.has(p.id),
+          walletUrl: getGoogleWalletSaveUrl({
+            id: p.id,
+            name: fullName,
+            jobTitle: p.jobTitle,
+            company: p.companyName,
+            slug: p.slug,
+            profilePhotoUrl: p.profilePhotoUrl,
+            companyLogoUrl: p.companyLogoUrl,
+            walletThemeColor: p.walletThemeColor,
+            walletHeroImageUrl: p.walletHeroImageUrl,
+            phone: p.phone,
+            email: p.email,
+            websiteUrl: p.websiteUrl,
+            linkedinUrl: p.linkedinUrl,
+            whatsapp: p.whatsapp,
+            updatedAt: p.updatedAt,
+          }),
+        };
+      });
+
+      return {
+        totalTaps,
+        totalCards,
+        userProfilesCount,
+        walletProfiles,
+        defaultSelectedProfileId: primaryProfile?.id ?? null,
+        activeCardUid,
+      };
     });
 
     if (result) {
@@ -164,17 +196,11 @@ export default async function DashboardPage() {
             <p className="text-muted-foreground text-sm">Download or print a QR poster for your spaces.</p>
           </a>
 
-          {statsData.googleWalletUrl && (
-            <a
-              href={statsData.googleWalletUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group bg-card text-card-foreground border border-border rounded-2xl p-5 hover:bg-primary/8 hover:border-brand-500/30 transition-all"
-            >
-              <Wallet className="w-6 h-6 text-brand-400 mb-3 group-hover:scale-110 transition-transform" />
-              <h3 className="text-foreground font-semibold mb-1">Save to Google Wallet</h3>
-              <p className="text-muted-foreground text-sm">Add your digital business card to your mobile wallet.</p>
-            </a>
+          {statsData.walletProfiles.length > 0 && (
+            <GoogleWalletAction
+              profiles={statsData.walletProfiles}
+              defaultSelectedId={statsData.defaultSelectedProfileId}
+            />
           )}
         </div>
       </div>

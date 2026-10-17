@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, after } from 'next/server';
 import { revalidatePath } from 'next/cache';
 
 import { withRlsUser } from '@/lib/db/auth-wrapper';
@@ -164,25 +164,32 @@ export async function PUT(req: Request) {
     // Non-blocking: update the Google Wallet pass object if it exists.
     // We fire and forget â€” a failure here must never break the profile save response.
     if (result) {
-      const { patchGoogleWalletObject } = await import('@/lib/wallet/google');
-      const fullName = [result.firstName, result.lastName].filter(Boolean).join(' ') || 'My Profile';
-      patchGoogleWalletObject({
-        id: result.id,
-        name: fullName,
-        jobTitle: result.jobTitle,
-        company: result.companyName,
-        slug: result.slug,
-        profilePhotoUrl: result.profilePhotoUrl,
-        companyLogoUrl: result.companyLogoUrl,
-        walletThemeColor: result.walletThemeColor,
-        walletHeroImageUrl: result.walletHeroImageUrl,
-        phone: result.phone,
-        email: result.email,
-        websiteUrl: result.websiteUrl,
-        linkedinUrl: result.linkedinUrl,
-        whatsapp: result.whatsapp,
-        updatedAt: result.updatedAt,
-      }).catch((err) => console.error('[Profile API] Background wallet PATCH failed:', err));
+      const savedResult = result;
+      after(async () => {
+        try {
+          const { patchGoogleWalletObject } = await import('@/lib/wallet/google');
+          const fullName = [savedResult.firstName, savedResult.lastName].filter(Boolean).join(' ') || 'My Profile';
+          await patchGoogleWalletObject({
+            id: savedResult.id,
+            name: fullName,
+            jobTitle: savedResult.jobTitle,
+            company: savedResult.companyName,
+            slug: savedResult.slug,
+            profilePhotoUrl: savedResult.profilePhotoUrl,
+            companyLogoUrl: savedResult.companyLogoUrl,
+            walletThemeColor: savedResult.walletThemeColor,
+            walletHeroImageUrl: savedResult.walletHeroImageUrl,
+            phone: savedResult.phone,
+            email: savedResult.email,
+            websiteUrl: savedResult.websiteUrl,
+            linkedinUrl: savedResult.linkedinUrl,
+            whatsapp: savedResult.whatsapp,
+            updatedAt: savedResult.updatedAt,
+          });
+        } catch (err) {
+          console.error('[Profile API] Background wallet PATCH failed:', err);
+        }
+      });
     }
 
     return NextResponse.json(result);
