@@ -1,4 +1,4 @@
-import { pgTable, uuid, text, boolean, timestamp, jsonb, index, unique, integer } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, text, boolean, timestamp, jsonb, index, uniqueIndex, unique, integer } from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
 
 // ─── Users ───────────────────────────────────────────────────────────────────
@@ -86,6 +86,9 @@ export const profiles = pgTable('profiles', {
 }, (t) => [
   index('idx_profiles_slug').on(t.slug),
   index('idx_profiles_user_id').on(t.userId),
+  uniqueIndex('uq_profiles_one_default_per_user')
+    .on(t.userId)
+    .where(sql`${t.isDefault} = true`),
 ]);
 
 // ─── Cards ───────────────────────────────────────────────────────────────────

@@ -1,7 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { eq, and, isNull } from 'drizzle-orm';
+import { eq, and, isNull, desc, asc } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { users, profiles, cards } from '@/lib/db/schema';
 import { createClient } from '@/lib/supabase/server';
@@ -49,17 +49,24 @@ export async function claimCardAction(uid: string): Promise<ClaimResult> {
         })
         .onConflictDoNothing();
 
-      // 2. Fetch or create profile
+      // 2. Fetch active (non-archived) profile, prioritizing the user's default profile
       let profile = await tx.query.profiles.findFirst({
-        where: eq(profiles.userId, user.id),
+        where: and(eq(profiles.userId, user.id), isNull(profiles.archivedAt)),
+        orderBy: [desc(profiles.isDefault), asc(profiles.createdAt)],
       });
 
       if (!profile) {
+        const existingDefault = await tx.query.profiles.findFirst({
+          where: and(eq(profiles.userId, user.id), eq(profiles.isDefault, true)),
+          columns: { id: true },
+        });
+
         const [newProfile] = await tx
           .insert(profiles)
           .values({
             userId: user.id,
             isPublished: false,
+            isDefault: !existingDefault,
           })
           .returning();
         profile = newProfile;

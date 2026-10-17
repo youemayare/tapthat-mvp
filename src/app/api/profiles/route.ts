@@ -11,7 +11,7 @@ import { revalidatePath } from 'next/cache';
 
 import { withRlsUser } from '@/lib/db/auth-wrapper';
 import { profiles, users, cards } from '@/lib/db/schema';
-import { eq } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 import { createClient } from '@/lib/supabase/server';
 import { isMultiProfileEnabled } from '@/lib/feature-flags';
 import { z } from 'zod';
@@ -91,6 +91,12 @@ export async function POST(req: Request) {
         );
       }
 
+      const existingDefault = await tx
+        .select({ id: profiles.id })
+        .from(profiles)
+        .where(and(eq(profiles.userId, user.id), eq(profiles.isDefault, true)))
+        .limit(1);
+
       const [newProfile] = await tx
         .insert(profiles)
         .values({
@@ -98,7 +104,7 @@ export async function POST(req: Request) {
           label: parsed.label,
           slug: parsed.slug ?? null,
           isPublished: false,
-          isDefault: false,
+          isDefault: existingDefault.length === 0,
         })
         .returning();
 

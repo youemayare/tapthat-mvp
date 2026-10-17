@@ -136,10 +136,11 @@ export async function PUT(req: Request) {
         
         return updated[0];
       } else {
-        // Insert
+        // Insert first profile for user — mark as default
         const inserted = await tx.insert(profiles)
           .values({
             userId: user.id,
+            isDefault: true,
             ...parsed
           })
           .returning();
