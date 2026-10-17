@@ -1,216 +1,37 @@
-﻿"use client";
-
 import Image from 'next/image';
-import { motion, useAnimation, AnimatePresence } from 'framer-motion';
-import useEmblaCarousel from 'embla-carousel-react';
-import { WheelGesturesPlugin } from 'embla-carousel-wheel-gestures';
-import { useState, useEffect, useRef, useCallback } from 'react';
+import Link from 'next/link';
 import { WAITLIST_URL } from '@/lib/constants';
 import { ThemeToggle } from '@/components/theme-toggle';
-import Link from 'next/link';
+import {
+  FadeIn,
+  CtaButton,
+  AnimatedHeader,
+  FloatingArrow,
+  HoverScaleBadge,
+} from '@/components/landing/motion-primitives';
+import { HeroVisual } from '@/components/landing/hero-visual';
+import { CardsCarousel, type CardFinishItem } from '@/components/landing/cards-carousel';
+import { FaqItem } from '@/components/landing/faq-accordion';
 
 const ASSET_MODE = process.env.NEXT_PUBLIC_LANDING_MODE === 'dummy' ? 'dummy' : 'real';
 
-function FadeIn({ children, delay = 0, direction = 'up', className = '' }: { children: React.ReactNode, delay?: number, direction?: 'up' | 'down' | 'left' | 'right' | 'none', className?: string }) {
-  const yOffset = direction === 'up' ? 40 : direction === 'down' ? -40 : 0;
-  const xOffset = direction === 'left' ? 40 : direction === 'right' ? -40 : 0;
-
+function Header() {
   return (
-    <motion.div
-      className={className}
-      initial={{ opacity: 0, y: yOffset, x: xOffset }}
-      whileInView={{ opacity: 1, y: 0, x: 0 }}
-      viewport={{ once: true, margin: "-100px" }}
-      transition={{ duration: 0.7, delay, ease: "easeOut" }}
-    >
-      {children}
-    </motion.div>
-  );
-}
-
-function CtaButton({ children, href, className = "" }: { children: React.ReactNode, href: string, className?: string }) {
-  return (
-    <motion.a
-      href={href}
-        target="_blank"
-        rel="noopener noreferrer"
-      className={`relative inline-flex items-center justify-center overflow-hidden font-semibold text-white bg-[#0071e3] transition-colors hover:bg-[#005bb8] shadow-[0_0_40px_rgba(0,113,227,0.2)] hover:shadow-[0_0_60px_rgba(0,113,227,0.4)] ${className}`}
-      whileHover={{ scale: 1.05 }}
-      whileTap={{ scale: 0.95 }}
-      transition={{ type: "spring", stiffness: 400, damping: 20 }}
-    >
-      <span className="relative z-10">{children}</span>
-      <motion.div
-        className="absolute inset-0 z-0 bg-gradient-to-r from-transparent via-white/25 to-transparent skew-x-[-20deg]"
-        initial={{ x: "-200%" }}
-        whileHover={{ x: "200%" }}
-        transition={{ duration: 0.8, ease: "easeInOut" }}
-      />
-    </motion.a>
-  );
-}
-
-  function Header() {
-    return (
-      <motion.header
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.5, ease: "easeOut" }}
-        className="w-full border-b border-border-subtle bg-nav-bg backdrop-blur-md sticky top-0 z-50"
-      >
-        <div className="container mx-auto px-6 h-20 flex items-center justify-between">
-          <div className="text-xl font-bold tracking-tight text-foreground">TAYZ</div>
-          <div className="flex items-center gap-4">
-            <ThemeToggle />
-            <Link href="/login" className="text-sm font-semibold hover:opacity-80 transition-opacity">Sign in</Link>
-            <CtaButton
-              href={WAITLIST_URL}
-              className="text-sm px-4 py-2 rounded-full"
-            >
-              Get Your Card
-            </CtaButton>
-          </div>
-        </div>
-      </motion.header>
-    );
-  }
-
-  function HeroVisual() {
-    const cardControls = useAnimation();
-    const screenControls = useAnimation();
-    const [isTapped, setIsTapped] = useState(false);
-    const isAutoPlaying = useRef(false);
-    const [isTouch, setIsTouch] = useState(false);
-
-    const playTapSequence = useCallback(async () => {
-      setIsTapped(true);
-      await cardControls.start({
-        y: "-50%",
-        x: "-50%",
-        z: 0,
-        rotateX: 0,
-        rotateY: 0,
-        rotateZ: 0,
-        scale: 1,
-        transition: { duration: 0.4, ease: "easeOut" }
-      });
-      screenControls.start({ opacity: 1, transition: { duration: 0.3 } });
-      await cardControls.start({
-        y: "100%",
-        opacity: 0,
-        transition: { duration: 0.6, delay: 0.2, ease: "easeInOut" }
-      });
-    }, [cardControls, screenControls]);
-
-    const playResetSequence = useCallback(async () => {
-      setIsTapped(false);
-      screenControls.start({ opacity: 0, transition: { duration: 0.3 } });
-      await cardControls.start({
-        y: "-80%",
-        x: "-35%",
-        z: 50,
-        rotateX: 25,
-        rotateY: -15,
-        rotateZ: -10,
-        scale: 1.1,
-        opacity: 1,
-        transition: { duration: 0.5, ease: "backOut" }
-      });
-    }, [cardControls, screenControls]);
-
-    const handleHover = async () => {
-      if (isAutoPlaying.current || isTapped) return;
-      await playTapSequence();
-    };
-  
-    const handleMouseLeave = async () => {
-      if (isAutoPlaying.current) return;
-      await playResetSequence();
-    };
-
-    useEffect(() => {
-      const isTouchDevice = window.matchMedia("(pointer: coarse)").matches;
-      setIsTouch(isTouchDevice);
-      if (!isTouchDevice) return;
-
-      isAutoPlaying.current = true;
-      let mounted = true;
-
-      const loop = async () => {
-        while (mounted) {
-          await new Promise(r => setTimeout(r, 500));
-          if (!mounted) break;
-          
-          await playTapSequence();
-          
-          await new Promise(r => setTimeout(r, 2000));
-          if (!mounted) break;
-          
-          await playResetSequence();
-          
-          await new Promise(r => setTimeout(r, 1500));
-        }
-      };
-
-      loop();
-
-      return () => {
-        mounted = false;
-        isAutoPlaying.current = false;
-      };
-    }, [playTapSequence, playResetSequence]);
-
-    return (
-    <div
-      className="relative w-full max-w-[260px] mx-auto sm:max-w-[280px] lg:max-w-[300px] aspect-[9/19.5] [perspective:1200px] cursor-pointer group"
-      onMouseEnter={handleHover}
-      onMouseLeave={handleMouseLeave}
-      onTouchStart={handleHover}
-    >
-      {/* Phone Frame */}
-      <div className="absolute inset-0 rounded-[3rem] border-[8px] border-[#262626] bg-black overflow-hidden shadow-[0_0_80px_rgba(0,113,227,0.15)] z-10 transition-transform duration-500 group-hover:scale-[1.02]">
-        <motion.div
-          className="relative w-full h-full"
-          initial={{ opacity: 0 }}
-          animate={screenControls}
-        >
-          <Image src={`/storyboard/${ASSET_MODE}/layout-canvas.png`} alt="Tayz Live Profile" fill className="object-cover object-top" />
-        </motion.div>
-
-        {/* Helper text before hover */}
-        {!isTapped && (
-          <motion.div
-            initial={{ opacity: 1 }}
-            animate={{ opacity: isTapped ? 0 : 1 }}
-            className="absolute inset-0 flex items-center justify-center pointer-events-none"
+    <AnimatedHeader className="w-full border-b border-border-subtle bg-nav-bg backdrop-blur-md sticky top-0 z-50">
+      <div className="container mx-auto px-6 h-20 flex items-center justify-between">
+        <div className="text-xl font-bold tracking-tight text-foreground">TAYZ</div>
+        <div className="flex items-center gap-4">
+          <ThemeToggle />
+          <Link href="/login" className="text-sm font-semibold hover:opacity-80 transition-opacity">Sign in</Link>
+          <CtaButton
+            href={WAITLIST_URL}
+            className="text-sm px-4 py-2 rounded-full"
           >
-            <span className="text-zinc-600 text-sm font-medium tracking-widest uppercase animate-pulse">{isTouch ? 'Tap to Connect' : 'Hover to Tap'}</span>
-          </motion.div>
-        )}
+            Get Your Card
+          </CtaButton>
+        </div>
       </div>
-
-      {/* Matte Black Metal Card */}
-      <motion.div
-        className="absolute top-1/2 left-1/2 w-[80%] aspect-[1.586] bg-gradient-to-br from-[#2a2a2a] via-[#111] to-[#000] rounded-xl border border-border-medium shadow-[0_30px_60px_rgba(0,0,0,0.8)] flex flex-col justify-center items-center z-20 pointer-events-none"
-        style={{ transformStyle: "preserve-3d" }}
-        initial={{
-          y: "-80%",
-          x: "-35%",
-          z: 50,
-          rotateX: 25,
-          rotateY: -15,
-          rotateZ: -10,
-          scale: 1.1,
-          opacity: 1
-        }}
-        animate={cardControls}
-      >
-        <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent opacity-30 rounded-xl" />
-        <div className="text-white font-bold tracking-[0.2em] text-2xl uppercase mb-2">Tayz</div>
-        <div className="w-8 h-[2px] bg-[#0071e3] mb-4"></div>
-        <div className="text-white/60 font-sans tracking-widest text-xs uppercase">Your Name</div>
-      </motion.div>
-    </div>
+    </AnimatedHeader>
   );
 }
 
@@ -243,7 +64,7 @@ function StoryboardHero() {
             </FadeIn>
           </div>
           <FadeIn direction="left" delay={0.3}>
-            <HeroVisual />
+            <HeroVisual assetMode={ASSET_MODE} />
           </FadeIn>
         </div>
       </div>
@@ -252,9 +73,7 @@ function StoryboardHero() {
 }
 
 function StoryboardCards() {
-  const [emblaRef] = useEmblaCarousel({ loop: true, dragFree: true }, [WheelGesturesPlugin()]);
-
-  const cards = [
+  const cards: CardFinishItem[] = [
     { id: 'black', name: 'Matte Black', src: '/designs/black.png' },
     { id: 'silver', name: 'Matte Silver', src: '/designs/silver.jpg' },
     { id: 'gold', name: 'Matte Gold', src: '/designs/gold.png' },
@@ -273,7 +92,7 @@ function StoryboardCards() {
         </FadeIn>
         <FadeIn delay={0.1}>
           <p className="text-xl text-[#52525b] dark:text-[#a1a1aa] max-w-2xl mx-auto">
-            Choose from our collection of premium finishes. We recommend keeping it simple with just your name - so your card stays relevant even if your company or role changes. 
+            Choose from our collection of premium finishes. We recommend keeping it simple with just your name - so your card stays relevant even if your company or role changes.
           </p>
           <p className="text-sm mt-4 text-[#71717a]">
             Looking for custom company logos, colors or designs? Contact our team for custom orders.
@@ -281,23 +100,7 @@ function StoryboardCards() {
         </FadeIn>
       </div>
 
-      <div className="overflow-hidden pb-12 cursor-grab active:cursor-grabbing" ref={emblaRef}>
-        <div className="flex touch-pan-y">
-          {cards.map((card) => (
-            <div 
-              key={card.id}
-              className="flex-[0_0_85vw] sm:flex-[0_0_500px] md:flex-[0_0_600px] min-w-0 flex flex-col items-center gap-6 px-4 md:px-8 group/card"
-            >
-              <div className="relative w-full aspect-square rounded-2xl overflow-hidden shadow-[0_20px_40px_rgba(0,0,0,0.5)] border border-border-medium group-hover/card:shadow-[0_0_60px_rgba(255,255,255,0.1)] group-hover/card:border-border-strong transition-all duration-500 select-none">
-                <Image src={card.src} alt={card.name} fill className="object-cover group-hover/card:scale-105 transition-transform duration-1000 pointer-events-none" draggable={false} />
-              </div>
-              <div className="text-lg font-medium text-[#52525b] dark:text-[#a1a1aa] group-hover/card:text-foreground transition-colors duration-300">
-                {card.name}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+      <CardsCarousel cards={cards} />
     </section>
   );
 }
@@ -314,7 +117,7 @@ function StoryboardStyles() {
           </FadeIn>
           <FadeIn delay={0.1}>
             <p className="text-xl text-[#52525b] dark:text-[#a1a1aa] max-w-2xl mx-auto">
-              Choose from structurally distinct layouts and unlock deep customizability. Mix fonts, structures & styles to find one that matches your vibe.
+              Choose from structurally distinct layouts and unlock deep customizability. Mix fonts, structures &amp; styles to find one that matches your vibe.
             </p>
           </FadeIn>
         </div>
@@ -377,19 +180,19 @@ function StoryboardUpdate() {
           </FadeIn>
 
           <FadeIn delay={0.4} className="text-zinc-600 hidden md:block">
-            <motion.div animate={{ x: [0, 10, 0] }} transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}>
+            <FloatingArrow axis="x">
               <svg className="w-8 h-8 text-[#0071e3]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
               </svg>
-            </motion.div>
+            </FloatingArrow>
           </FadeIn>
 
           <FadeIn delay={0.4} className="text-zinc-600 block md:hidden my-4">
-            <motion.div animate={{ y: [0, 10, 0] }} transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}>
+            <FloatingArrow axis="y">
               <svg className="w-8 h-8 text-[#0071e3]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
               </svg>
-            </motion.div>
+            </FloatingArrow>
           </FadeIn>
 
           <FadeIn direction="left" delay={0.6} className="relative w-full max-w-[240px] lg:max-w-[260px] aspect-[9/19.5] rounded-2xl border border-[#0071e3]/40 overflow-hidden shadow-[0_0_80px_rgba(0,113,227,0.2)]">
@@ -408,7 +211,7 @@ function StoryboardCompatibility() {
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(0,113,227,0.05)_0%,transparent_50%)]" />
       <div className="container mx-auto px-6 max-w-7xl relative z-10">
         <div className="grid lg:grid-cols-3 gap-12 lg:gap-8 items-center">
-          
+
           <FadeIn direction="right" className="relative w-full max-w-sm mx-auto lg:max-w-none aspect-[3/4] rounded-3xl overflow-hidden border border-border-medium shadow-xl">
             <Image src="/iphone-tap.jpg" alt="Tapping iPhone" fill className="object-cover" />
             <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/10 to-transparent" />
@@ -490,7 +293,7 @@ function StoryboardConnections() {
             </FadeIn>
             <FadeIn direction="right" delay={0.1}>
               <p className="text-xl text-[#52525b] dark:text-[#a1a1aa] leading-relaxed mb-6">
-                When you exchange details, their information is saved directly to your Connections dashboard. Never lose track of a meaningful encounter again. You can add notes, collect leads & more.
+                When you exchange details, their information is saved directly to your Connections dashboard. Never lose track of a meaningful encounter again. You can add notes, collect leads &amp; more.
               </p>
             </FadeIn>
           </div>
@@ -514,7 +317,7 @@ function StoryboardAnalytics() {
           <div className="order-1 md:order-2">
             <FadeIn direction="left">
               <h2 className="text-3xl md:text-5xl font-bold tracking-tight text-foreground mb-6">
-                Know what's working.
+                Know what&apos;s working.
               </h2>
             </FadeIn>
             <FadeIn direction="left" delay={0.1}>
@@ -528,7 +331,6 @@ function StoryboardAnalytics() {
     </section>
   );
 }
-
 
 function StoryboardEco() {
   return (
@@ -573,19 +375,16 @@ function PricingOffer() {
           <div className="relative z-10">
             <div className="flex flex-col items-center mb-8 pb-8 border-b border-border-subtle">
               <h3 className="text-2xl md:text-3xl font-bold text-foreground mb-6">Founding Circle Membership</h3>
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                className="mt-2 inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#0071e3]/10 border border-[#0071e3]/20 text-[#60a5fa] font-medium text-sm"
-              >
+              <HoverScaleBadge className="mt-2 inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#0071e3]/10 border border-[#0071e3]/20 text-[#60a5fa] font-medium text-sm">
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
                 Approximately 40% off the planned regular price
-              </motion.div>
+              </HoverScaleBadge>
             </div>
 
             <p className="text-[#52525b] dark:text-[#a1a1aa] leading-relaxed mb-8">
-              Join the Founding Circle for early access to the Tayz Metal Card at an exclusive discounted price. We'll notify you when Tayz is ready to launch. Joining is free, and you can decide whether to order then.
+              Join the Founding Circle for early access to the Tayz Metal Card at an exclusive discounted price. We&apos;ll notify you when Tayz is ready to launch. Joining is free, and you can decide whether to order then.
             </p>
 
             <CtaButton
@@ -624,7 +423,7 @@ function FinalCTA() {
               Join the Founding Circle
             </CtaButton>
             <p className="text-sm text-[#71717a] max-w-sm mx-auto">
-              Free to join. We'll notify you when Tayz launches. No payment today and no obligation to buy.
+              Free to join. We&apos;ll notify you when Tayz launches. No payment today and no obligation to buy.
             </p>
           </div>
         </FadeIn>
@@ -633,46 +432,8 @@ function FinalCTA() {
   );
 }
 
-function FaqItem({ question, answer }: { question: string, answer: string }) {
-  const [isOpen, setIsOpen] = useState(false);
-  return (
-    <div className="bg-background rounded-2xl border border-border-medium hover:border-border-strong transition-colors overflow-hidden">
-      <button 
-        className="w-full text-left p-6 flex items-center justify-between focus:outline-none"
-        onClick={() => setIsOpen(!isOpen)}
-        aria-expanded={isOpen}
-      >
-        <h3 className="text-xl font-medium text-foreground pr-8">{question}</h3>
-        <motion.div 
-          animate={{ rotate: isOpen ? 180 : 0 }} 
-          transition={{ duration: 0.3, ease: "easeInOut" }}
-          className="flex-shrink-0 text-[#52525b] dark:text-[#a1a1aa]"
-        >
-          <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-          </svg>
-        </motion.div>
-      </button>
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3, ease: "easeInOut" }}
-          >
-            <div className="px-6 pb-6 pt-0">
-              <p className="text-[#52525b] dark:text-[#a1a1aa] leading-relaxed">{answer}</p>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-}
-
 function StoryboardFaq() {
-    const faqs = [
+  const faqs = [
     {
       question: "Do the people I meet need an app?",
       answer: "No app is required. When they tap your card or scan your QR code, your profile instantly opens in their phone's default web browser."
@@ -707,7 +468,7 @@ function StoryboardFaq() {
             Frequently asked questions
           </h2>
         </FadeIn>
-        
+
         <div className="space-y-6">
           {faqs.map((faq, idx) => (
             <FadeIn key={idx} delay={idx * 0.1} direction="up">
