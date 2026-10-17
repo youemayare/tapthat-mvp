@@ -13,7 +13,7 @@
  *    - Card must not be revoked.
  *    - Writes an audit event to card_status_events.
  */
-import { NextResponse } from 'next/server';
+import { NextResponse, after } from 'next/server';
 import { revalidateTag } from 'next/cache';
 import { db } from '@/lib/db';
 import { withRlsUser, Transaction } from '@/lib/db/auth-wrapper';
@@ -70,7 +70,14 @@ export async function PATCH(
     }
 
     // ── Branch: Status change (existing behavior, unchanged) ──────────────────
-    return await withRlsUser(user, (tx) => handleStatusChange(tx, cardId, body.status, user.id));
+    const response = await withRlsUser(user, (tx) => handleStatusChange(tx, cardId, body.status, user.id));
+    if (response.ok) {
+      const data = await response.clone().json();
+      if (data?.card?.cardUid) {
+        revalidateTag(`card-${data.card.cardUid}`, 'max');
+      }
+    }
+    return response;
   } catch (error: unknown) {
     logError({ operation: 'cards.PATCH', requestId, error });
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
@@ -116,9 +123,9 @@ async function handleStatusChange(tx: Transaction, cardId: string, requestedStat
       activatedAt: cards.activatedAt,
     });
 
-  // Audit log — non-critical, written OUTSIDE the RLS transaction so a failure
-  // here can never abort the card status change that already committed above.
-  setImmediate(async () => {
+  // Audit log — non-critical, scheduled via Next.js after() so the serverless
+  // execution context stays alive until the insert completes after the response is sent.
+  after(async () => {
     try {
       await db.insert(cardStatusEvents).values({
         cardId: updatedCard.id,
@@ -131,10 +138,6 @@ async function handleStatusChange(tx: Transaction, cardId: string, requestedStat
       logError({ operation: 'cards.PATCH.audit', error: auditError });
     }
   });
-
-  if (updatedCard?.cardUid) {
-    revalidateTag(`card-${updatedCard.cardUid}`, 'max');
-  }
 
   return NextResponse.json({ success: true, card: updatedCard });
 }
@@ -186,9 +189,9 @@ async function handleProfileSwitch(tx: Transaction, cardId: string, profileId: s
     .where(and(eq(cards.id, cardId), eq(cards.userId, userId)))
     .returning();
 
-  // Audit log — non-critical, written OUTSIDE the RLS transaction so a failure
-  // here can never abort the profile switch that already committed above.
-  setImmediate(async () => {
+  // Audit log — non-critical, scheduled via Next.js after() so the serverless
+  // execution context stays alive until the insert completes after the response is sent.
+  after(async () => {
     try {
       await db.insert(cardStatusEvents).values({
         cardId: updatedCard.id,
@@ -203,10 +206,6 @@ async function handleProfileSwitch(tx: Transaction, cardId: string, profileId: s
       logError({ operation: 'cards.PATCH.audit', error: auditError });
     }
   });
-
-  if (updatedCard?.cardUid) {
-    revalidateTag(`card-${updatedCard.cardUid}`, 'max');
-  }
 
   return NextResponse.json({ success: true, card: updatedCard });
 }
@@ -235,4 +234,3 @@ async function handleLabelChange(tx: Transaction, cardId: string, requestedLabel
     });
   return NextResponse.json({ success: true, card: updatedCard });
 }
-
