@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import type { Profile } from '@/lib/db/schema';
 import { buildWhatsAppUrl } from '@/lib/utils';
-import { Share, Home, BookmarkPlus } from 'lucide-react';
+import { Share, Home, BookmarkPlus, FileText, Download } from 'lucide-react';
 import { ConnectionNoteModal } from '../connection-note-modal';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
@@ -16,6 +16,16 @@ import { GuestConversionDrawer } from '../guest-conversion-drawer';
 interface Props {
   profile: Partial<Profile> & { id: string; userId: string };
   cardUid: string;
+}
+
+function formatWebsiteRow(rawUrl: string): { label: string; value: string; href: string } {
+  const href = rawUrl.startsWith('http://') || rawUrl.startsWith('https://') ? rawUrl : `https://${rawUrl}`;
+  try {
+    const hostname = new URL(href).hostname.replace(/^www\./, '');
+    return { label: 'WEB', value: hostname || rawUrl, href };
+  } catch {
+    return { label: 'WEB', value: rawUrl, href };
+  }
 }
 
 export function ProfessionalProfileLayout({ profile, cardUid }: Props) {
@@ -41,17 +51,24 @@ export function ProfessionalProfileLayout({ profile, cardUid }: Props) {
     ? (profile.firstName?.[0] || '') + (profile.lastName?.[0] || '')
     : '?';
 
+  const extraSocialRows = Array.isArray(profile.socialLinks)
+    ? profile.socialLinks
+        .filter((s) => s && s.url)
+        .map((s) => ({
+          label: (s.platform || 'LINK').toUpperCase(),
+          value: 'Open link',
+          href: s.url.startsWith('http') ? s.url : `https://${s.url}`,
+        }))
+    : [];
+
   const contactRows = [
     profile.phone && { label: 'MOBILE', value: profile.phone, href: `tel:${profile.phone}` },
     profile.whatsapp && { label: 'WHATSAPP', value: 'Chat on WhatsApp', href: buildWhatsAppUrl(profile.whatsapp) },
     profile.email && { label: 'EMAIL', value: profile.email, href: `mailto:${profile.email}` },
-    profile.websiteUrl && { 
-      label: 'WEB', 
-      value: new URL(profile.websiteUrl.startsWith('http') ? profile.websiteUrl : `https://${profile.websiteUrl}`).hostname.replace('www.', ''), 
-      href: profile.websiteUrl.startsWith('http') ? profile.websiteUrl : `https://${profile.websiteUrl}` 
-    },
+    profile.websiteUrl && formatWebsiteRow(profile.websiteUrl),
     profile.linkedinUrl && { label: 'LINKEDIN', value: 'View profile', href: profile.linkedinUrl },
     profile.instagramUrl && { label: 'INSTAGRAM', value: 'View profile', href: profile.instagramUrl },
+    ...extraSocialRows,
   ].filter(Boolean) as { label: string; value: string; href: string }[];
 
   const handleShare = async () => {
@@ -250,7 +267,7 @@ export function ProfessionalProfileLayout({ profile, cardUid }: Props) {
         </div>
 
         {/* Decorative Divider */}
-        {contactRows.length > 0 && (
+        {(contactRows.length > 0 || !!profile.cvUrl) && (
           <div className="w-full flex justify-center items-center gap-3 my-12 opacity-70">
             <div className="w-16 h-[1px] bg-gradient-to-r from-transparent to-[#C9A45D]" />
             <div className="w-1.5 h-1.5 rotate-45 border border-[#C9A45D]" />
@@ -277,6 +294,23 @@ export function ProfessionalProfileLayout({ profile, cardUid }: Props) {
                 </span>
               </a>
             ))}
+          </div>
+        )}
+
+        {/* CV / Resume Button */}
+        {profile.cvUrl && (
+          <div className={`${contactRows.length > 0 ? 'mt-8' : ''} w-full max-w-sm mx-auto`}>
+            <a
+              href={profile.cvUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              id="cv-download-link"
+              className="w-full h-12 rounded-full flex items-center justify-center gap-2.5 font-medium text-[15px] tracking-wide transition-all bg-[#C9A45D]/10 hover:bg-[#C9A45D]/20 border border-[#C9A45D]/40 text-[#1A1A1A] dark:text-[#F6F1E6] active:scale-[0.98]"
+            >
+              <FileText className="w-4 h-4 text-[#B98A3D] dark:text-[#C9A45D]" />
+              <span>View Resume / CV</span>
+              <Download className="w-4 h-4 text-[#B98A3D] dark:text-[#C9A45D]" />
+            </a>
           </div>
         )}
 

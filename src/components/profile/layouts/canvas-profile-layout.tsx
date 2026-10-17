@@ -67,6 +67,16 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
     ? (profile.firstName?.[0] || '') + (profile.lastName?.[0] || '')
     : '?';
 
+  const extraSocialLinks = Array.isArray(profile.socialLinks)
+    ? profile.socialLinks
+        .filter((s) => s && s.url)
+        .map((s) => ({
+          icon: <Globe className="w-5 h-5" />,
+          href: s.url.startsWith('http') ? s.url : `https://${s.url}`,
+          label: s.platform || 'Link',
+        }))
+    : [];
+
   // Social Links mapping
   const socialLinks = [
     profile.linkedinUrl && { icon: <FaLinkedin className="w-5 h-5" />, href: profile.linkedinUrl, label: 'LinkedIn' },
@@ -74,6 +84,7 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
     profile.whatsapp && { icon: <FaWhatsapp className="w-5 h-5" />, href: buildWhatsAppUrl(profile.whatsapp), label: 'WhatsApp' },
     profile.websiteUrl && { icon: <Globe className="w-5 h-5" />, href: profile.websiteUrl, label: 'Website' },
     profile.cvUrl && { icon: <FileText className="w-5 h-5" />, href: profile.cvUrl, label: 'Resume' },
+    ...extraSocialLinks,
   ].flatMap(link => typeof link === 'object' && link !== null ? [link] : []);
 
   const bgColor = profile.layoutBackgroundColor || '#1a1a2e';
@@ -88,11 +99,11 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
 
   return (
     <div 
-      className="h-[100dvh] w-full flex flex-col relative text-white selection:bg-white/30 overflow-hidden"
+      className="min-h-[100dvh] w-full flex flex-col relative text-white selection:bg-white/30 overflow-x-hidden overflow-y-auto"
       style={{ backgroundColor: bgColor }}
     >
       {/* Home link */}
-      {viewerState.isLoggedIn && !viewerState.isOwner && (
+      {viewerState.isLoggedIn && (
         <div className="absolute top-4 left-4 z-50">
           <Link href="/dashboard" className="w-10 h-10 bg-black/40 backdrop-blur-md border border-white/10 rounded-full flex items-center justify-center text-white hover:bg-black/60 transition-colors shadow-sm">
             <Home className="w-5 h-5" />
@@ -211,102 +222,132 @@ export function CanvasProfileLayout({ profile, cardUid }: Props) {
           </div>
         )}
 
-        {/* Action Buttons — hidden for owner */}
-        {resolved && !isOwner && (
-          <div className="flex flex-col items-center justify-center gap-2 w-full max-w-[280px]">
-            {viewerState.isLoggedIn ? (
-              <>
-                <div className="flex w-full gap-2">
-                  <button
-                    onClick={handleSaveContact}
-                    aria-label="Save Contact"
-                    className="relative overflow-hidden group flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-full border border-white/30 bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-colors text-white text-xs font-bold"
-                  >
-                    <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent animate-shimmer pointer-events-none" />
-                    <span className="relative z-10 flex items-center justify-center gap-1.5">
-                      <Download className="w-3.5 h-3.5" />
-                      Save Contact
-                    </span>
-                  </button>
-                  <button
-                    onClick={saved ? undefined : handleToggleSave}
-                    aria-label={saved ? 'Already connected' : 'Save to My Connections'}
-                    disabled={saved}
-                    className={`relative overflow-hidden group flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-full border text-xs font-semibold transition-colors ${
-                      saved
-                        ? 'bg-green-400/15 text-green-300 border-green-400/20 cursor-default'
-                        : 'bg-black/20 border-white/10 hover:bg-white/10 text-white/90 backdrop-blur-sm'
-                    }`}
-                  >
-                    <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-current opacity-10 to-transparent animate-shimmer pointer-events-none" />
-                    <span className="relative z-10 flex items-center gap-1.5">
-                      {saved ? (
-                        <><UserCheck className="w-3.5 h-3.5" />Connected</>
-                      ) : (
-                        <><UserPlus className="w-3.5 h-3.5" />Connect</>
-                      )}
-                    </span>
-                  </button>
-                </div>
-                <button
-                  onClick={() => guestFlow.handleManualExchangeClick()}
-                  disabled={viewerState.exchangeStatus === 'pending' || viewerState.exchangeStatus === 'accepted'}
-                  aria-label="Exchange Details"
-                  className="relative overflow-hidden group flex items-center justify-center gap-1.5 w-full px-4 py-2 rounded-full border border-white/20 bg-black/20 backdrop-blur-sm hover:bg-black/40 transition-colors text-white text-xs font-semibold"
-                >
-                  <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-current opacity-10 to-transparent animate-shimmer pointer-events-none" />
-                  <span className="relative z-10 flex items-center gap-1.5">
-                    <MessageCircle className="w-3.5 h-3.5 text-brand-300" />
-                    {viewerState.exchangeStatus === 'accepted'
-                      ? 'Details Shared ✓'
-                      : viewerState.exchangeStatus === 'pending'
-                      ? 'Exchange Pending'
-                      : 'Exchange Details'}
-                  </span>
-                </button>
-              </>
-            ) : (
-              <>
-                <div className="flex w-full gap-2">
-                  <button
-                    onClick={handleSaveContact}
-                    aria-label="Save Contact"
-                    className="relative overflow-hidden group flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-full border border-white/30 bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-colors text-white text-xs font-bold"
-                  >
-                    <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent animate-shimmer pointer-events-none" />
-                    <span className="relative z-10 flex items-center justify-center gap-1.5">
-                      <Download className="w-3.5 h-3.5" />
-                      Save Contact
-                    </span>
-                  </button>
+        {/* Action Buttons */}
+        <div className="flex flex-col items-center justify-center gap-2 w-full max-w-[280px]">
+          {(!resolved || isOwner) && (
+            <button
+              onClick={handleSaveContact}
+              aria-label="Save Contact"
+              className="relative overflow-hidden group w-full flex items-center justify-center gap-1.5 px-4 py-2 rounded-full border border-white/30 bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-colors text-white text-xs font-bold"
+            >
+              <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent animate-shimmer pointer-events-none" />
+              <span className="relative z-10 flex items-center justify-center gap-1.5">
+                <Download className="w-3.5 h-3.5" />
+                Save Contact
+              </span>
+            </button>
+          )}
+
+          {resolved && !isOwner && (
+            <>
+              {viewerState.isLoggedIn ? (
+                <>
+                  <div className="flex w-full gap-2">
+                    <button
+                      onClick={handleSaveContact}
+                      aria-label="Save Contact"
+                      className="relative overflow-hidden group flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-full border border-white/30 bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-colors text-white text-xs font-bold"
+                    >
+                      <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent animate-shimmer pointer-events-none" />
+                      <span className="relative z-10 flex items-center justify-center gap-1.5">
+                        <Download className="w-3.5 h-3.5" />
+                        Save Contact
+                      </span>
+                    </button>
+                    <button
+                      onClick={saved ? undefined : handleToggleSave}
+                      aria-label={saved ? 'Already connected' : 'Save to My Connections'}
+                      disabled={saved}
+                      className={`relative overflow-hidden group flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-full border text-xs font-semibold transition-colors ${
+                        saved
+                          ? 'bg-green-400/15 text-green-300 border-green-400/20 cursor-default'
+                          : 'bg-black/20 border-white/10 hover:bg-white/10 text-white/90 backdrop-blur-sm'
+                      }`}
+                    >
+                      <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-current opacity-10 to-transparent animate-shimmer pointer-events-none" />
+                      <span className="relative z-10 flex items-center gap-1.5">
+                        {saved ? (
+                          <><UserCheck className="w-3.5 h-3.5" />Connected</>
+                        ) : (
+                          <><UserPlus className="w-3.5 h-3.5" />Connect</>
+                        )}
+                      </span>
+                    </button>
+                  </div>
                   <button
                     onClick={() => guestFlow.handleManualExchangeClick()}
                     disabled={viewerState.exchangeStatus === 'pending' || viewerState.exchangeStatus === 'accepted'}
                     aria-label="Exchange Details"
-                    className="relative overflow-hidden group flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-full border border-white/20 bg-black/20 backdrop-blur-sm hover:bg-black/40 transition-colors text-white text-xs font-semibold"
+                    className="relative overflow-hidden group flex items-center justify-center gap-1.5 w-full px-4 py-2 rounded-full border border-white/20 bg-black/20 backdrop-blur-sm hover:bg-black/40 transition-colors text-white text-xs font-semibold"
                   >
                     <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-current opacity-10 to-transparent animate-shimmer pointer-events-none" />
                     <span className="relative z-10 flex items-center gap-1.5">
                       <MessageCircle className="w-3.5 h-3.5 text-brand-300" />
                       {viewerState.exchangeStatus === 'accepted'
-                        ? 'Shared 👋'
+                        ? 'Details Shared ✓'
                         : viewerState.exchangeStatus === 'pending'
-                        ? 'Pending'
-                        : 'Exchange'}
+                        ? 'Exchange Pending'
+                        : 'Exchange Details'}
                     </span>
                   </button>
-                </div>
-                <Link
-                  href={`/signup?redirect=/p/${profile.slug || profile.id}`}
-                  className="flex items-center justify-center gap-1.5 w-full px-4 py-2 rounded-full border border-white/20 bg-black/20 backdrop-blur-sm hover:bg-black/40 transition-colors text-white text-xs font-semibold"
-                >
-                  <BookmarkPlus className="w-3.5 h-3.5" />
-                  Sign In to Save Connection
-                </Link>
-              </>
-            )}
-          </div>
-        )}
+                </>
+              ) : (
+                <>
+                  <div className="flex w-full gap-2">
+                    <button
+                      onClick={handleSaveContact}
+                      aria-label="Save Contact"
+                      className="relative overflow-hidden group flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-full border border-white/30 bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-colors text-white text-xs font-bold"
+                    >
+                      <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent animate-shimmer pointer-events-none" />
+                      <span className="relative z-10 flex items-center justify-center gap-1.5">
+                        <Download className="w-3.5 h-3.5" />
+                        Save Contact
+                      </span>
+                    </button>
+                    <button
+                      onClick={() => guestFlow.handleManualExchangeClick()}
+                      disabled={viewerState.exchangeStatus === 'pending' || viewerState.exchangeStatus === 'accepted'}
+                      aria-label="Exchange Details"
+                      className="relative overflow-hidden group flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-full border border-white/20 bg-black/20 backdrop-blur-sm hover:bg-black/40 transition-colors text-white text-xs font-semibold"
+                    >
+                      <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-current opacity-10 to-transparent animate-shimmer pointer-events-none" />
+                      <span className="relative z-10 flex items-center gap-1.5">
+                        <MessageCircle className="w-3.5 h-3.5 text-brand-300" />
+                        {viewerState.exchangeStatus === 'accepted'
+                          ? 'Shared 👋'
+                          : viewerState.exchangeStatus === 'pending'
+                          ? 'Pending'
+                          : 'Exchange'}
+                      </span>
+                    </button>
+                  </div>
+                  <Link
+                    href={`/signup?redirect=/p/${profile.slug || profile.id}`}
+                    className="flex items-center justify-center gap-1.5 w-full px-4 py-2 rounded-full border border-white/20 bg-black/20 backdrop-blur-sm hover:bg-black/40 transition-colors text-white text-xs font-semibold"
+                  >
+                    <BookmarkPlus className="w-3.5 h-3.5" />
+                    Sign In to Save Connection
+                  </Link>
+                </>
+              )}
+            </>
+          )}
+
+          {profile.cvUrl && (
+            <a
+              href={profile.cvUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              id="cv-download-link"
+              className="flex items-center justify-center gap-1.5 w-full px-4 py-2 rounded-full border border-white/20 bg-black/25 backdrop-blur-sm hover:bg-black/45 transition-colors text-white text-xs font-semibold"
+            >
+              <FileText className="w-3.5 h-3.5" />
+              <span>View Resume / CV</span>
+              <Download className="w-3.5 h-3.5" />
+            </a>
+          )}
+        </div>
 
         {/* Company Logo */}
         {profile.companyLogoUrl && (

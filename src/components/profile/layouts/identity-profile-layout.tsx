@@ -76,7 +76,7 @@ export function IdentityProfileLayout({ profile, cardUid }: Props) {
   return (
     <div className="min-h-[100dvh] bg-background text-foreground flex flex-col relative w-full overflow-x-hidden">
       {/* Home link */}
-      {viewerState.isLoggedIn && !viewerState.isOwner && (
+      {viewerState.isLoggedIn && (
         <div className="absolute top-4 left-4 z-50">
           <Link href="/dashboard" className="w-10 h-10 bg-background/40 backdrop-blur-md border border-border rounded-full flex items-center justify-center text-foreground hover:bg-background/60 transition-colors shadow-sm">
             <Home className="w-5 h-5" />
@@ -121,21 +121,23 @@ export function IdentityProfileLayout({ profile, cardUid }: Props) {
           <h1 className={`text-4xl font-extrabold tracking-tight text-foreground mb-1 drop-shadow-md ${getFontClass(profile.layoutFont)}`}>
             {fullName}
           </h1>
-          {(profile.jobTitle || profile.companyName) && (
+          {(profile.jobTitle || profile.companyName || profile.companyLogoUrl) && (
             <div className="flex flex-col items-center gap-1.5 mt-1 drop-shadow-md max-w-sm">
               {profile.jobTitle && (
                 <span className={`text-lg text-muted-foreground font-medium ${getFontClass(profile.layoutFont)}`}>{profile.jobTitle}</span>
               )}
-              {profile.companyName && (
+              {(profile.companyName || profile.companyLogoUrl) && (
                 <div className="flex items-center justify-center gap-2">
                   {profile.companyLogoUrl && (
                     <img 
                       src={profile.companyLogoUrl} 
                       alt={profile.companyName || 'Company Logo'}
-                      className="w-6 h-6 rounded-full object-contain bg-background p-0.5 border border-border shrink-0"
+                      className="w-7 h-7 rounded-full object-contain bg-background p-0.5 border border-border shrink-0"
                     />
                   )}
-                  <span className={`text-base text-muted-foreground font-medium ${getFontClass(profile.layoutFont)}`}>{profile.companyName}</span>
+                  {profile.companyName && (
+                    <span className={`text-base text-muted-foreground font-medium ${getFontClass(profile.layoutFont)}`}>{profile.companyName}</span>
+                  )}
                 </div>
               )}
             </div>
@@ -274,26 +276,46 @@ hover:bg-primary/90 transition-colors"
         </div>
 
         {/* Social Bar */}
-        {(profile.linkedinUrl || profile.instagramUrl) && (
-          <div className="flex justify-center gap-4 mt-2">
+        {(profile.linkedinUrl || profile.instagramUrl || (Array.isArray(profile.socialLinks) && profile.socialLinks.some(s => s?.url))) && (
+          <div className="flex flex-wrap justify-center gap-4 mt-2">
             {profile.linkedinUrl && (
-              <a href={profile.linkedinUrl} target="_blank" rel="noopener noreferrer" className="w-12 h-12 rounded-full bg-card border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-accent transition-colors">
+              <a href={profile.linkedinUrl} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" className="w-12 h-12 rounded-full bg-card border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-accent transition-colors">
                 <FaLinkedin className="w-5 h-5" />
               </a>
             )}
             {profile.instagramUrl && (
-              <a href={profile.instagramUrl} target="_blank" rel="noopener noreferrer" className="w-12 h-12 rounded-full bg-card border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-accent transition-colors">
+              <a href={profile.instagramUrl} target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="w-12 h-12 rounded-full bg-card border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-accent transition-colors">
                 <FaInstagram className="w-5 h-5" />
               </a>
             )}
+            {Array.isArray(profile.socialLinks) && profile.socialLinks.filter(s => s?.url).map((s, idx) => (
+              <a
+                key={idx}
+                href={s.url.startsWith('http') ? s.url : `https://${s.url}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={s.platform || 'Social Link'}
+                className="px-4 h-12 rounded-full bg-card border border-border flex items-center justify-center gap-2 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+              >
+                <ExternalLink className="w-4 h-4" />
+                <span>{s.platform || 'Link'}</span>
+              </a>
+            ))}
           </div>
         )}
 
         {/* CV Link */}
         {profile.cvUrl && (
-          <a href={profile.cvUrl} target="_blank" rel="noopener noreferrer" className="mt-2 flex items-center justify-center gap-2 p-4 rounded-2xl bg-card border border-border hover:bg-accent transition-colors text-card-foreground">
+          <a
+            href={profile.cvUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            id="cv-download-link"
+            className="mt-2 flex items-center justify-center gap-2.5 p-4 rounded-2xl bg-card border border-border hover:bg-accent transition-colors text-card-foreground"
+          >
             <FileText className="w-5 h-5 text-muted-foreground" />
             <span className="text-sm font-medium">View Resume / CV</span>
+            <Download className="w-4 h-4 text-muted-foreground" />
           </a>
         )}
 

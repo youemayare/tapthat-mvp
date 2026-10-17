@@ -87,7 +87,7 @@ export function ClassicProfileLayout({ profile, cardUid }: Props) {
   return (
     <main className="min-h-screen bg-background flex flex-col items-center justify-start px-4 pt-20 pb-24 relative">
       {/* Home Dashboard link if logged in */}
-      {viewerState.isLoggedIn && !viewerState.isOwner && (
+      {viewerState.isLoggedIn && (
         <div className="absolute top-4 left-4 z-50">
           <Link href="/dashboard" className="w-10 h-10 bg-card border border-border rounded-full flex items-center justify-center text-foreground hover:bg-accent transition-colors shadow-sm">
             <Home className="w-5 h-5" />
@@ -327,15 +327,15 @@ export function ClassicProfileLayout({ profile, cardUid }: Props) {
         </div>
 
         {/* ── Social Links ── */}
-        {(profile.linkedinUrl || profile.instagramUrl) && (
-          <div className="flex gap-3">
+        {(profile.linkedinUrl || profile.instagramUrl || (Array.isArray(profile.socialLinks) && profile.socialLinks.some(s => s?.url))) && (
+          <div className="flex flex-wrap gap-3">
             {profile.linkedinUrl && (
               <a
                 href={profile.linkedinUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 id="linkedin-link"
-                className="flex-1 flex items-center justify-center gap-2 py-3 px-4 bg-card text-card-foreground border border-border rounded-2xl hover:bg-accent transition-all"
+                className="flex-1 min-w-[140px] flex items-center justify-center gap-2 py-3 px-4 bg-card text-card-foreground border border-border rounded-2xl hover:bg-accent transition-all"
               >
                 <FaLinkedin className="w-4 h-4 text-brand-400" />
                 <span className="text-foreground text-sm font-medium">LinkedIn</span>
@@ -347,12 +347,24 @@ export function ClassicProfileLayout({ profile, cardUid }: Props) {
                 target="_blank"
                 rel="noopener noreferrer"
                 id="instagram-link"
-                className="flex-1 flex items-center justify-center gap-2 py-3 px-4 bg-card text-card-foreground border border-border rounded-2xl hover:bg-accent transition-all"
+                className="flex-1 min-w-[140px] flex items-center justify-center gap-2 py-3 px-4 bg-card text-card-foreground border border-border rounded-2xl hover:bg-accent transition-all"
               >
                 <FaInstagram className="w-4 h-4 text-pink-400" />
                 <span className="text-foreground text-sm font-medium">Instagram</span>
               </a>
             )}
+            {Array.isArray(profile.socialLinks) && profile.socialLinks.filter(s => s?.url).map((s, idx) => (
+              <a
+                key={idx}
+                href={s.url.startsWith('http') ? s.url : `https://${s.url}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1 min-w-[140px] flex items-center justify-center gap-2 py-3 px-4 bg-card text-card-foreground border border-border rounded-2xl hover:bg-accent transition-all"
+              >
+                <ExternalLink className="w-4 h-4 text-brand-400" />
+                <span className="text-foreground text-sm font-medium">{s.platform || 'Link'}</span>
+              </a>
+            ))}
           </div>
         )}
 
