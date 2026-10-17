@@ -106,7 +106,7 @@ export const cards = pgTable('cards', {
   // User-facing custom name (e.g. "Office Card", "Conference Card")
   label: text('label'),
 
-  // "unclaimed" | "active" | "deactivated" | "replaced" | "revoked"
+  // "unclaimed" | "active" | "deactivated" | "revoked"
   status: text('status').default('unclaimed').notNull(),
 
   activatedAt: timestamp('activated_at', { withTimezone: true }),
@@ -115,8 +115,11 @@ export const cards = pgTable('cards', {
 }, (t) => [
   index('idx_cards_card_uid').on(t.cardUid),
   index('idx_cards_user_id').on(t.userId),
-  // PostgreSQL check constraint to enforce allowed statuses at the DB level
-  sql`CHECK (status IN ('unclaimed', 'active', 'deactivated', 'revoked'))`
+  index('idx_cards_profile_id').on(t.profileId),
+  index('idx_cards_status').on(t.status),
+  // PostgreSQL check constraints to enforce allowed statuses and prevent ownerless active cards
+  sql`CHECK (status IN ('unclaimed', 'active', 'deactivated', 'revoked'))`,
+  sql`CHECK (status <> 'active' OR user_id IS NOT NULL)`,
 ]);
 
 // ─── Card Status Events (Audit Log) ──────────────────────────────────────────
@@ -163,6 +166,8 @@ export const tapEvents = pgTable('tap_events', {
   // Primary analytics queries
   index('idx_tap_events_card_time').on(t.cardId, t.tappedAt),
   index('idx_tap_events_profile_time').on(t.profileId, t.tappedAt),
+  index('idx_tap_events_profile_ip_time').on(t.profileId, t.ipHash, t.tappedAt),
+  index('idx_tap_events_profile_unique_time').on(t.profileId, t.isUnique, t.tappedAt),
   // Breakdown aggregations
   index('idx_tap_events_country').on(t.profileId, t.country),
   index('idx_tap_events_device').on(t.profileId, t.deviceType),
@@ -176,7 +181,7 @@ export const contactSaves = pgTable('contact_saves', {
   savedAt: timestamp('saved_at', { withTimezone: true }).defaultNow().notNull(),
 }, (t) => [
   index('idx_contact_saves_profile').on(t.profileId),
-  index('idx_contact_saves_profile_time').on(t.profileId, t.savedAt, sql`DESC`),
+  index('idx_contact_saves_profile_time').on(t.profileId, t.savedAt),
 ]);
 
 // ─── Connections ─────────────────────────────────────────────────────────────
@@ -191,6 +196,7 @@ export const connections = pgTable('connections', {
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
 }, (t) => [
   index('idx_connections_viewer').on(t.viewerUserId),
+  index('idx_connections_viewer_created').on(t.viewerUserId, t.createdAt),
   index('idx_connections_profile').on(t.profileId),
   unique('uq_connections_viewer_profile').on(t.viewerUserId, t.profileId),
 ]);
@@ -273,7 +279,11 @@ export const contactExchanges = pgTable('contact_exchanges', {
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 }, (t) => [
   index('idx_ce_recipient').on(t.recipientUserId, t.status),
-  // Additional indexes created in SQL migration for complex conditions
+  index('idx_ce_recipient_status_created').on(t.recipientUserId, t.status, t.createdAt),
+  index('idx_ce_source_user_created').on(t.sourceUserId, t.createdAt),
+  index('idx_ce_recipient_profile').on(t.recipientProfileId, t.createdAt),
+  index('idx_ce_dedup_email').on(t.recipientProfileId, t.emailHash),
+  index('idx_ce_dedup_phone').on(t.recipientProfileId, t.phoneHash),
 ]);
 
 export type ContactExchange = typeof contactExchanges.$inferSelect;

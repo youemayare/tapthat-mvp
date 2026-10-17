@@ -69,6 +69,7 @@ export const getCachedCardAndProfile = (sanitizedUid: string) => unstable_cache(
       .select({
         card: {
           id: cards.id,
+          userId: cards.userId,
           cardUid: cards.cardUid,
           status: cards.status,
         },

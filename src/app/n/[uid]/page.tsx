@@ -30,15 +30,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       };
     }
 
-    // Deactivated cards: temporarily unavailable
-    if (row?.card.status === 'deactivated') {
+    // Deactivated or ownerless cards: temporarily unavailable
+    if (row?.card.status === 'deactivated' || (row?.card && !row.card.userId && row.card.status !== 'unclaimed')) {
       return {
         title: 'Tayz — Card Unavailable',
         description: 'This card is temporarily unavailable.',
       };
     }
 
-    if (row?.card.status === 'active' && row.profile) {
+    if (row?.card.status === 'active' && row.card.userId && row.profile) {
       const name = [row.profile.firstName, row.profile.lastName].filter(Boolean).join(' ');
       return {
         title: `${name} — ${row.profile.jobTitle ?? 'Professional Profile'}`,
@@ -101,8 +101,8 @@ export default async function NfcTapPage({ params, searchParams }: Props) {
     );
   }
 
-  // ── Deactivated card ──
-  if (card.status === 'deactivated') {
+  // ── Deactivated or ownerless card ──
+  if (card.status === 'deactivated' || !card.userId) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-6 text-center">
         <div>
