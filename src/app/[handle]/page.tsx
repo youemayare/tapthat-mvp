@@ -1,14 +1,15 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { ProfileView } from '@/app/n/[uid]/profile-view';
-import { getCachedProfileBySlug, PROFILE_PUBLIC_COLS } from '@/lib/queries';
+import { buildProfileMetadata, getCachedProfileBySlug, PROFILE_PUBLIC_COLS } from '@/lib/queries';
 import { db } from '@/lib/db';
 import { profiles, users, cards } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
 
 // Define reserved slugs to prevent conflicts with static routes
 const RESERVED_SLUGS = new Set([
-  'dashboard', 'login', 'signup', 'api', 'n', 'p', 'settings', 'auth', '_next', 'static'
+  'dashboard', 'login', 'signup', 'api', 'n', 'p', 'settings', 'auth', 'admin',
+  'claim', 'remove-exchange', 'robots.txt', 'sitemap.xml', '_next', 'static'
 ]);
 
 interface Props {
@@ -16,40 +17,10 @@ interface Props {
   searchParams: Promise<{ tap?: string }>;
 }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { handle } = await params;
-  if (RESERVED_SLUGS.has(handle.toLowerCase())) return { title: 'Tayz' };
-
-  const profile = await getCachedProfileBySlug(handle);
-
-  if (!profile || !profile.isPublished) {
-    return { title: 'Tayz - Profile Unavailable' };
-  }
-
-  const name = [profile.firstName, profile.lastName].filter(Boolean).join(' ');
-  return {
-    title: `${name} - ${profile.jobTitle ?? 'Professional Profile'}`,
-    description: profile.bio ?? `Connect with ${name} on Tayz`,
-    openGraph: {
-      title: name,
-      description: profile.jobTitle ?? '',
-      images: profile.profilePhotoUrl ? [profile.profilePhotoUrl] : [],
-    },
-  };
-}
-
-export default async function HandleProfilePage({ params, searchParams }: Props) {
-  const { handle } = await params;
-  const { tap } = await searchParams;
-
-  if (RESERVED_SLUGS.has(handle.toLowerCase())) {
-    notFound();
-  }
-
+async function resolveHandleProfile(handle: string, tap?: string) {
   let profile = null;
 
   if (tap && typeof tap === 'string') {
-    // If it's a tap, prioritize the profile linked to the card UID
     const sanitizedUid = tap.toUpperCase();
     const result = await db
       .select({
@@ -106,6 +77,32 @@ export default async function HandleProfilePage({ params, searchParams }: Props)
     profile = await getCachedProfileBySlug(handle);
   }
 
+  return profile;
+}
+
+export async function generateMetadata({ params, searchParams }: Props): Promise<Metadata> {
+  const { handle } = await params;
+  const { tap } = await searchParams;
+  if (RESERVED_SLUGS.has(handle.toLowerCase())) return { title: 'Tayz' };
+
+  try {
+    const profile = await resolveHandleProfile(handle, tap);
+    return buildProfileMetadata(profile, `/${encodeURIComponent(handle)}`);
+  } catch {
+    return { title: 'Tayz' };
+  }
+}
+
+export default async function HandleProfilePage({ params, searchParams }: Props) {
+  const { handle } = await params;
+  const { tap } = await searchParams;
+
+  if (RESERVED_SLUGS.has(handle.toLowerCase())) {
+    notFound();
+  }
+
+  const profile = await resolveHandleProfile(handle, tap);
+
   if (!profile) {
     notFound();
   }
@@ -115,7 +112,7 @@ export default async function HandleProfilePage({ params, searchParams }: Props)
     return (
       <main className="min-h-screen bg-background flex items-center justify-center p-6 text-center">
         <div>
-          <p className="text-4xl mb-4">dY"</p>
+          <p className="text-4xl mb-4">📦</p>
           <h1 className="text-xl font-bold text-foreground mb-2">Profile Archived</h1>
           <p className="text-muted-foreground">
             This profile is no longer active.
@@ -130,7 +127,7 @@ export default async function HandleProfilePage({ params, searchParams }: Props)
     return (
       <main className="min-h-screen bg-background flex items-center justify-center p-6 text-center">
         <div>
-          <p className="text-4xl mb-4">dY~"</p>
+          <p className="text-4xl mb-4">😔</p>
           <h1 className="text-xl font-bold text-foreground mb-2">Profile Not Published</h1>
           <p className="text-muted-foreground">This person has either drafted their profile or it hasn&apos;t been published yet.</p>
         </div>

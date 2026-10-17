@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { ProfileView } from '@/app/n/[uid]/profile-view';
 import { isMultiProfileEnabled } from '@/lib/feature-flags';
-import { getCachedProfileBySlug } from '@/lib/queries';
+import { buildProfileMetadata, getCachedProfileBySlug } from '@/lib/queries';
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -14,20 +14,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const profile = await getCachedProfileBySlug(slug);
 
-  if (!profile || !profile.isPublished) {
-    return { title: 'Tayz - Profile Unavailable' };
-  }
-
-  const name = [profile.firstName, profile.lastName].filter(Boolean).join(' ');
-  return {
-    title: `${name} - ${profile.jobTitle ?? 'Professional Profile'}`,
-    description: profile.bio ?? `Connect with ${name} on Tayz`,
-    openGraph: {
-      title: name,
-      description: profile.jobTitle ?? '',
-      images: profile.profilePhotoUrl ? [profile.profilePhotoUrl] : [],
-    },
-  };
+  return buildProfileMetadata(profile, `/p/${encodeURIComponent(slug)}`);
 }
 
 /**

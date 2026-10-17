@@ -44,7 +44,10 @@ const allura = Allura({
   display: 'swap',
 });
 
+const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://tapthat.vercel.app';
+
 export const metadata: Metadata = {
+  metadataBase: new URL(appUrl),
   title: {
     default: 'Tayz — Professional Identity, One Tap Away',
     template: '%s | Tayz',
@@ -57,7 +60,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: process.env.NEXT_PUBLIC_APP_URL ?? 'https://tapthat.vercel.app',
+    url: appUrl,
     siteName: 'Tayz',
     title: 'Tayz — Professional Identity, One Tap Away',
     description:

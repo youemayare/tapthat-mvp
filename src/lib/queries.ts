@@ -1,6 +1,7 @@
+import type { Metadata } from 'next';
 import { db } from '@/lib/db';
 import { profiles, users, cards } from '@/lib/db/schema';
-import { eq, or } from 'drizzle-orm';
+import { desc, eq, or } from 'drizzle-orm';
 import { unstable_cache } from 'next/cache';
 
 // Explicit columns to minimize JSON payload size and reduce Supabase egress.
@@ -39,6 +40,61 @@ export const PROFILE_PUBLIC_COLS = {
   archivedAt: profiles.archivedAt,
 };
 
+export function buildProfileMetadata(
+  profile: {
+    firstName?: string | null;
+    lastName?: string | null;
+    jobTitle?: string | null;
+    companyName?: string | null;
+    bio?: string | null;
+    profilePhotoUrl?: string | null;
+    companyLogoUrl?: string | null;
+    isPublished?: boolean | null;
+    archivedAt?: Date | null;
+  } | null,
+  canonicalPath?: string
+): Metadata {
+  if (!profile || !profile.isPublished || profile.archivedAt) {
+    return {
+      title: 'Tayz — Profile Unavailable',
+      description: 'This profile is currently unavailable on Tayz.',
+      robots: { index: false, follow: false },
+    };
+  }
+
+  const name = [profile.firstName, profile.lastName].filter(Boolean).join(' ') || 'Tayz Member';
+  const roleParts = [profile.jobTitle, profile.companyName].filter(Boolean);
+  const roleSubtitle =
+    profile.jobTitle && profile.companyName
+      ? `${profile.jobTitle} at ${profile.companyName}`
+      : roleParts[0] || 'Professional Profile';
+
+  const title = `${name} — ${roleSubtitle}`;
+  const description =
+    profile.bio?.trim() ||
+    `Connect with ${name} (${roleSubtitle}) on Tayz — one tap to save contact details and exchange information.`;
+  const imageUrl = profile.profilePhotoUrl || profile.companyLogoUrl || undefined;
+
+  return {
+    title,
+    description,
+    openGraph: {
+      type: 'profile',
+      siteName: 'Tayz',
+      title,
+      description,
+      ...(canonicalPath ? { url: canonicalPath } : {}),
+      images: imageUrl ? [{ url: imageUrl, alt: name }] : [],
+    },
+    twitter: {
+      card: imageUrl ? 'summary_large_image' : 'summary',
+      title,
+      description,
+      images: imageUrl ? [imageUrl] : [],
+    },
+  };
+}
+
 // Caches the profile fetch for /p/[slug] at the Vercel Edge.
 // TTL is 5 minutes (300 seconds), but can be busted instantly via revalidateTag('profile-${slugOrId}').
 export const getCachedProfileBySlug = (slugOrId: string) => unstable_cache(
@@ -53,6 +109,7 @@ export const getCachedProfileBySlug = (slugOrId: string) => unstable_cache(
       .from(profiles)
       .leftJoin(users, eq(profiles.userId, users.id))
       .where(isId ? eq(profiles.id, slugOrId) : or(eq(profiles.slug, slugOrId), eq(users.handle, slugOrId)))
+      .orderBy(desc(profiles.isDefault))
       .limit(1);
     
     return result[0] ?? null;

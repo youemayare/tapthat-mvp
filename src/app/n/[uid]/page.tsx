@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { notFound, redirect } from 'next/navigation';
 import { ClaimCard } from './claim-card';
 import { ProfileView } from './profile-view';
-import { getCachedCardAndProfile } from '@/lib/queries';
+import { buildProfileMetadata, getCachedCardAndProfile } from '@/lib/queries';
 
 interface Props {
   params: Promise<{ uid: string }>;
@@ -39,16 +39,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     }
 
     if (row?.card.status === 'active' && row.card.userId && row.profile) {
-      const name = [row.profile.firstName, row.profile.lastName].filter(Boolean).join(' ');
-      return {
-        title: `${name} — ${row.profile.jobTitle ?? 'Professional Profile'}`,
-        description: row.profile.bio ?? `Connect with ${name} on Tayz`,
-        openGraph: {
-          title: name,
-          description: row.profile.jobTitle ?? '',
-          images: row.profile.profilePhotoUrl ? [row.profile.profilePhotoUrl] : [],
-        },
-      };
+      return buildProfileMetadata(row.profile);
     }
   } catch {
     // DB not connected during build — return default metadata
