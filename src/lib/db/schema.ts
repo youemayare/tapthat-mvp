@@ -11,7 +11,7 @@ export const users = pgTable('users', {
   authProvider: text('auth_provider').default('email'),
   handle: text('handle').unique(),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
-  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull().$onUpdate(() => new Date()),
 });
 
 // ─── Profiles ────────────────────────────────────────────────────────────────
@@ -82,7 +82,7 @@ export const profiles = pgTable('profiles', {
   walletHeroImageUrl: text('wallet_hero_image_url'),
 
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
-  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull().$onUpdate(() => new Date()),
 }, (t) => [
   index('idx_profiles_slug').on(t.slug),
   index('idx_profiles_user_id').on(t.userId),
@@ -111,7 +111,7 @@ export const cards = pgTable('cards', {
 
   activatedAt: timestamp('activated_at', { withTimezone: true }),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
-  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull().$onUpdate(() => new Date()),
 }, (t) => [
   index('idx_cards_card_uid').on(t.cardUid),
   index('idx_cards_user_id').on(t.userId),
@@ -225,7 +225,7 @@ export const connectionNotes = pgTable('connection_notes', {
   audioSize: integer('audio_size'),
   audioDuration: integer('audio_duration'),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
-  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull().$onUpdate(() => new Date()),
 }, (t) => [
   index('idx_connection_notes_conn').on(t.connectionId),
   index('idx_connection_notes_owner').on(t.ownerUserId),
@@ -276,7 +276,7 @@ export const contactExchanges = pgTable('contact_exchanges', {
   erasureTokenHash: text('erasure_token_hash').unique(),
 
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
-  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull().$onUpdate(() => new Date()),
 }, (t) => [
   index('idx_ce_recipient').on(t.recipientUserId, t.status),
   index('idx_ce_recipient_status_created').on(t.recipientUserId, t.status, t.createdAt),
