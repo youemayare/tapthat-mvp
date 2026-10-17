@@ -1,13 +1,14 @@
 import type { MetadataRoute } from 'next';
+import { getBaseUrl } from '@/lib/utils';
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = (process.env.NEXT_PUBLIC_APP_URL ?? 'https://tapthat.vercel.app').replace(/\/$/, '');
+  const baseUrl = getBaseUrl();
 
   return {
     rules: [
       {
         userAgent: '*',
-        allow: '/',
+        allow: ['/', '/api/og/'],
         disallow: [
           '/dashboard/',
           '/admin/',

@@ -2,9 +2,10 @@ import type { MetadataRoute } from 'next';
 import { db } from '@/lib/db';
 import { profiles, users } from '@/lib/db/schema';
 import { and, eq, isNull } from 'drizzle-orm';
+import { getBaseUrl } from '@/lib/utils';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = (process.env.NEXT_PUBLIC_APP_URL ?? 'https://tapthat.vercel.app').replace(/\/$/, '');
+  const baseUrl = getBaseUrl();
 
   const entries: MetadataRoute.Sitemap = [
     {

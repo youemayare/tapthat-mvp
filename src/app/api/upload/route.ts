@@ -130,11 +130,25 @@ export async function POST(req: Request) {
         .toBuffer();
       finalMime = fileTypeResult.mime; // unchanged
       finalExt  = isPng ? 'png' : 'jpg';
-    } else if (type === 'avatar' || type === 'logo') {
-      // Google Wallet and native vCard readers reject .webp for pass logos/photos.
-      // Output PNG for PNG/WebP/GIF inputs (preserving transparency for logos) and JPEG for JPEG inputs.
+    } else if (type === 'avatar') {
+      // Profile photos have no meaningful alpha channel and client croppers often export PNG blobs.
+      // Encode as progressive JPEG (~80-150 KB instead of >1 MB PNG) for WhatsApp OG previews, Google Wallet, and vCard.
+      processedBuffer = await sharp(rawBuffer)
+        .rotate()
+        .resize(MAX_IMAGE_DIMENSION, MAX_IMAGE_DIMENSION, {
+          fit: 'inside',
+          withoutEnlargement: true,
+        })
+        .flatten({ background: '#0f0f19' })
+        .jpeg({ quality: 86, progressive: true, mozjpeg: true })
+        .toBuffer();
+      finalMime = 'image/jpeg';
+      finalExt  = 'jpg';
+    } else if (type === 'logo') {
+      // Company logos may have transparent backgrounds; preserve PNG for PNG/WebP/GIF inputs.
       const isJpeg = fileTypeResult.mime === 'image/jpeg';
       processedBuffer = await sharp(rawBuffer)
+        .rotate()
         .resize(MAX_IMAGE_DIMENSION, MAX_IMAGE_DIMENSION, {
           fit: 'inside',
           withoutEnlargement: true,

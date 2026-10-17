@@ -40,8 +40,11 @@ export const PROFILE_PUBLIC_COLS = {
   archivedAt: profiles.archivedAt,
 };
 
+import { getBaseUrl } from '@/lib/utils';
+
 export function buildProfileMetadata(
   profile: {
+    id?: string | null;
     firstName?: string | null;
     lastName?: string | null;
     jobTitle?: string | null;
@@ -62,6 +65,7 @@ export function buildProfileMetadata(
     };
   }
 
+  const baseUrl = getBaseUrl();
   const name = [profile.firstName, profile.lastName].filter(Boolean).join(' ') || 'Tayz Member';
   const roleParts = [profile.jobTitle, profile.companyName].filter(Boolean);
   const roleSubtitle =
@@ -73,7 +77,14 @@ export function buildProfileMetadata(
   const description =
     profile.bio?.trim() ||
     `Connect with ${name} (${roleSubtitle}) on Tayz — one tap to save contact details and exchange information.`;
-  const imageUrl = profile.profilePhotoUrl || profile.companyLogoUrl || undefined;
+
+  const rawImageUrl = profile.profilePhotoUrl || profile.companyLogoUrl || undefined;
+  let ogImageUrl = rawImageUrl;
+  if (rawImageUrl && profile.id) {
+    const versionMatch = rawImageUrl.match(/([a-f0-9]{8,32})\.[a-z0-9]+$/i);
+    const versionParam = versionMatch ? `?v=${versionMatch[1].slice(-8)}` : '';
+    ogImageUrl = `${baseUrl}/api/og/profile/${profile.id}.jpg${versionParam}`;
+  }
 
   return {
     title,
@@ -83,14 +94,25 @@ export function buildProfileMetadata(
       siteName: 'Tayz',
       title,
       description,
-      ...(canonicalPath ? { url: canonicalPath } : {}),
-      images: imageUrl ? [{ url: imageUrl, alt: name }] : [],
+      ...(canonicalPath ? { url: `${baseUrl}${canonicalPath}` } : {}),
+      images: ogImageUrl
+        ? [
+            {
+              url: ogImageUrl,
+              secureUrl: ogImageUrl,
+              width: 600,
+              height: 600,
+              type: 'image/jpeg',
+              alt: name,
+            },
+          ]
+        : [],
     },
     twitter: {
-      card: imageUrl ? 'summary_large_image' : 'summary',
+      card: 'summary',
       title,
       description,
-      images: imageUrl ? [imageUrl] : [],
+      images: ogImageUrl ? [ogImageUrl] : [],
     },
   };
 }

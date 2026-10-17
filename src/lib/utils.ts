@@ -46,7 +46,19 @@ export function formatNumber(n: number): string {
 /** Get the base app URL */
 export function getBaseUrl(): string {
   if (typeof window !== 'undefined') return window.location.origin;
-  if (process.env.NEXT_PUBLIC_APP_URL) return process.env.NEXT_PUBLIC_APP_URL;
+  if (process.env.VERCEL_PROJECT_PRODUCTION_URL) {
+    return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`;
+  }
+  if (
+    process.env.NEXT_PUBLIC_APP_URL &&
+    !process.env.NEXT_PUBLIC_APP_URL.includes('tayz.ae') &&
+    !process.env.NEXT_PUBLIC_APP_URL.includes('localhost')
+  ) {
+    return process.env.NEXT_PUBLIC_APP_URL.replace(/\/$/, '');
+  }
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`;
+  }
   return 'https://tapthat.vercel.app';
 }
 

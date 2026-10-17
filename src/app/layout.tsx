@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { Inter, Geist, Playfair_Display, Orbitron, Courier_Prime, Archivo_Black, Allura } from 'next/font/google';
 import './globals.css';
-import { cn } from "@/lib/utils";
+import { cn, getBaseUrl } from "@/lib/utils";
 
 const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
@@ -44,7 +44,7 @@ const allura = Allura({
   display: 'swap',
 });
 
-const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://tapthat.vercel.app';
+const appUrl = getBaseUrl();
 
 export const metadata: Metadata = {
   metadataBase: new URL(appUrl),
