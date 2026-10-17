@@ -5,6 +5,7 @@ import { eq } from 'drizzle-orm';
 import { z } from 'zod';
 import crypto from 'crypto';
 import { exchangeIpRatelimit } from '@/lib/ratelimit';
+import { verifyTurnstileToken } from '@/lib/security';
 
 const anonymousExchangeSchema = z.object({
   targetProfileId: z.string().uuid(),
@@ -22,27 +23,10 @@ const anonymousExchangeSchema = z.object({
   }),
 });
 
-async function verifyTurnstileToken(token: string) {
-  const secret = process.env.TURNSTILE_SECRET_KEY;
-  if (!secret) {
-    console.warn('TURNSTILE_SECRET_KEY is not set. Bypassing check in development.');
-    return process.env.NODE_ENV === 'development';
-  }
-
-  const res = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: `secret=${encodeURIComponent(secret)}&response=${encodeURIComponent(token)}`,
-  });
-
-  const data = await res.json();
-  return data.success;
-}
-
 export async function POST(req: Request) {
   try {
     // 1. IP Rate Limiting (Anonymous is higher risk)
-    const ip = req.headers.get('x-forwarded-for') ?? '127.0.0.1';
+    const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? '127.0.0.1';
     const { success: ipSuccess } = await exchangeIpRatelimit.limit(ip);
     if (!ipSuccess) {
       return NextResponse.json({ error: 'Too many requests. Please try again later.' }, { status: 429 });
@@ -57,8 +41,12 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Either email or phone is required' }, { status: 400 });
     }
 
-    // 3. Verify Turnstile
-    const isValidToken = await verifyTurnstileToken(validatedData.turnstileToken);
+    // 3. Verify Turnstile (with hostname, action, and client IP binding)
+    const isValidToken = await verifyTurnstileToken(validatedData.turnstileToken, {
+      remoteIp: ip,
+      expectedAction: 'anonymous_exchange',
+      requestHost: req.headers.get('x-forwarded-host') || req.headers.get('host'),
+    });
     if (!isValidToken) {
       return NextResponse.json({ error: 'Invalid captcha verification' }, { status: 400 });
     }

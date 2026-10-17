@@ -184,12 +184,73 @@ export function generateRequestId(): string {
   return crypto.randomUUID().replace(/-/g, '').slice(0, 12);
 }
 
-// ?? Turnstile Verification ??
+// ─── Turnstile Verification ──────────────────────────────────────────────────
+
+export interface VerifyTurnstileOptions {
+  remoteIp?: string | null;
+  expectedAction?: string;
+  requestHost?: string | null;
+}
+
+function getAllowedTurnstileHostnames(requestHost?: string | null): Set<string> {
+  const allowed = new Set<string>([
+    'tapthat.vercel.app',
+    'tayz.ae',
+    'www.tayz.ae',
+    'tayz.app',
+    'www.tayz.app',
+    'tayz.com',
+    'www.tayz.com',
+  ]);
+
+  if (process.env.NEXT_PUBLIC_APP_URL) {
+    try {
+      allowed.add(new URL(process.env.NEXT_PUBLIC_APP_URL).hostname.toLowerCase());
+    } catch {
+      // Ignore malformed URL env var
+    }
+  }
+
+  if (process.env.VERCEL_URL) {
+    allowed.add(process.env.VERCEL_URL.toLowerCase().split(':')[0]);
+  }
+
+  if (process.env.VERCEL_PROJECT_PRODUCTION_URL) {
+    allowed.add(process.env.VERCEL_PROJECT_PRODUCTION_URL.toLowerCase().split(':')[0]);
+  }
+
+  if (process.env.TURNSTILE_ALLOWED_HOSTNAMES) {
+    for (const host of process.env.TURNSTILE_ALLOWED_HOSTNAMES.split(',')) {
+      const trimmed = host.trim().toLowerCase();
+      if (trimmed) allowed.add(trimmed);
+    }
+  }
+
+  // Allow the active request host if it is a Vercel deployment preview (*.vercel.app)
+  if (requestHost) {
+    const cleanHost = requestHost.split(',')[0].trim().toLowerCase().split(':')[0];
+    if (cleanHost.endsWith('.vercel.app')) {
+      allowed.add(cleanHost);
+    }
+  }
+
+  if (process.env.NODE_ENV !== 'production') {
+    allowed.add('localhost');
+    allowed.add('127.0.0.1');
+    allowed.add('example.com'); // Cloudflare Turnstile dummy test key hostname
+  }
+
+  return allowed;
+}
 
 /**
- * Verifies a Cloudflare Turnstile token with the siteverify API.
+ * Verifies a Cloudflare Turnstile token with the siteverify API, including
+ * hostname and action validation to prevent cross-site / cross-action token replay.
  */
-export async function verifyTurnstileToken(token: string): Promise<boolean> {
+export async function verifyTurnstileToken(
+  token: string,
+  options?: VerifyTurnstileOptions
+): Promise<boolean> {
   const secret = process.env.TURNSTILE_SECRET_KEY;
   if (!secret) {
     console.warn('TURNSTILE_SECRET_KEY is not set. Bypassing check in development.');
@@ -197,19 +258,63 @@ export async function verifyTurnstileToken(token: string): Promise<boolean> {
   }
 
   try {
+    const params = new URLSearchParams({
+      secret,
+      response: token,
+      idempotency_key: crypto.randomUUID(),
+    });
+
+    const remoteIp = options?.remoteIp?.split(',')[0]?.trim();
+    if (remoteIp && remoteIp !== '0.0.0.0' && remoteIp !== '127.0.0.1') {
+      params.set('remoteip', remoteIp);
+    }
+
     const res = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
-      body: new URLSearchParams({
-        secret,
-        response: token,
-      }),
+      body: params,
+      signal: AbortSignal.timeout(8000),
     });
 
-    const data = await res.json();
-    return data.success === true;
+    if (!res.ok) {
+      return false;
+    }
+
+    const data = (await res.json()) as {
+      success?: boolean;
+      hostname?: string;
+      action?: string;
+    };
+
+    if (data.success !== true) {
+      return false;
+    }
+
+    // Verify the challenge was solved on an expected hostname
+    if (typeof data.hostname === 'string' && data.hostname.length > 0) {
+      const allowedHostnames = getAllowedTurnstileHostnames(options?.requestHost);
+      if (!allowedHostnames.has(data.hostname.toLowerCase())) {
+        console.warn(`[Turnstile] Rejected unexpected hostname: ${data.hostname}`);
+        return false;
+      }
+    } else if (process.env.NODE_ENV === 'production') {
+      return false;
+    }
+
+    // Verify the challenge action matches if one was emitted by the widget
+    if (
+      options?.expectedAction &&
+      typeof data.action === 'string' &&
+      data.action.length > 0 &&
+      data.action !== options.expectedAction
+    ) {
+      console.warn(`[Turnstile] Rejected unexpected action: ${data.action}`);
+      return false;
+    }
+
+    return true;
   } catch (error) {
     console.error('Turnstile verification failed', error);
     return false;

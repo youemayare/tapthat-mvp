@@ -48,7 +48,18 @@ export async function GET(req: Request, { params }: { params: Promise<{ path: st
     if (
       !Array.isArray(resolvedParams.path) ||
       resolvedParams.path.length !== 3 ||
-      resolvedParams.path.some((seg) => !seg || seg === '.' || seg === '..' || seg.includes('/') || seg.includes('\\'))
+      resolvedParams.path.some(
+        (seg) =>
+          !seg ||
+          seg === '.' ||
+          seg.includes('..') ||
+          seg.includes('/') ||
+          seg.includes('\\') ||
+          seg.includes('\0') ||
+          /%2e|%2f|%5c/i.test(seg)
+      ) ||
+      resolvedParams.path[0] !== 'private-audio' ||
+      resolvedParams.path[1] !== user.id
     ) {
       return new NextResponse('Forbidden', { status: 403 });
     }

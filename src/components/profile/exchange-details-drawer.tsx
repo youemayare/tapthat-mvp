@@ -438,7 +438,7 @@ export function ExchangeDetailsDrawer({
                   <Turnstile 
                     siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
                     onSuccess={(token) => setFormData(p => ({ ...p, turnstileToken: token }))}
-                    options={{ theme: 'auto', size: 'compact' }}
+                    options={{ theme: 'auto', size: 'compact', action: 'anonymous_exchange' }}
                   />
                 ) : null}
               </div>
